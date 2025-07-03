@@ -1,0 +1,23 @@
+.board-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+}
+
+.board-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .board-vertical {
+    gap: 16px;
+  }
+  .board-row {
+    gap: 6px;
+  }
+}
