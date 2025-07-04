@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
-import { SOCKET_SERVER_URL } from "../const/const";
-import type { PlayersUpdate } from "../interfaces/server/server_interfaces";
+import { SOCKET_SERVER_URL } from "../../const/const";
+import type { PlayersUpdate } from "../../interfaces/server/server_interfaces";
 import { nanoid } from "nanoid";
 import { useNavigate } from "react-router-dom";
 
@@ -38,7 +38,8 @@ export function useRoomSocket({
       socketRef.current?.disconnect();
       socketRef.current = null;
       navigate("/");
-    }},[roomId]);
+    }
+  }, [roomId]);
 
   useEffect(() => {
     console.log("useRoomSocket effect", roomId, nickname);
@@ -63,6 +64,5 @@ export function useRoomSocket({
     };
   }, [roomId]);
 
-  
   return { updateNickname, disconect };
 }

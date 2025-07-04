@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { useRoomSocket } from "../../hooks/useRoomSocket";
+import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 
 function Room() {
   const { roomId } = useParams();
@@ -13,7 +13,7 @@ function Room() {
 
   const [tempNickname, setTempNickname] = useState<string>("");
 
-  const { updateNickname,disconect } = useRoomSocket({
+  const { updateNickname, disconect } = useRoomSocket({
     roomId: roomId,
     nickname,
     onPlayersUpdate: (playerList) => {
@@ -22,11 +22,10 @@ function Room() {
         (p) => p.playerId === localStorage.getItem("playerId")
       );
       setIsHost(!!me?.isHost);
-    }
+    },
   });
 
-  const startGame = () => {
-  };
+  const startGame = () => {};
 
   // Si no hay nickname, pedirlo antes de entrar a la sala
   if (!mostrarSala) {
