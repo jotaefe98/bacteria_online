@@ -1,6 +1,6 @@
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
-import Lobby from './components/Lobby/Lobby';
-import Room from './components/Room/Room';
+import Lobby from './pages/Lobby/Lobby';
+import Room from './pages/Room/Room';
 
 
 

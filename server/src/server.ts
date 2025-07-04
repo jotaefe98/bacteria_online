@@ -2,7 +2,12 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { DataJoinRoom, DataUpdateNickname, Player, Room } from "./types/interfaces";
+import {
+  DataJoinRoom,
+  DataUpdateNickname,
+  Player,
+  Room,
+} from "./types/interfaces";
 
 const app = express();
 app.use(cors());
@@ -51,13 +56,11 @@ io.on("connection", (socket) => {
     console.log(`Player ${nickname} joined room ${roomId}`);
   });
 
-   socket.on("update-nickname", (data: DataUpdateNickname) => {
+  socket.on("update-nickname", (data: DataUpdateNickname) => {
     const { roomId, nickname } = data;
 
     // Find the player in the room
-    const player = rooms[roomId]?.players.find(
-      (p) => p.socketId === socket.id
-    );
+    const player = rooms[roomId]?.players.find((p) => p.socketId === socket.id);
 
     if (player) {
       player.nickname = nickname;
@@ -66,7 +69,7 @@ io.on("connection", (socket) => {
     } else {
       console.error(`Player not found in room ${roomId}`);
     }
-   });
+  });
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
