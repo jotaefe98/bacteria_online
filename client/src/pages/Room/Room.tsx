@@ -1,66 +1,31 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
-import { SOCKET_SERVER_URL } from "../../const/const";
-import { nanoid } from "nanoid";
-import type { PlayersUpdate } from "../../interfaces/server/server_interfaces";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useRoomSocket } from "../../hooks/useRoomSocket";
 
 function Room() {
   const { roomId } = useParams();
-  const navigate = useNavigate();
-  const socketRef = useRef<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isHost, setIsHost] = useState(false);
   const [nickname, setNickname] = useState<string>(
     () => localStorage.getItem("nickname") || ""
   );
-  const [mostrarSala, setMostrarSala] = useState(!!nickname); 
+  const [mostrarSala, setMostrarSala] = useState(!!nickname);
 
   const [tempNickname, setTempNickname] = useState<string>("");
 
-  useEffect(() => {
-    let playerId: string | null = localStorage.getItem("playerId");
-
-    if (!playerId) {
-      playerId = nanoid(12);
-      localStorage.setItem("playerId", playerId);
+  const { updateNickname,disconect } = useRoomSocket({
+    roomId: roomId,
+    nickname,
+    onPlayersUpdate: (playerList) => {
+      setPlayers(playerList.map((p) => p.nickname));
+      const me = playerList.find(
+        (p) => p.playerId === localStorage.getItem("playerId")
+      );
+      setIsHost(!!me?.isHost);
     }
-
-
-    if (!mostrarSala) return;
-
-    socketRef.current = io(SOCKET_SERVER_URL);
-
-    socketRef.current.emit("join-room", { roomId, playerId, nickname });
-
-    socketRef.current.on("players-update", (playerList: PlayersUpdate[]) => {
-      const nicknames = playerList.map((p) => p.nickname);
-      setPlayers(nicknames);
-
-      const me = playerList.find((p) => p.playerId === playerId);
-      if (!!me?.isHost) setIsHost(true);
-    });
-
-    socketRef.current.on("force-disconnect", () => {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
-      navigate("/");
-    });
-
-    return () => {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
-    };
-  }, [roomId, mostrarSala]);
-
-  useEffect(()=>{
-    if(socketRef.current){
-     socketRef.current.emit("update-nickname", { roomId, nickname });
-    }
-  },[nickname]);
+  });
 
   const startGame = () => {
-    socketRef.current?.emit("start-game", roomId);
   };
 
   // Si no hay nickname, pedirlo antes de entrar a la sala
@@ -79,6 +44,7 @@ function Room() {
             if (tempNickname.trim()) {
               localStorage.setItem("nickname", tempNickname.trim());
               setNickname(tempNickname.trim());
+              updateNickname(tempNickname.trim());
               setMostrarSala(true);
             }
           }}
@@ -106,6 +72,7 @@ function Room() {
           if (tempNickname.trim()) {
             localStorage.setItem("nickname", tempNickname.trim());
             setNickname(tempNickname.trim());
+            updateNickname(tempNickname.trim());
             setTempNickname("");
           }
         }}
@@ -130,10 +97,7 @@ function Room() {
 
       <button
         onClick={() => {
-          socketRef.current?.disconnect();
-          socketRef.current = null;
-          localStorage.removeItem("currentRoomId");
-          navigate("/");
+          disconect();
         }}
       >
         Salir de la sala

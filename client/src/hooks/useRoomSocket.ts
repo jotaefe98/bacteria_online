@@ -1,87 +1,68 @@
-import { useEffect, useRef, useCallback, use } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../const/const";
 import type { PlayersUpdate } from "../interfaces/server/server_interfaces";
+import { nanoid } from "nanoid";
+import { useNavigate } from "react-router-dom";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
   nickname: string;
   onPlayersUpdate: (players: PlayersUpdate[]) => void;
-  onForceDisconnect: () => void;
 };
 
-export function useRoomSocket({roomId, nickname}:{ roomId: string; nickname: string }){
-  const socketRef = useRef<Socket | null>(null);
-
-  console.log("useRoomSocket", roomId, nickname);
-
-  useEffect(() => {
-    socketRef.current = io(SOCKET_SERVER_URL);
-
-    
-
-    return () => {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
-    }
-  }, []);
-}
-
-export function useRoomSocketTST({
+export function useRoomSocket({
   roomId,
   nickname,
   onPlayersUpdate,
-  onForceDisconnect,
 }: UseRoomSocketProps) {
   const socketRef = useRef<Socket | null>(null);
+  const navigate = useNavigate();
 
-  // Conexión y eventos
-  useEffect(() => {
-    if (!roomId || !nickname) return;
+  console.log("nickname", nickname);
 
-    const playerId =
-      localStorage.getItem("playerId") ||
-      (() => {
-        const id = crypto.randomUUID();
-        localStorage.setItem("playerId", id);
-        return id;
-      })();
-
-    socketRef.current = io(SOCKET_SERVER_URL);
-
-    socketRef.current.emit("join-room", { roomId, playerId, nickname });
-
-    socketRef.current.on("players-update", onPlayersUpdate);
-    socketRef.current.on("force-disconnect", onForceDisconnect);
-
-    return () => {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
-    };
-  }, [roomId, nickname, onPlayersUpdate, onForceDisconnect]);
-
-  // Cambiar nickname
   const updateNickname = useCallback(
     (newNickname: string) => {
       if (socketRef.current && roomId) {
-        socketRef.current.emit("update-nickname", { roomId, nickname: newNickname });
+        socketRef.current.emit("update-nickname", {
+          roomId,
+          nickname: newNickname,
+        });
       }
     },
     [roomId]
   );
 
-  // Iniciar juego
-  const startGame = useCallback(() => {
-    if (socketRef.current && roomId) {
-      socketRef.current.emit("start-game", roomId);
+  const disconect = useCallback(() => {
+    if (socketRef.current) {
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+      navigate("/");
+    }},[roomId]);
+
+  useEffect(() => {
+    console.log("useRoomSocket effect", roomId, nickname);
+    let playerId: string | null = localStorage.getItem("playerId");
+
+    if (!playerId) {
+      playerId = nanoid(12);
+      localStorage.setItem("playerId", playerId);
     }
+
+    console.log("Player ID:", playerId);
+
+    socketRef.current = io(SOCKET_SERVER_URL);
+
+    socketRef.current.emit("join-room", { roomId, playerId, nickname });
+    socketRef.current.on("players-update", onPlayersUpdate);
+    socketRef.current.on("force-disconnect", disconect);
+
+    return () => {
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+    };
   }, [roomId]);
 
-  // Salir de la sala
-  const leaveRoom = useCallback(() => {
-    socketRef.current?.disconnect();
-    socketRef.current = null;
-  }, []);
-
-  return { updateNickname, startGame, leaveRoom };
+  
+  return { updateNickname, disconect };
 }
