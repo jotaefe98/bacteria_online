@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../../const/const";
 import { nanoid } from "nanoid";
+import type { PlayersUpdate } from "../../interfaces/server/server_interfaces";
 
 function Room() {
   const { roomId } = useParams();
@@ -13,6 +14,8 @@ function Room() {
   const [nickname, setNickname] = useState<string>(
     () => localStorage.getItem("nickname") || ""
   );
+  const [mostrarSala, setMostrarSala] = useState(!!nickname); 
+
   const [tempNickname, setTempNickname] = useState<string>("");
 
   useEffect(() => {
@@ -23,36 +26,45 @@ function Room() {
       localStorage.setItem("playerId", playerId);
     }
 
-    // Solo conectar si hay nickname
-    if (!nickname) return;
+
+    if (!mostrarSala) return;
 
     socketRef.current = io(SOCKET_SERVER_URL);
 
     socketRef.current.emit("join-room", { roomId, playerId, nickname });
 
-    socketRef.current.on("players-update", (playerList: string[]) => {
-      setPlayers(playerList);
+    socketRef.current.on("players-update", (playerList: PlayersUpdate[]) => {
+      const nicknames = playerList.map((p) => p.nickname);
+      setPlayers(nicknames);
+
+      const me = playerList.find((p) => p.playerId === playerId);
+      if (!!me?.isHost) setIsHost(true);
+    });
+
+    socketRef.current.on("force-disconnect", () => {
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+      navigate("/");
     });
 
     return () => {
       socketRef.current?.disconnect();
       socketRef.current = null;
     };
-  }, [roomId, nickname]);
+  }, [roomId, mostrarSala]);
 
-  // TODO: This should be handled in the backend
-  useEffect(() => {
-    if (players.length <= 1 && !isHost) {
-      setIsHost(true);
+  useEffect(()=>{
+    if(socketRef.current){
+     socketRef.current.emit("update-nickname", { roomId, nickname });
     }
-  }, [players, isHost]);
+  },[nickname]);
 
   const startGame = () => {
     socketRef.current?.emit("start-game", roomId);
   };
 
   // Si no hay nickname, pedirlo antes de entrar a la sala
-  if (!nickname) {
+  if (!mostrarSala) {
     return (
       <div className="room">
         <h2>Introduce tu nickname para entrar a la sala</h2>
@@ -67,6 +79,7 @@ function Room() {
             if (tempNickname.trim()) {
               localStorage.setItem("nickname", tempNickname.trim());
               setNickname(tempNickname.trim());
+              setMostrarSala(true);
             }
           }}
         >
@@ -80,14 +93,41 @@ function Room() {
     <div className="room">
       <h1>Room</h1>
       <p>This is the room with id: {roomId}.</p>
+      <p>Your nickname: {nickname}</p>
+      <input
+        type="text"
+        placeholder="Cambiar nickname"
+        value={tempNickname}
+        onChange={(e) => setTempNickname(e.target.value)}
+        style={{ marginRight: "8px" }}
+      />
+      <button
+        onClick={() => {
+          if (tempNickname.trim()) {
+            localStorage.setItem("nickname", tempNickname.trim());
+            setNickname(tempNickname.trim());
+            setTempNickname("");
+          }
+        }}
+        disabled={!tempNickname.trim()}
+      >
+        Cambiar
+      </button>
+      {isHost && <p>You are the host</p>}
       <h2>Players in room:</h2>
       <ul>
         {players.map((player, idx) => (
           <li key={idx}>{player}</li>
         ))}
       </ul>
+      {isHost ? (
+        <p>You can start the game.</p>
+      ) : (
+        <p>Waiting for the host to start the game...</p>
+      )}
+
       {isHost && <button onClick={startGame}>Start Game</button>}
-      <p>Esperando a que todos los jugadores se conecten...</p>
+
       <button
         onClick={() => {
           socketRef.current?.disconnect();
