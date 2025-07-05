@@ -31,9 +31,7 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
 
-    // If room does not exist, create it
-    if (!rooms[roomId]) rooms[roomId] = { players: [], has_started: false };
-
+    console.log(rooms);
     const existingPlayer = rooms[roomId].players.find(
       (p) => p.playerId === playerId
     );
@@ -50,6 +48,9 @@ io.on("connection", (socket) => {
         isHost: isFirstPlayer,
       });
     }
+
+    // If a user joins in a room, then it is not new anymore
+    if(rooms[roomId].new_room) rooms[roomId].new_room = false;
 
     playersUpdate(roomId);
 
@@ -69,6 +70,13 @@ io.on("connection", (socket) => {
     } else {
       console.error(`Player not found in room ${roomId}`);
     }
+  });
+
+  socket.on("create-room", (roomId: string) => {
+     if (!rooms[roomId]) rooms[roomId] = { players: [], has_started: false,new_room: true };
+     console.log(`Room created with ID: ${roomId}`);
+     console.log("Current rooms:", rooms);
+     socket.emit("room-created", roomId); 
   });
 
   socket.on("disconnect", () => {
@@ -95,7 +103,7 @@ io.on("connection", (socket) => {
         playersUpdate(roomId);
       }
 
-      if (playersLength === 0) {
+      if (playersLength === 0 && !rooms[roomId].new_room) {
         delete rooms[roomId];
       }
     }

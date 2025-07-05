@@ -1,8 +1,8 @@
 export interface Player {
   playerId: string;
-  nickname: string;
+  nickname?: string;
   socketId: string;
-  isHost: boolean;
+  isHost?: boolean;
 }
 
 export interface DataJoinRoom {
@@ -15,6 +15,9 @@ export interface DataJoinRoom {
 export interface Room {
   players: Player[],
   has_started: boolean,
+  // Indicates if the room is new (just created), for no deleting it
+  // when the first player leaves
+  new_room: boolean;
 }
 
 export interface DataUpdateNickname {

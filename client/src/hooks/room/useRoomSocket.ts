@@ -2,8 +2,8 @@ import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../../const/const";
 import type { PlayersUpdate } from "../../interfaces/server/server_interfaces";
-import { nanoid } from "nanoid";
 import { useNavigate } from "react-router-dom";
+import { usePlayerId } from "../usePlayerId";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
@@ -18,6 +18,7 @@ export function useRoomSocket({
 }: UseRoomSocketProps) {
   const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
+  const playerId = usePlayerId();
 
   console.log("nickname", nickname);
 
@@ -43,12 +44,8 @@ export function useRoomSocket({
 
   useEffect(() => {
     console.log("useRoomSocket effect", roomId, nickname);
-    let playerId: string | null = localStorage.getItem("playerId");
-
-    if (!playerId) {
-      playerId = nanoid(12);
-      localStorage.setItem("playerId", playerId);
-    }
+    
+    
 
     console.log("Player ID:", playerId);
 
