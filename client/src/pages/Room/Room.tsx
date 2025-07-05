@@ -4,31 +4,31 @@ import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 
 function Room() {
   const { roomId } = useParams();
-  const [players, setPlayers] = useState<string[]>([]);
-  const [isHost, setIsHost] = useState(false);
-  const [nickname, setNickname] = useState<string>(
-    () => localStorage.getItem("nickname") || ""
-  );
-  const [mostrarSala, setMostrarSala] = useState(!!nickname);
 
   const [tempNickname, setTempNickname] = useState<string>("");
 
-  const { updateNickname, disconect } = useRoomSocket({
-    roomId: roomId,
+  const {
+    updateNickname,
+    disconect,
+    showRoom,
     nickname,
-    onPlayersUpdate: (playerList) => {
-      setPlayers(playerList.map((p) => p.nickname));
-      const me = playerList.find(
-        (p) => p.playerId === localStorage.getItem("playerId")
-      );
-      setIsHost(!!me?.isHost);
-    },
+    showNicknameInput,
+    players,
+    isHost,
+  } = useRoomSocket({
+    roomId: roomId,
   });
 
-  const startGame = () => {};
+  const startGame = () => {
+    console.log("Starting game...");
+  };
 
-  // Si no hay nickname, pedirlo antes de entrar a la sala
-  if (!mostrarSala) {
+  if (!showRoom) {
+    return <div>Loading...</div>;
+  }
+
+  // If there is no nickname, show the input to enter it
+  if (showNicknameInput) {
     return (
       <div className="room">
         <h2>Introduce tu nickname para entrar a la sala</h2>
@@ -41,10 +41,8 @@ function Room() {
         <button
           onClick={() => {
             if (tempNickname.trim()) {
-              localStorage.setItem("nickname", tempNickname.trim());
-              setNickname(tempNickname.trim());
+              
               updateNickname(tempNickname.trim());
-              setMostrarSala(true);
             }
           }}
         >
@@ -70,7 +68,6 @@ function Room() {
         onClick={() => {
           if (tempNickname.trim()) {
             localStorage.setItem("nickname", tempNickname.trim());
-            setNickname(tempNickname.trim());
             updateNickname(tempNickname.trim());
             setTempNickname("");
           }

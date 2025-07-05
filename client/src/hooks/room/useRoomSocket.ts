@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../../const/const";
 import type { PlayersUpdate } from "../../interfaces/server/server_interfaces";
@@ -7,23 +7,27 @@ import { usePlayerId } from "../usePlayerId";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
-  nickname: string;
-  onPlayersUpdate: (players: PlayersUpdate[]) => void;
 };
 
-export function useRoomSocket({
-  roomId,
-  nickname,
-  onPlayersUpdate,
-}: UseRoomSocketProps) {
+export function useRoomSocket({ roomId }: UseRoomSocketProps) {
   const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
   const playerId = usePlayerId();
+  const [showRoom, setShowRoom] = useState(false);
+  const [players, setPlayers] = useState<string[]>([]);
+  const [isHost, setIsHost] = useState(false);
+  const [nickname, setNickname] = useState<string>(
+    () => localStorage.getItem("nickname") || ""
+  );
+  const [showNicknameInput, setShowNicknameInput] = useState(!nickname);
 
   console.log("nickname", nickname);
 
   const updateNickname = useCallback(
     (newNickname: string) => {
+      setNickname(newNickname);
+      localStorage.setItem("nickname", newNickname);
+      setShowNicknameInput(false);
       if (socketRef.current && roomId) {
         socketRef.current.emit("update-nickname", {
           roomId,
@@ -42,6 +46,14 @@ export function useRoomSocket({
     }
   }, [roomId]);
 
+  const onPlayersUpdate = useCallback((playerList:PlayersUpdate[]) => {
+      setPlayers(playerList.map((p) => p.nickname));
+      const me = playerList.find(
+        (p) => p.playerId === localStorage.getItem("playerId")
+      );
+      setIsHost(!!me?.isHost);
+    }, []);
+
   useEffect(() => {
     console.log("useRoomSocket effect", roomId, nickname);
 
@@ -49,7 +61,19 @@ export function useRoomSocket({
 
     socketRef.current = io(SOCKET_SERVER_URL);
 
-    socketRef.current.emit("join-room", { roomId, playerId, nickname });
+    socketRef.current?.emit("existing-room", roomId);
+
+    socketRef.current.on("existing-room", (exist: boolean, roomId: string) => {
+      console.log(`Room ${roomId} exists? : ${exist}`);
+      if (!exist) {
+        alert(`Room ${roomId} does not exist.`);
+        navigate("/");
+      } else {
+        setShowRoom(true);
+        socketRef.current?.emit("join-room", { roomId, playerId, nickname });
+      }
+    });
+
     socketRef.current.on("players-update", onPlayersUpdate);
     socketRef.current.on("force-disconnect", disconect);
 
@@ -59,5 +83,5 @@ export function useRoomSocket({
     };
   }, [roomId]);
 
-  return { updateNickname, disconect };
+  return { updateNickname, disconect, showRoom, nickname, showNicknameInput, players, isHost };
 }
