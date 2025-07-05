@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../../const/const";
 import { customAlphabet } from "nanoid";
@@ -15,6 +15,15 @@ export function useCreateRoom() {
       navigate(`/room/${roomId}`);
     });
 
+    socketRef.current.on("existing-room", (exist: boolean, roomId: string) => {
+      console.log(`Room ${roomId} exists? : ${exist}`);
+      if (exist) {
+        navigate(`/room/${roomId}`);
+      } else {
+        alert(`Room ${roomId} does not exist.`);
+      }
+    });
+
     return () => {
       socketRef.current?.disconnect();
       socketRef.current = null;
@@ -25,10 +34,11 @@ export function useCreateRoom() {
     const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
     const roomId = nanoid();
     socketRef.current?.emit("create-room", roomId);
-    
   };
 
-  const existingRoom = useCallback((roomId: string) => {}, []);
+  const existingRoom = (roomId: string) => {
+    socketRef.current?.emit("existing-room", roomId);
+  };
 
   return { createRoom, existingRoom };
 }

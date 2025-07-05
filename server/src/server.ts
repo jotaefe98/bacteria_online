@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     }
 
     // If a user joins in a room, then it is not new anymore
-    if(rooms[roomId].new_room) rooms[roomId].new_room = false;
+    if (rooms[roomId].new_room) rooms[roomId].new_room = false;
 
     playersUpdate(roomId);
 
@@ -73,10 +73,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("create-room", (roomId: string) => {
-     if (!rooms[roomId]) rooms[roomId] = { players: [], has_started: false,new_room: true };
-     console.log(`Room created with ID: ${roomId}`);
-     console.log("Current rooms:", rooms);
-     socket.emit("room-created", roomId); 
+    if (!rooms[roomId])
+      rooms[roomId] = { players: [], has_started: false, new_room: true };
+    console.log(`Room created with ID: ${roomId}`);
+    console.log("Current rooms:", rooms);
+    socket.emit("room-created", roomId);
+  });
+
+  socket.on("existing-room", (roomId: string) => {
+    console.log(`Checking if room ${roomId} exists`);
+    console.log("Current rooms:", rooms);
+    socket.emit("existing-room", !!rooms[roomId], roomId);
   });
 
   socket.on("disconnect", () => {

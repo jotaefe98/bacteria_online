@@ -13,8 +13,8 @@ export interface DataJoinRoom {
 }
 
 export interface Room {
-  players: Player[],
-  has_started: boolean,
+  players: Player[];
+  has_started: boolean;
   // Indicates if the room is new (just created), for no deleting it
   // when the first player leaves
   new_room: boolean;

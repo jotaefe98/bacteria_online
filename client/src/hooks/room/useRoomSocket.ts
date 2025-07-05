@@ -44,8 +44,6 @@ export function useRoomSocket({
 
   useEffect(() => {
     console.log("useRoomSocket effect", roomId, nickname);
-    
-    
 
     console.log("Player ID:", playerId);
 
