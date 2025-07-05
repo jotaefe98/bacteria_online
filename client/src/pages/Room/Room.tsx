@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useRoomSocket } from "../../hooks/room/useRoomSocket";
+import PlayerList from "../../components/PlayerList/PlayerList";
+import InsertNickname from "../../components/PlayerList/InsertNickname";
 
 function Room() {
   const { roomId } = useParams();
@@ -30,25 +32,9 @@ function Room() {
   // If there is no nickname, show the input to enter it
   if (showNicknameInput) {
     return (
-      <div className="room">
-        <h2>Introduce tu nickname para entrar a la sala</h2>
-        <input
-          type="text"
-          placeholder="Tu nickname"
-          value={tempNickname}
-          onChange={(e) => setTempNickname(e.target.value)}
-        />
-        <button
-          onClick={() => {
-            if (tempNickname.trim()) {
-              
-              updateNickname(tempNickname.trim());
-            }
-          }}
-        >
-          Entrar
-        </button>
-      </div>
+      <>
+        <InsertNickname onNicknameSubmit={updateNickname} />
+      </>
     );
   }
 
@@ -78,11 +64,7 @@ function Room() {
       </button>
       {isHost && <p>You are the host</p>}
       <h2>Players in room:</h2>
-      <ul>
-        {players.map((player, idx) => (
-          <li key={idx}>{player}</li>
-        ))}
-      </ul>
+      {<PlayerList players={players} />}
       {isHost ? (
         <p>You can start the game.</p>
       ) : (

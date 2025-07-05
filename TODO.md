@@ -1,7 +1,9 @@
 # TODO
 
 ## 📝 Pendientes
-- [ ] Crear un componente para player list en el room
+- [ ] Comprobar que la sala no haya iniciado a la hora de unirse
+- [ ] Iniciar la partida
+- [x] Crear un componente para player list en el room
 
 
 ## 🚧 En progreso
