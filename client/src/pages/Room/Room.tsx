@@ -12,18 +12,18 @@ function Room() {
   const {
     updateNickname,
     disconect,
+    startGame,
     showRoom,
     nickname,
     showNicknameInput,
     players,
     isHost,
+    isGameStarted
   } = useRoomSocket({
     roomId: roomId,
   });
 
-  const startGame = () => {
-    console.log("Starting game...");
-  };
+
 
   if (!showRoom) {
     return <div>Loading...</div>;
@@ -35,6 +35,16 @@ function Room() {
       <>
         <InsertNickname onNicknameSubmit={updateNickname} />
       </>
+    );
+  }
+
+  if (isGameStarted) {
+    return (
+      <div className="room">
+        <h1>Game Started</h1>
+        <p>The game has already started. Please wait for it to finish.</p>
+        <button onClick={disconect}>Salir de la sala</button>
+      </div>
     );
   }
 

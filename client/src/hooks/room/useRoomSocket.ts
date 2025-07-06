@@ -16,6 +16,7 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
   const [showRoom, setShowRoom] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
   const [isHost, setIsHost] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(false);
   const [nickname, setNickname] = useState<string>(
     () => localStorage.getItem("nickname") || ""
   );
@@ -38,6 +39,13 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
     [roomId]
   );
 
+  const startGame = useCallback(() => {
+    if (socketRef.current) {
+      console.log("Starting game in room:", roomId);
+      socketRef.current.emit("start-game", roomId);
+    }
+  }, [roomId]);
+
   const disconect = useCallback(() => {
     if (socketRef.current) {
       socketRef.current?.disconnect();
@@ -46,13 +54,13 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
     }
   }, [roomId]);
 
-  const onPlayersUpdate = useCallback((playerList:PlayersUpdate[]) => {
-      setPlayers(playerList.map((p) => p.nickname));
-      const me = playerList.find(
-        (p) => p.playerId === localStorage.getItem("playerId")
-      );
-      setIsHost(!!me?.isHost);
-    }, []);
+  const onPlayersUpdate = useCallback((playerList: PlayersUpdate[]) => {
+    setPlayers(playerList.map((p) => p.nickname));
+    const me = playerList.find(
+      (p) => p.playerId === localStorage.getItem("playerId")
+    );
+    setIsHost(!!me?.isHost);
+  }, []);
 
   useEffect(() => {
     console.log("useRoomSocket effect", roomId, nickname);
@@ -63,14 +71,36 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
 
     socketRef.current?.emit("existing-room", roomId);
 
-    socketRef.current.on("existing-room", (exist: boolean, roomId: string) => {
-      console.log(`Room ${roomId} exists? : ${exist}`);
-      if (!exist) {
-        alert(`Room ${roomId} does not exist.`);
-        navigate("/");
-      } else {
-        setShowRoom(true);
-        socketRef.current?.emit("join-room", { roomId, playerId, nickname });
+    socketRef.current.on(
+      "existing-room",
+      (
+        exist: boolean,
+        roomId: string,
+        roomIsStarted: boolean,
+        roomIsFull: boolean
+      ) => {
+        console.log(`Room ${roomId} exists? : ${exist}`);
+        if (!exist) {
+          alert(`Room ${roomId} does not exist.`);
+          navigate("/");
+        }else if (roomIsStarted) {
+          alert(`The game in room ${roomId} has already started.`);
+          navigate("/");
+        } else if (roomIsFull) {
+          alert(`Room ${roomId} is full.`);
+          navigate("/");
+        } else {
+          setShowRoom(true);
+          socketRef.current?.emit("join-room", { roomId, playerId, nickname });
+        }
+      }
+    );
+
+    socketRef.current?.on("game-started", (isStarted: boolean) => {
+      console.log("Game started:", isStarted);
+      setIsGameStarted(isStarted);
+      if (isStarted) {
+        //TODO: Algo se hara aqui
       }
     });
 
@@ -83,5 +113,15 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
     };
   }, [roomId]);
 
-  return { updateNickname, disconect, showRoom, nickname, showNicknameInput, players, isHost };
+  return {
+    updateNickname,
+    disconect,
+    startGame,
+    showRoom,
+    nickname,
+    showNicknameInput,
+    players,
+    isHost,
+    isGameStarted,
+  };
 }
