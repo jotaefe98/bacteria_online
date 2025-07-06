@@ -2,6 +2,8 @@
 
 ## 📝 Pendientes
 - [ ] Borrar room si se termina el juego
+- [ ] No funciona los players minimos
+- [ ] LAVADORA
 
 
 ## 🚧 En progreso

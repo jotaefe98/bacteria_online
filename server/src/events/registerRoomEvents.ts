@@ -75,7 +75,7 @@ export function registerRoomEvents(
     const existingRoom = rooms[roomId];
     const roomIsFull = existingRoom?.players?.length >= MAX_NUM_PLAYERS;
     const roomIsStarted = existingRoom?.has_started;
-    
+
     const isPlayerInRoom = existingRoom?.players.some(
       (p) => p.playerId === playerId
     );
@@ -88,19 +88,6 @@ export function registerRoomEvents(
       roomIsFull,
       isPlayerInRoom
     );
-  });
-
-  socket.on("start-game", (roomId: string) => {
-    if (rooms[roomId] && rooms[roomId].players?.length > MIN_NUM_PLAYERS) {
-      rooms[roomId].has_started = true;
-      console.log(`Game started in room ${roomId}`);
-      io.to(roomId).emit("game-started", true);
-    } else {
-      console.log(
-        `Cannot start game in room ${roomId}. Not enough players or room does not exist.`
-      );
-      socket.emit("game-started", false, "not enough players");
-    }
   });
 
   socket.on("disconnect", () => {

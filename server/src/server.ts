@@ -6,6 +6,7 @@ import {
   Room,
 } from "./types/interfaces";
 import { registerRoomEvents } from "./events/registerRoomEvents";
+import { registerGameEvents } from "./events/registerGameEvents";
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ const rooms: Record<string, Room> = {};
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   registerRoomEvents(io, socket, rooms);
+  registerGameEvents(io, socket, rooms);
 });
 
 server.listen(3000, () => {
