@@ -18,7 +18,9 @@ function Room() {
     showNicknameInput,
     players,
     isHost,
-    isGameStarted
+    isGameStarted,
+    minPlayers,
+    maxPlayers,
   } = useRoomSocket({
     roomId: roomId,
   });
@@ -73,7 +75,7 @@ function Room() {
         Cambiar
       </button>
       {isHost && <p>You are the host</p>}
-      <h2>Players in room:</h2>
+      <h2>Players in room: ({players?.length}/{maxPlayers}) </h2>
       {<PlayerList players={players} />}
       {isHost ? (
         <p>You can start the game.</p>

@@ -36,6 +36,13 @@ export function registerRoomEvents(
 
     playersUpdate(roomId);
 
+    const roomSettings = {
+      min_players: MIN_NUM_PLAYERS,
+      max_players: MAX_NUM_PLAYERS,
+    };
+
+    socket.emit("room-settings", roomSettings);
+
     console.log(`Player ${nickname} joined room ${roomId}`);
   });
 
@@ -62,13 +69,25 @@ export function registerRoomEvents(
     socket.emit("room-created", roomId);
   });
 
-  socket.on("existing-room", (roomId: string) => {
+  socket.on("existing-room", (roomId: string, playerId: string) => {
     console.log(`Checking if room ${roomId} exists`);
     console.log("Current rooms:", rooms);
     const existingRoom = rooms[roomId];
     const roomIsFull = existingRoom?.players?.length >= MAX_NUM_PLAYERS;
     const roomIsStarted = existingRoom?.has_started;
-    socket.emit("existing-room", !!existingRoom, roomId,roomIsStarted,roomIsFull);
+    
+    const isPlayerInRoom = existingRoom?.players.some(
+      (p) => p.playerId === playerId
+    );
+
+    socket.emit(
+      "existing-room",
+      !!existingRoom,
+      roomId,
+      roomIsStarted,
+      roomIsFull,
+      isPlayerInRoom
+    );
   });
 
   socket.on("start-game", (roomId: string) => {
@@ -76,33 +95,42 @@ export function registerRoomEvents(
       rooms[roomId].has_started = true;
       console.log(`Game started in room ${roomId}`);
       io.to(roomId).emit("game-started", true);
-    }});
+    } else {
+      console.log(
+        `Cannot start game in room ${roomId}. Not enough players or room does not exist.`
+      );
+      socket.emit("game-started", false, "not enough players");
+    }
+  });
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
-      const before = rooms[roomId].players.length;
-
-      // Check if the player who left was the host
-      const wasHost = rooms[roomId].players.find(
-        (p) => p.socketId === socket.id
-      )?.isHost;
-
-      rooms[roomId].players = rooms[roomId].players.filter(
-        (p) => p.socketId !== socket.id
-      );
-
       const playersLength = rooms[roomId].players.length;
+      // If the room exists and  it not started
+      if (!rooms[roomId].has_started) {
+        const before = rooms[roomId].players.length;
 
-      // If the player who left was the host, assign host to the first player in the array
-      if (wasHost && rooms[roomId].players.length > 0) {
-        rooms[roomId].players[0].isHost = true;
-      }
+        // Check if the player who left was the host
+        const wasHost = rooms[roomId].players.find(
+          (p) => p.socketId === socket.id
+        )?.isHost;
 
-      if (playersLength !== before) {
-        playersUpdate(roomId);
+        rooms[roomId].players = rooms[roomId].players.filter(
+          (p) => p.socketId !== socket.id
+        );
+
+        // If the player who left was the host, assign host to the first player in the array
+        if (wasHost && rooms[roomId].players.length > 0) {
+          rooms[roomId].players[0].isHost = true;
+        }
+
+        if (playersLength !== before) {
+          playersUpdate(roomId);
+        }
       }
 
       if (playersLength === 0 && !rooms[roomId].new_room) {
+        // If the room is empty, it was not a new room, delete it
         delete rooms[roomId];
       }
     }
@@ -121,6 +149,7 @@ export function registerRoomEvents(
       isHost: !!p.isHost,
       playerId: p.playerId,
     }));
+
     io.to(roomId).emit("players-update", players);
   }
 }
