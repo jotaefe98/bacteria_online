@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
+import { Game } from "../../components/Game/Game";
 
 function Room() {
   const { roomId } = useParams();
@@ -25,8 +26,6 @@ function Room() {
     roomId: roomId,
   });
 
-
-
   if (!showRoom) {
     return <div>Loading...</div>;
   }
@@ -42,11 +41,9 @@ function Room() {
 
   if (isGameStarted) {
     return (
-      <div className="room">
-        <h1>Game Started</h1>
-        <p>The game has already started. Please wait for it to finish.</p>
-        <button onClick={disconect}>Salir de la sala</button>
-      </div>
+      <>
+        <Game onLeaveRoom={disconect} />
+      </>
     );
   }
 
@@ -75,7 +72,9 @@ function Room() {
         Cambiar
       </button>
       {isHost && <p>You are the host</p>}
-      <h2>Players in room: ({players?.length}/{maxPlayers}) </h2>
+      <h2>
+        Players in room: ({players?.length}/{maxPlayers}){" "}
+      </h2>
       {<PlayerList players={players} />}
       {isHost ? (
         <p>You can start the game.</p>
