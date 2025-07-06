@@ -1,69 +1,50 @@
-# React + TypeScript + Vite
+# Bacteria Online - Cliente
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es el cliente web de **Bacteria Online**, un juego multijugador en línea inspirado en juegos de cartas como Virus. El cliente está desarrollado con **React**, **TypeScript** y utiliza **Vite** para el desarrollo y build rápido.
 
-Currently, two official plugins are available:
+## 🕹️ ¿De qué va el juego?
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+El objetivo es crear salas donde los jugadores pueden unirse mediante un código o enlace, elegir su nickname y esperar a que el host inicie la partida. El flujo principal es:
 
-## Expanding the ESLint configuration
+1. Un usuario crea una sala (se genera un código único).
+2. Otros jugadores pueden unirse introduciendo el código de la sala.
+3. Cada jugador debe elegir un nickname.
+4. El host puede iniciar la partida cuando haya suficientes jugadores.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> **Nota:** La lógica del juego como tal aún no está implementada, solo la gestión de salas y jugadores.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📦 Estructura actual
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **src/pages/Lobby/**: Pantalla principal para crear o unirse a una sala.
+- **src/pages/Room/**: Pantalla de la sala, muestra jugadores, permite cambiar nickname y empezar la partida.
+- **src/components/**: Componentes reutilizables como listas de jugadores, cartas, tablero, etc.
+- **src/hooks/**: Hooks personalizados para la gestión de sockets y lógica de sala.
+- **src/interfaces/**: Tipos TypeScript para la comunicación con el servidor.
+- **src/const/**: Constantes globales como la URL del servidor de sockets.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🚀 Funcionalidades implementadas
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Crear y unirse a salas mediante código.
+- Persistencia de playerId y nickname en localStorage.
+- Gestión de nicknames y host.
+- Control de inicio de partida solo por el host.
+- Actualización en tiempo real de la lista de jugadores.
+- Manejo de errores comunes (sala llena, inexistente, partida ya iniciada).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Tecnologías
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- React 19 + TypeScript
+- Vite
+- socket.io-client
+- ESLint configurado para React y TypeScript
+
+## 📝 Pendiente
+
+- Implementar la lógica del juego.
+- Mejorar la UI/UX.
+- Añadir tests.
+- Ver [TODO.md](../TODO.md) para más detalles.
+
+---
+
+Este README resume el estado actual del cliente. Para el backend, revisa la carpeta [server](../server).

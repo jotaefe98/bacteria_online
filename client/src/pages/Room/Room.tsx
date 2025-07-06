@@ -20,7 +20,6 @@ function Room() {
     players,
     isHost,
     isGameStarted,
-    minPlayers,
     maxPlayers,
   } = useRoomSocket({
     roomId: roomId,

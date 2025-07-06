@@ -24,3 +24,13 @@ export interface DataUpdateNickname {
   roomId: string;
   nickname: string;
 }
+
+type TypeCard = 'virus' | 'organ' | 'medicine' | 'treatment' ;
+type ColorCard = 'red' | 'green' | 'blue' | 'yellow' | 'rainbow' |  'transplant' | 'organ_thief' | 'contagion' | 'latex_glove' | 'medical_error';
+
+
+export interface Card {
+    id: string;
+    type: TypeCard;
+    color: ColorCard;
+}

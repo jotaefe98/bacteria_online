@@ -8,3 +8,4 @@ export interface roomSettings {
     min_players: number,
     max_players: number,
 }
+
