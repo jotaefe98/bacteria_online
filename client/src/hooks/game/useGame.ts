@@ -1,36 +1,44 @@
-import { useCallback, useRef, useState } from "react";
-import type { Socket } from "socket.io-client";
+import { use, useCallback, useEffect, useState } from "react";
 import type { GameState } from "../../interfaces/game/gameInterfaces";
+import { useAppContext } from "../../context/AppContext";
 
 type UseGameSocketProps = {
   roomId: string | undefined;
 };
 
 export function useGame({ roomId }: UseGameSocketProps) {
-  const socketRef = useRef<Socket | null>(null);
+  const { socket } = useAppContext();
   const [isGameStarted, setIsGameStarted] = useState(false);
-  
+
   const startGame = useCallback(() => {
-    if (socketRef.current) {
+    if (socket) {
       console.log("Starting game in room:", roomId);
-      socketRef.current.emit("start-game", roomId);
+      socket.emit("start-game", roomId);
     }
-  }, [roomId]);
+  }, [roomId, socket]);
 
-  socketRef.current?.on(
-    "game-started",
-    (isStarted: boolean, log: string, gameStatus: GameState) => {
-      console.log("Game started:", isStarted);
+  useEffect(() => {
+    if (!roomId || !socket) return;
 
-      if (isStarted) {
-        console.log("Game status:", JSON.stringify(gameStatus, null, 2));
-        setIsGameStarted(isStarted);
-        //TODO: Algo se hara aqui
-      } else {
-        alert(`Cannot start game: ${log}`);
+    socket?.on(
+      "game-started",
+      (isStarted: boolean, log: string, gameStatus: GameState) => {
+        console.log("Game started:", isStarted);
+
+        if (isStarted) {
+          console.log("Game status:", JSON.stringify(gameStatus, null, 2));
+          setIsGameStarted(isStarted);
+          //TODO Algo se hara aqui
+        } else {
+          alert(`Cannot start game: ${log}`);
+        }
       }
-    }
-  );
+    );
+
+    return () => {
+      socket.off("game-started");
+    };
+  }, [roomId, socket]);
 
   return {
     startGame,

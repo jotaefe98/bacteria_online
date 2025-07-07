@@ -90,9 +90,9 @@ export function registerRoomEvents(
     );
   });
 
-  socket.on("disconnect", () => {
-    for (const roomId in rooms) {
-      // If the room exists and  it not started
+  socket.on(
+    "leave-room",
+    ({ roomId, playerId }: { roomId: string; playerId: string }) => {
       if (!rooms[roomId].has_started) {
         const before = rooms[roomId].players.length;
 
@@ -111,7 +111,6 @@ export function registerRoomEvents(
         }
         const playersLength = rooms[roomId].players.length;
         if (playersLength !== before) {
-
           playersUpdate(roomId);
         }
       }
@@ -120,10 +119,11 @@ export function registerRoomEvents(
         // If the room is empty, it was not a new room, delete it
         delete rooms[roomId];
       }
+
+      console.log("A user disconnected:", socket.id);
+      console.log("room", JSON.stringify(rooms, null, 2));
     }
-    console.log("A user disconnected:", socket.id);
-    console.log("room", JSON.stringify(rooms, null, 2));
-  });
+  );
 
   /**
    * Emits an updated list of player nicknames to all clients in the specified room.

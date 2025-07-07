@@ -1,17 +1,15 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
 import { useGame } from "../../hooks/game/useGame";
-import { io, type Socket } from "socket.io-client";
-import { SOCKET_SERVER_URL } from "../../const/const";
+
 
 function Room() {
   const { roomId } = useParams();
   //const socketRef = useRef<Socket | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
 
   const [tempNickname, setTempNickname] = useState<string>("");
 
@@ -26,20 +24,9 @@ function Room() {
     maxPlayers,
   } = useRoomSocket({
     roomId,
-    socket,
-    setSocket,
   });
 
   const { startGame, isGameStarted } = useGame({ roomId });
-
-  useEffect(() => {
-    const socketRef = io(SOCKET_SERVER_URL);
-    setSocket(socketRef);
-    return () => {
-      socketRef.disconnect();
-      setSocket(null);
-    };
-  }, [roomId]);
 
   if (!showRoom) {
     return <div>Loading...</div>;
@@ -99,7 +86,14 @@ function Room() {
 
       {isHost && <button onClick={startGame}>Start Game</button>}
 
-      <button onClick={disconect}>Salir de la sala</button>
+      <button
+        onClick={() => {
+          console.log("se llama al boton");
+          disconect();
+        }}
+      >
+        Salir de la sala
+      </button>
     </div>
   );
 }

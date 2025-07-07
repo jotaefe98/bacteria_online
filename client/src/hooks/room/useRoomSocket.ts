@@ -1,25 +1,21 @@
-import { useEffect, useRef, useCallback, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { SOCKET_SERVER_URL } from "../../const/const";
+import { useEffect, useCallback, useState } from "react";
 import type {
   PlayersUpdate,
   roomSettings,
 } from "../../interfaces/server/server_interfaces";
 import { useNavigate } from "react-router-dom";
 import { usePlayerId } from "../usePlayerId";
+import { useAppContext } from "../../context/AppContext";
+
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
-  socket?: any;
-  setSocket?: (socket: Socket | null) => void;
 };
 
 export function useRoomSocket({
-  roomId,
-  socket,
-  setSocket,
+  roomId
 }: UseRoomSocketProps) {
-  //const socket = useRef<Socket | null>(null);
+  const { socket } = useAppContext();
   const navigate = useNavigate();
   const playerId = usePlayerId();
   const [showRoom, setShowRoom] = useState(false);
@@ -50,8 +46,7 @@ export function useRoomSocket({
 
   const disconect = useCallback(() => {
     if (socket) {
-      socket?.disconnect();
-      setSocket?.(null);
+      socket.emit("leave-room", { roomId, playerId });
       navigate("/");
     }
   }, [roomId, socket]);
@@ -67,8 +62,7 @@ export function useRoomSocket({
   useEffect(() => {
     if (!roomId || !socket) return;
 
-    // socket = io(SOCKET_SERVER_URL);
-
+    console.log("Connecting to room:", roomId);
     socket?.emit("existing-room", roomId, playerId);
 
     socket?.on("room-settings", (roomSettings: roomSettings) => {
@@ -85,7 +79,7 @@ export function useRoomSocket({
         roomIsFull: boolean,
         isPlayerInRoom: boolean
       ) => {
-        console.log(`Room ${roomId} exists? : ${exist}`);
+
         if (!exist) {
           alert(`Room ${roomId} does not exist.`);
           navigate("/");
@@ -103,7 +97,14 @@ export function useRoomSocket({
     );
     socket.on("players-update", onPlayersUpdate);
     socket.on("force-disconnect", disconect);
-  }, [roomId, socket]);
+    return () => {
+    socket.off("room-settings");
+    socket.off("existing-room");
+    socket.off("players-update");
+    socket.off("force-disconnect");
+    socket.emit("leave-room", { roomId, playerId });
+  };
+  }, [roomId,socket]);
 
   return {
     updateNickname,

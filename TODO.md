@@ -4,7 +4,7 @@
 - [ ] Borrar room si se termina el juego
 - [ ] Iniciar juego
 - [ ] Controlar que no se pueda unir mas de el maximo
-- [ ] LAVADORA
+- [x] Aplicar el leave room
 
 
 ## 🚧 En progreso

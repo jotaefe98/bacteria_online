@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { SOCKET_SERVER_URL } from "../../const/const";
+import { useAppContext } from "../../context/AppContext";
 
 type Card = {
   id: string;
@@ -13,7 +12,7 @@ type GameProps = {
 };
 
 export function Game({ onLeaveRoom }: GameProps) {
-  const [socket, setSocket] = useState<Socket | null>(null);
+   const { socket } = useAppContext();
   const [hand, setHand] = useState<Card[]>([]);
   const [currentTurn, setCurrentTurn] = useState<string>("");
   const [playerId, setPlayerId] = useState<string>("");
@@ -31,23 +30,22 @@ export function Game({ onLeaveRoom }: GameProps) {
   // 2. Solo conecta socket y escucha eventos si hay playerId
   useEffect(() => {
     if (!playerId) return;
-    console
-    const s = io(SOCKET_SERVER_URL);
-    setSocket(s);
 
-    s.on("game-started", (_ok, data) => {
+    socket?.on("game-started", (_ok, data) => {
       setHand(data.hands[playerId] || []);
       setCurrentTurn(data.currentTurn);
     });
 
-    s.on("update-game", (data) => {
+    socket?.on("update-game", (data) => {
       setHand(data.hands[playerId] || []);
       setCurrentTurn(data.currentTurn);
     });
 
     return () => {
-      s.disconnect();
+      socket?.off("game-started");
+      socket?.off("update-game");
     };
+
   }, [playerId]);
 
   useEffect(() => {
