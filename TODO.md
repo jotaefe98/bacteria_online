@@ -2,7 +2,8 @@
 
 ## 📝 Pendientes
 - [ ] Borrar room si se termina el juego
-- [ ] No funciona los players minimos
+- [ ] Iniciar juego
+- [ ] Controlar que no se pueda unir mas de el maximo
 - [ ] LAVADORA
 
 
@@ -17,6 +18,7 @@
 - [x] Habilitar deshabilitar boton de inicio de partida dependiendo de los jugadores minimos y maximos
 - [x] Si te metes en tu misma sesion en otra ventana con el mismo enlace, te debe de dejar porder acceder aunque este empezada, pero echarte de la otra sesion
 - [x] Crear un componente para player list en el room
+- [x] No funciona los players minimos
 
 ## 🐞 Bugs conocidos
 

@@ -16,7 +16,7 @@ export function registerGameEvents(
 ) {
   socket.on("start-game", (roomId: string) => {
     const room = rooms[roomId] as GameRoom;
-    if (room && room.players?.length > MIN_NUM_PLAYERS) {
+    if (room && room.players?.length >= MIN_NUM_PLAYERS) {
       // Shuffle the deck
       const deck = [...BASE_DECK].sort(() => Math.random() - 0.5);
       room.deck = deck;
@@ -28,7 +28,7 @@ export function registerGameEvents(
       room.has_started = true;
       room.currentTurn = room.players[0].playerId;
       console.log(`Game started in room ${roomId}`);
-      io.to(roomId).emit("game-started", true, {
+      io.to(roomId).emit("game-started", true, "",{
         hands: room.hands,
         currentTurn: room.currentTurn,
         playerIdList: room.players.map((p) => p.playerId),

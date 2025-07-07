@@ -1,22 +1,31 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_SERVER_URL } from "../../const/const";
-import type { PlayersUpdate, roomSettings } from "../../interfaces/server/server_interfaces";
+import type {
+  PlayersUpdate,
+  roomSettings,
+} from "../../interfaces/server/server_interfaces";
 import { useNavigate } from "react-router-dom";
 import { usePlayerId } from "../usePlayerId";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
+  socket?: any;
+  setSocket?: (socket: Socket | null) => void;
 };
 
-export function useRoomSocket({ roomId }: UseRoomSocketProps) {
-  const socketRef = useRef<Socket | null>(null);
+export function useRoomSocket({
+  roomId,
+  socket,
+  setSocket,
+}: UseRoomSocketProps) {
+  //const socket = useRef<Socket | null>(null);
   const navigate = useNavigate();
   const playerId = usePlayerId();
   const [showRoom, setShowRoom] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
   const [isHost, setIsHost] = useState(false);
-  const [isGameStarted, setIsGameStarted] = useState(false);
+
   const [minPlayers, setMinPlayers] = useState<number>();
   const [maxPlayers, setMaxPlayers] = useState<number>();
   const [nickname, setNickname] = useState<string>(
@@ -24,62 +33,50 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
   );
   const [showNicknameInput, setShowNicknameInput] = useState(!nickname);
 
-  console.log("nickname", nickname);
-
   const updateNickname = useCallback(
     (newNickname: string) => {
       setNickname(newNickname);
       localStorage.setItem("nickname", newNickname);
       setShowNicknameInput(false);
-      if (socketRef.current && roomId) {
-        socketRef.current.emit("update-nickname", {
+      if (socket && roomId) {
+        socket.emit("update-nickname", {
           roomId,
           nickname: newNickname,
         });
       }
     },
-    [roomId]
+    [roomId, socket]
   );
 
-  const startGame = useCallback(() => {
-    if (socketRef.current) {
-      console.log("Starting game in room:", roomId);
-      socketRef.current.emit("start-game", roomId);
-    }
-  }, [roomId]);
-
   const disconect = useCallback(() => {
-    if (socketRef.current) {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
+    if (socket) {
+      socket?.disconnect();
+      setSocket?.(null);
       navigate("/");
     }
-  }, [roomId]);
+  }, [roomId, socket]);
 
-  const onPlayersUpdate = useCallback((playerList: PlayersUpdate[]) => {
+  const onPlayersUpdate = (playerList: PlayersUpdate[]) => {
     setPlayers(playerList.map((p) => p.nickname));
     const me = playerList.find(
       (p) => p.playerId === localStorage.getItem("playerId")
     );
     setIsHost(!!me?.isHost);
-  }, []);
+  };
 
   useEffect(() => {
-    console.log("useRoomSocket effect", roomId, nickname);
+    if (!roomId || !socket) return;
 
-    console.log("Player ID:", playerId);
+    // socket = io(SOCKET_SERVER_URL);
 
-    socketRef.current = io(SOCKET_SERVER_URL);
+    socket?.emit("existing-room", roomId, playerId);
 
-    socketRef.current?.emit("existing-room", roomId, playerId);
-
-    socketRef.current?.on("room-settings", (roomSettings:roomSettings) => {
-      console.log("Room settings received:", roomSettings);
+    socket?.on("room-settings", (roomSettings: roomSettings) => {
       setMinPlayers(roomSettings.min_players);
       setMaxPlayers(roomSettings.max_players);
     });
 
-    socketRef.current.on(
+    socket.on(
       "existing-room",
       (
         exist: boolean,
@@ -92,7 +89,7 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         if (!exist) {
           alert(`Room ${roomId} does not exist.`);
           navigate("/");
-        }else if (roomIsStarted && !isPlayerInRoom) {
+        } else if (roomIsStarted && !isPlayerInRoom) {
           alert(`The game in room ${roomId} has already started.`);
           navigate("/");
         } else if (roomIsFull && !isPlayerInRoom) {
@@ -100,42 +97,22 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
           navigate("/");
         } else {
           setShowRoom(true);
-          socketRef.current?.emit("join-room", { roomId, playerId, nickname });
+          socket?.emit("join-room", { roomId, playerId, nickname });
         }
       }
     );
-
-    socketRef.current?.on("game-started", (isStarted: boolean, log: string) => {
-      console.log("Game started:", isStarted);
-      
-      if (isStarted) {
-        setIsGameStarted(isStarted);
-        //TODO: Algo se hara aqui
-      }else{
-        alert(`Cannot start game: ${log}`);
-      }
-
-    });
-
-    socketRef.current.on("players-update", onPlayersUpdate);
-    socketRef.current.on("force-disconnect", disconect);
-
-    return () => {
-      socketRef.current?.disconnect();
-      socketRef.current = null;
-    };
-  }, [roomId]);
+    socket.on("players-update", onPlayersUpdate);
+    socket.on("force-disconnect", disconect);
+  }, [roomId, socket]);
 
   return {
     updateNickname,
     disconect,
-    startGame,
     showRoom,
     nickname,
     showNicknameInput,
     players,
     isHost,
-    isGameStarted,
     minPlayers,
     maxPlayers,
   };

@@ -8,10 +8,16 @@ export interface Card {
     color: ColorCard;
 }
 
-export interface GameState {
+export interface GameStateTEST {
     deck: Card[];
     hands: { [playerId: string]: Card[] };
     table: { [playerId: string]: Card[] };
     currentTurn: string;
     phase: 'draw' | 'play' | 'end';
+}
+
+export interface GameState {
+    hands: { [playerId: string]: Card[] };
+    currentTurn: string;
+    playerIdList: string[];
 }

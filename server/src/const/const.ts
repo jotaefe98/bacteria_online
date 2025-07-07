@@ -1,7 +1,7 @@
 import { Card } from "../types/interfaces";
 
-export const MIN_NUM_PLAYERS = 0;
-export const MAX_NUM_PLAYERS = 2;
+export const MIN_NUM_PLAYERS = 1;
+export const MAX_NUM_PLAYERS = 4;
 
 // En el mazo hay 68 cartas divididas así:
 
@@ -82,7 +82,7 @@ export const BASE_DECK: Card[] = [
   // Rainbow medicine (1)
   { id: "medicine_rainbow_1", type: "medicine", color: "rainbow" },
 
-  // Treatments 
+  // Treatments
   { id: "transplant_1", type: "treatment", color: "transplant" },
   { id: "transplant_2", type: "treatment", color: "transplant" },
 

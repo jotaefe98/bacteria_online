@@ -92,7 +92,6 @@ export function registerRoomEvents(
 
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
-      const playersLength = rooms[roomId].players.length;
       // If the room exists and  it not started
       if (!rooms[roomId].has_started) {
         const before = rooms[roomId].players.length;
@@ -110,19 +109,20 @@ export function registerRoomEvents(
         if (wasHost && rooms[roomId].players.length > 0) {
           rooms[roomId].players[0].isHost = true;
         }
-
+        const playersLength = rooms[roomId].players.length;
         if (playersLength !== before) {
+
           playersUpdate(roomId);
         }
       }
 
-      if (playersLength === 0 && !rooms[roomId].new_room) {
+      if (rooms[roomId].players.length === 0 && !rooms[roomId].new_room) {
         // If the room is empty, it was not a new room, delete it
         delete rooms[roomId];
       }
     }
     console.log("A user disconnected:", socket.id);
-    console.log("room", rooms);
+    console.log("room", JSON.stringify(rooms, null, 2));
   });
 
   /**
@@ -136,7 +136,6 @@ export function registerRoomEvents(
       isHost: !!p.isHost,
       playerId: p.playerId,
     }));
-
     io.to(roomId).emit("players-update", players);
   }
 }
