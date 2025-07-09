@@ -138,7 +138,8 @@ html, body {
   margin: 0 auto;
 }
 
-.boards-container:has(> :nth-child(4)) {
+.boards-container:has(> :nth-child(4)),
+.boards-container[data-player-count="4"] {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
 }
@@ -464,11 +465,18 @@ html, body {
 
 /* Hand Container */
 .hand-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  display: flex;
+  justify-content: center;   /* Centra horizontalmente todas las cartas */
+  align-items: end;
   gap: 8px;
   margin-bottom: 10px;
   min-height: 100px;
+  width: 100%;
+  flex-wrap: wrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  padding-bottom: 2px;
 }
 
 .hand-actions {

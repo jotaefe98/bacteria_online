@@ -20,6 +20,7 @@ function Room() {
     players,
     isHost,
     maxPlayers,
+    minPlayers,
     isGameStarted,
   } = useRoomSocket({
     roomId,
@@ -125,11 +126,11 @@ function Room() {
                 <button
                   className="start-game-btn"
                   onClick={startGame}
-                  disabled={players?.length < 2}
+                  disabled={players?.length < minPlayers}
                 >
                   🎮 Start Game
                 </button>
-                {players?.length < 2 && (
+                {players?.length < minPlayers && (
                   <p className="warning-text">
                     Need at least 2 players to start
                   </p>

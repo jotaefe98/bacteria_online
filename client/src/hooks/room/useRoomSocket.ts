@@ -19,7 +19,7 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
   const [players, setPlayers] = useState<string[]>([]);
   const [isHost, setIsHost] = useState(false);
 
-  const [minPlayers, setMinPlayers] = useState<number>();
+  const [minPlayers, setMinPlayers] = useState(9999);
   const [maxPlayers, setMaxPlayers] = useState<number>();
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [nickname, setNickname] = useState<string>(
