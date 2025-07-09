@@ -1,6 +1,6 @@
 .board {
-  margin: 8px 0;
-  padding: 15px;
+  margin: 6px 0;
+  padding: 12px;
   border: 3px solid transparent;
   border-radius: 15px;
   background: white;
@@ -8,6 +8,9 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 180px; /* Altura mínima para consistencia */
+  display: flex;
+  flex-direction: column;
 }
 
 .board::before {
@@ -24,7 +27,7 @@
 .my-board {
   border-color: #007bff;
   background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
-  transform: scale(1.02);
+  /* Removido transform: scale(1.02) para evitar problemas de layout */
 }
 
 .my-board::after {
@@ -47,17 +50,18 @@
 }
 
 .board h4 {
-  margin: 0 0 15px 0;
-  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
   color: #333;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 15px;
+  gap: 8px;
+  padding: 10px 12px;
   background: rgba(255,255,255,0.8);
-  border-radius: 10px;
+  border-radius: 8px;
   border: 2px solid #f0f0f0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  flex-shrink: 0; /* No se reduce */
 }
 
 .board-icon {
@@ -69,23 +73,25 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
-  min-height: 160px;
-  max-height: 220px;
-  aspect-ratio: 4/3;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 120px;
+  max-height: 180px;
+  flex: 1; /* Ocupa el espacio restante */
+  overflow-y: auto;
+  padding: 2px;
 }
 
 /* Ensure all grid cells have the same minimum size */
 .organs-container > * {
-  min-width: 100px;
-  min-height: 75px;
+  min-width: 80px;
+  min-height: 60px;
 }
 
 .organ-card {
   border: 3px solid;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 8px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -363,46 +369,187 @@
 
 @media (max-width: 768px) {
   .board {
-    margin: 8px 0;
-    padding: 12px;
-  }
-  
-  .organs-container {
-    gap: 8px;
-    min-height: 160px;
-    max-height: 200px;
-  }
-  
-  .organ-card {
+    margin: 4px 0;
     padding: 8px;
   }
   
+  .organs-container {
+    gap: 6px;
+    min-height: 120px;
+    max-height: 140px;
+  }
+  
+  .organ-card {
+    padding: 6px;
+    border-radius: 8px;
+  }
+  
   .board h4 {
-    font-size: 1.1rem;
-    padding: 12px 15px;
+    font-size: 1rem;
+    padding: 8px 12px;
+    margin: 0 0 8px 0;
   }
   
   .my-board::after {
     font-size: 0.6rem;
     padding: 2px 6px;
+    top: 6px;
+    right: 8px;
   }
   
   .organ-icon {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   
   .organ-color {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     padding: 2px 4px;
   }
   
   .organ-status {
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     padding: 2px 4px;
+  }
+  
+  .organ-details {
+    font-size: 0.65rem;
+    gap: 4px;
+  }
+  
+  .viruses, .medicines {
+    padding: 4px 6px;
+    font-size: 0.6rem;
+  }
+  
+  .immunized-indicator {
+    padding: 4px 6px;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .board {
+    margin: 2px 0;
+    padding: 6px;
+  }
+  
+  .organs-container {
+    gap: 4px;
+    min-height: 100px;
+    max-height: 120px;
+  }
+  
+  .organ-card {
+    padding: 4px;
+    border-radius: 6px;
+  }
+  
+  .board h4 {
+    font-size: 0.9rem;
+    padding: 6px 8px;
+    margin: 0 0 6px 0;
+  }
+  
+  .my-board::after {
+    font-size: 0.5rem;
+    padding: 1px 4px;
+    top: 4px;
+    right: 6px;
+  }
+  
+  .organ-header {
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+  
+  .organ-icon {
+    font-size: 0.8rem;
+  }
+  
+  .organ-color {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+  }
+  
+  .organ-status {
+    font-size: 0.5rem;
+    padding: 1px 3px;
   }
   
   .organ-details {
     font-size: 0.6rem;
     gap: 3px;
+  }
+  
+  .viruses, .medicines {
+    padding: 3px 4px;
+    font-size: 0.55rem;
+    gap: 4px;
+  }
+  
+  .immunized-indicator {
+    padding: 3px 4px;
+    font-size: 0.55rem;
+  }
+  
+  .detail-icon {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mejoras específicas para 4 jugadores en móvil */
+@media (max-width: 768px) {
+  .boards-container[data-player-count="4"] .board {
+    padding: 6px;
+  }
+  
+  .boards-container[data-player-count="4"] .organs-container {
+    min-height: 100px;
+    max-height: 120px;
+    gap: 4px;
+  }
+  
+  .boards-container[data-player-count="4"] .board h4 {
+    font-size: 0.9rem;
+    padding: 6px 8px;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-card {
+    padding: 4px;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-details {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .boards-container[data-player-count="4"] .board {
+    padding: 4px;
+  }
+  
+  .boards-container[data-player-count="4"] .organs-container {
+    min-height: 80px;
+    max-height: 100px;
+    gap: 2px;
+  }
+  
+  .boards-container[data-player-count="4"] .board h4 {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+    margin: 0 0 4px 0;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-card {
+    padding: 3px;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-details {
+    font-size: 0.55rem;
+  }
+  
+  .boards-container[data-player-count="4"] .my-board::after {
+    font-size: 0.45rem;
+    padding: 1px 3px;
   }
 }

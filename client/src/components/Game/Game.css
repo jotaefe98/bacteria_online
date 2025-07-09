@@ -119,33 +119,54 @@ html, body {
   gap: 8px;
   flex: 2;
   overflow-y: auto;
+  padding: 8px;
+  min-height: 280px;
+  max-height: 60vh;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
-/* Dynamic grid layout based on number of boards */
-.boards-container:has(> :nth-child(2):not(:nth-child(3))) {
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
-}
-
-.boards-container:has(> :nth-child(3):not(:nth-child(4))) {
+/* Layout para 4 jugadores - 2x2 grid simple */
+.boards-container[data-player-count="4"] {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
+  gap: 10px;
 }
 
-.boards-container:has(> :nth-child(3):not(:nth-child(4))) > :nth-child(3) {
+/* Layout para 3 jugadores */
+.boards-container[data-player-count="3"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+}
+
+.boards-container[data-player-count="3"] > :nth-child(3) {
   grid-column: 1 / -1;
   max-width: 600px;
   margin: 0 auto;
 }
 
-.boards-container:has(> :nth-child(4)),
-.boards-container[data-player-count="4"] {
-  grid-template-columns: 1fr 1fr;
+/* Layout para 2 jugadores */
+.boards-container[data-player-count="2"] {
+  grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Layout para 1 jugador */
+.boards-container[data-player-count="1"] {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  gap: 10px;
 }
 
 /* Fallback for browsers without :has() support */
 @supports not (selector(:has(*))) {
+  .boards-container[data-player-count="1"] {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+  
   .boards-container[data-player-count="2"] {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr;
@@ -315,9 +336,12 @@ html, body {
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
   border: 2px solid rgba(255,255,255,0.3);
   flex: 1;
-  max-height: 100%;
+  min-height: 200px;
+  max-height: 35vh;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Error message positioning - Above hand */
@@ -491,48 +515,50 @@ html, body {
 /* Responsive design */
 @media (max-width: 768px) {
   .game-container {
-    padding: 8px;
+    padding: 6px;
   }
   
   .boards-container {
     gap: 6px;
     margin-bottom: 6px;
-    min-height: 140px;
-    max-height: 200px;
+    min-height: 200px;
+    max-height: 50vh;
+    flex: 7; /* Más espacio para los tableros en móvil */
   }
   
-  .boards-container:has(> :nth-child(2):not(:nth-child(3))),
+  /* Móviles: TODOS los layouts van a columna única */
   .boards-container[data-player-count="2"] {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
   }
   
-  .boards-container:has(> :nth-child(3):not(:nth-child(4))),
   .boards-container[data-player-count="3"] {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: 1fr 1fr 1fr;
   }
   
-  .boards-container:has(> :nth-child(3):not(:nth-child(4))) > :nth-child(3),
   .boards-container[data-player-count="3"] > :nth-child(3) {
     grid-column: 1;
     max-width: none;
+    margin: 0;
   }
   
-  .boards-container:has(> :nth-child(4)),
   .boards-container[data-player-count="4"] {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
   }
   
   .hand-section {
-    padding: 10px;
-    max-height: 220px;
+    padding: 8px;
+    flex: 2; /* Menos espacio para las cartas en móvil */
     min-height: 180px;
+    max-height: 25vh;
   }
   
   .hand-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
   }
   
   .hand-controls {
@@ -540,19 +566,45 @@ html, body {
   }
   
   .game-status-compact {
-    gap: 10px;
+    gap: 8px;
   }
   
   .hand-container {
-    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-    gap: 6px;
+    gap: 4px;
+    min-height: 70px;
   }
   
   .target-info {
-    padding: 12px 15px;
+    padding: 8px 10px;
     flex-direction: column;
     text-align: center;
+    gap: 6px;
+  }
+  
+  .action-button {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+}
+  
+  .hand-controls {
+    align-items: stretch;
+  }
+  
+  .game-status-compact {
     gap: 8px;
+  }
+  
+  .hand-container {
+    gap: 4px;
+    min-height: 80px;
+  }
+  
+  .target-info {
+    padding: 10px 12px;
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
   }
   
   .action-button {
@@ -562,18 +614,60 @@ html, body {
 }
 
 @media (max-width: 480px) {
+  .game-container {
+    padding: 4px;
+  }
+  
+  .boards-container {
+    gap: 2px;
+    margin-bottom: 4px;
+    min-height: 180px;
+    max-height: 35vh; /* Muy compacto para pantallas pequeñas */
+  }
+  
+  /* Pantallas muy pequeñas: 4 jugadores en 2x2 */
+  .boards-container:has(> :nth-child(4)),
+  .boards-container[data-player-count="4"] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 32vh;
+  }
+  
+  .boards-container[data-player-count="4"] > * {
+    grid-column: auto;
+    grid-row: auto;
+    max-width: none;
+    margin: 0;
+  }
+  
+  .hand-section {
+    padding: 6px;
+    max-height: 200px;
+    min-height: 160px;
+  }
+  
+  .hand-container {
+    gap: 3px;
+    min-height: 70px;
+  }
+  
   .game-controls {
     flex-direction: column;
     align-items: center;
+    gap: 6px;
   }
   
   .hand-actions {
     flex-direction: column;
+    gap: 6px;
   }
   
   .action-button, .leave-button-compact {
     width: 100%;
     max-width: 250px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
   }
   
   .victory-title {
@@ -581,7 +675,41 @@ html, body {
   }
   
   .victory-content {
-    padding: 30px 20px;
-    margin: 0 10px;
+    padding: 20px 15px;
+    margin: 0 8px;
+  }
+  
+  .target-info {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mejoras adicionales para dispositivos muy pequeños */
+@media (max-width: 360px) {
+  .boards-container {
+    min-height: 160px;
+    max-height: 30vh;
+  }
+  
+  .boards-container:has(> :nth-child(4)),
+  .boards-container[data-player-count="4"] {
+    max-height: 28vh;
+  }
+  
+  .boards-container[data-player-count="4"] > * {
+    grid-column: auto;
+    grid-row: auto;
+    max-width: none;
+    margin: 0;
+  }
+  
+  .hand-section {
+    max-height: 180px;
+    min-height: 140px;
+  }
+  
+  .hand-container {
+    min-height: 60px;
   }
 }
