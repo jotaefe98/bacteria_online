@@ -1,0 +1,341 @@
+.room-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: white;
+  text-align: center;
+}
+
+.loading-spinner {
+  margin-bottom: 1rem;
+}
+
+.virus-spinner {
+  font-size: 4rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.room-title h1 {
+  font-size: 2.5rem;
+  margin: 0 0 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.room-code {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.8rem 1.5rem;
+  border-radius: 15px;
+}
+
+.code-label {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.code-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: #ffd700;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.host-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(45deg, #ffd700, #ff8c00);
+  color: #333;
+  padding: 1rem 1.5rem;
+  border-radius: 15px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.crown-icon {
+  font-size: 1.5rem;
+}
+
+.room-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.player-section, .player-info-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-header h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.player-count {
+  background: linear-gradient(45deg, #007bff, #6610f2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.current-player-info {
+  margin-bottom: 2rem;
+}
+
+.current-player-info h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.nickname-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 15px;
+  margin-bottom: 1rem;
+}
+
+.player-icon {
+  font-size: 1.5rem;
+}
+
+.current-nickname {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.nickname-changer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nickname-input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.nickname-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.change-btn {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, #218838, #1ea080);
+  transform: translateY(-2px);
+}
+
+.change-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.game-status {
+  text-align: center;
+}
+
+.game-status h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.host-controls {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+}
+
+.status-text {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.start-game-btn {
+  padding: 1rem 2rem;
+  background: white;
+  color: #28a745;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.start-game-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.start-game-btn:disabled {
+  background: #6c757d;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.warning-text {
+  color: #ffeaa7;
+  font-size: 0.9rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.waiting-area {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+}
+
+.waiting-animation {
+  margin: 1.5rem 0;
+}
+
+.waiting-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.waiting-dots span {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  animation: waiting 1.4s infinite ease-in-out both;
+}
+
+.waiting-dots span:nth-child(1) { animation-delay: -0.32s; }
+.waiting-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes waiting {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.room-footer {
+  text-align: center;
+}
+
+.leave-btn {
+  padding: 1rem 2rem;
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.leave-btn:hover {
+  background: linear-gradient(45deg, #c82333, #a71e2a);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+}
+
+@media (max-width: 768px) {
+  .room-container {
+    padding: 1rem;
+  }
+  
+  .room-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .room-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .room-title h1 {
+    font-size: 2rem;
+  }
+  
+  .nickname-changer {
+    flex-direction: column;
+  }
+  
+  .nickname-input {
+    width: 100%;
+  }
+}

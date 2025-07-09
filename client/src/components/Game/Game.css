@@ -1,0 +1,189 @@
+.game-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.game-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.game-info {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.game-info p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+.boards-container {
+  margin-bottom: 20px;
+}
+
+.game-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.action-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.draw-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.draw-button:hover {
+  background-color: #218838;
+}
+
+.end-turn-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.end-turn-button:hover {
+  background-color: #5a6268;
+}
+
+.play-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.play-button:hover {
+  background-color: #0056b3;
+}
+
+.discard-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.discard-button:hover {
+  background-color: #c82333;
+}
+
+.target-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #bee5eb;
+}
+
+.hand-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.hand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.play-mode-selector {
+  display: flex;
+  gap: 15px;
+}
+
+.play-mode-selector label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.hand-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.card {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  min-width: 100px;
+  text-align: center;
+  cursor: pointer;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card.selected {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.card-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.card-type {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.card-color {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.hand-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.leave-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.leave-button:hover {
+  background-color: #5a6268;
+}

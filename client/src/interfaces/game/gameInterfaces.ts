@@ -1,23 +1,52 @@
-type TypeCard = 'virus' | 'organ' | 'medicine' | 'treatment' ;
-type ColorCard = 'red' | 'green' | 'blue' | 'yellow' | 'rainbow' |  'transplant' | 'organ_thief' | 'contagion' | 'latex_glove' | 'medical_error';
-
+type TypeCard = "virus" | "organ" | "medicine" | "treatment";
+type ColorCard =
+  | "red"
+  | "green"
+  | "blue"
+  | "yellow"
+  | "rainbow"
+  | "transplant"
+  | "organ_thief"
+  | "contagion"
+  | "latex_glove"
+  | "medical_error";
 
 export interface Card {
-    id: string;
-    type: TypeCard;
-    color: ColorCard;
+  id: string;
+  type: TypeCard;
+  color: ColorCard;
 }
 
-export interface GameStateTEST {
-    deck: Card[];
-    hands: { [playerId: string]: Card[] };
-    table: { [playerId: string]: Card[] };
-    currentTurn: string;
-    phase: 'draw' | 'play' | 'end';
+// Estado de un órgano en la mesa
+export interface OrganState {
+  organ: Card;
+  viruses: Card[];
+  medicines: Card[];
+  status: "healthy" | "infected" | "vaccinated" | "immunized" | "destroyed";
 }
+
+// Mesa de un jugador
+export interface PlayerBoard {
+  organs: { [color: string]: OrganState };
+}
+
+// Fases del turno
+export type GamePhase = "play_or_discard" | "draw" | "end_turn";
 
 export interface GameState {
-    hands: { [playerId: string]: Card[] };
-    currentTurn: string;
-    playerIdList: string[];
+  hands: { [playerId: string]: Card[] };
+  boards: { [playerId: string]: PlayerBoard };
+  currentTurn: string;
+  currentPhase: GamePhase;
+  playerIdList: string[];
+  winner?: string;
+  discardPile: Card[];
+}
+
+// Para acciones de juego
+export interface PlayCardAction {
+  cardId: string;
+  targetPlayerId?: string;
+  targetOrganColor?: string;
+  additionalData?: any;
 }

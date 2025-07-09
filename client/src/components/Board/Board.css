@@ -1,23 +1,90 @@
-.board-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  align-items: center;
-  width: 100%;
+.board {
+  margin: 10px 0;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f8f9fa;
 }
 
-.board-row {
+.my-board {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.other-board {
+  border-color: #6c757d;
+  background-color: #f1f3f4;
+}
+
+.organs-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-@media (max-width: 600px) {
-  .board-vertical {
-    gap: 16px;
-  }
-  .board-row {
-    gap: 6px;
-  }
+.organ-card {
+  border: 3px solid;
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 120px;
+  background-color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.organ-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.organ-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.organ-color {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.organ-status {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+}
+
+.organ-card.healthy .organ-status {
+  background-color: #28a745;
+}
+
+.organ-card.infected .organ-status {
+  background-color: #dc3545;
+}
+
+.organ-card.vaccinated .organ-status {
+  background-color: #007bff;
+}
+
+.organ-card.immunized .organ-status {
+  background-color: #6f42c1;
+}
+
+.organ-details {
+  font-size: 12px;
+  color: #666;
+}
+
+.viruses, .medicines {
+  margin: 2px 0;
+}
+
+.no-organs {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
