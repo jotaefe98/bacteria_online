@@ -46,7 +46,6 @@ export function useRoomSocket({
 
   const disconect = useCallback(() => {
     if (socket) {
-      socket.emit("leave-room", { roomId, playerId });
       navigate("/");
     }
   }, [roomId, socket]);

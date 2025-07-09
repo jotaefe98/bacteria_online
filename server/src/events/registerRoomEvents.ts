@@ -44,6 +44,7 @@ export function registerRoomEvents(
     socket.emit("room-settings", roomSettings);
 
     console.log(`Player ${nickname} joined room ${roomId}`);
+    console.log("Current rooms:", rooms);
   });
 
   socket.on("update-nickname", (data: DataUpdateNickname) => {
@@ -90,40 +91,44 @@ export function registerRoomEvents(
     );
   });
 
-  socket.on(
-    "leave-room",
-    ({ roomId, playerId }: { roomId: string; playerId: string }) => {
-      if (!rooms[roomId].has_started) {
-        const before = rooms[roomId].players.length;
+  socket.on("leave-room", ({ roomId }: { roomId: string }) => {
+    console.log(`Player ${socket.id} is leaving room ${roomId}`);
+    if (!rooms[roomId]?.has_started && rooms[roomId]) {
+      console.log("roomId", roomId);
+      console.log("rooms", rooms);
+      const before = rooms[roomId].players.length;
 
-        // Check if the player who left was the host
-        const wasHost = rooms[roomId].players.find(
-          (p) => p.socketId === socket.id
-        )?.isHost;
+      // Check if the player who left was the host
+      const wasHost = rooms[roomId].players.find(
+        (p) => p.socketId === socket.id
+      )?.isHost;
 
-        rooms[roomId].players = rooms[roomId].players.filter(
-          (p) => p.socketId !== socket.id
-        );
+      rooms[roomId].players = rooms[roomId].players.filter(
+        (p) => p.socketId !== socket.id
+      );
 
-        // If the player who left was the host, assign host to the first player in the array
-        if (wasHost && rooms[roomId].players.length > 0) {
-          rooms[roomId].players[0].isHost = true;
-        }
-        const playersLength = rooms[roomId].players.length;
-        if (playersLength !== before) {
-          playersUpdate(roomId);
-        }
+      // If the player who left was the host, assign host to the first player in the array
+      if (wasHost && rooms[roomId].players.length > 0) {
+        rooms[roomId].players[0].isHost = true;
       }
-
-      if (rooms[roomId].players.length === 0 && !rooms[roomId].new_room) {
-        // If the room is empty, it was not a new room, delete it
-        delete rooms[roomId];
+      const playersLength = rooms[roomId].players.length;
+      if (playersLength !== before) {
+        playersUpdate(roomId);
       }
-
-      console.log("A user disconnected:", socket.id);
-      console.log("room", JSON.stringify(rooms, null, 2));
     }
-  );
+
+    if (
+      rooms[roomId] &&
+      rooms[roomId].players.length === 0 &&
+      !rooms[roomId].new_room
+    ) {
+      // If the room is empty, it was not a new room, delete it
+      delete rooms[roomId];
+    }
+
+    console.log("A user disconnected:", socket.id);
+    console.log("room", JSON.stringify(rooms, null, 2));
+  });
 
   /**
    * Emits an updated list of player nicknames to all clients in the specified room.
