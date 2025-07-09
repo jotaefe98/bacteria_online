@@ -427,129 +427,69 @@
   }
 }
 
-@media (max-width: 480px) {
-  .board {
-    margin: 2px 0;
-    padding: 6px;
-  }
-  
-  .organs-container {
-    gap: 4px;
-    min-height: 100px;
-    max-height: 120px;
-  }
-  
-  .organ-card {
-    padding: 4px;
-    border-radius: 6px;
-  }
-  
-  .board h4 {
-    font-size: 0.9rem;
-    padding: 6px 8px;
-    margin: 0 0 6px 0;
-  }
-  
-  .my-board::after {
-    font-size: 0.5rem;
-    padding: 1px 4px;
-    top: 4px;
-    right: 6px;
-  }
-  
-  .organ-header {
-    margin-bottom: 6px;
-    padding-bottom: 4px;
-  }
-  
-  .organ-icon {
-    font-size: 0.8rem;
-  }
-  
-  .organ-color {
-    font-size: 0.6rem;
-    padding: 1px 3px;
-  }
-  
-  .organ-status {
-    font-size: 0.5rem;
-    padding: 1px 3px;
-  }
-  
-  .organ-details {
-    font-size: 0.6rem;
-    gap: 3px;
-  }
-  
-  .viruses, .medicines {
-    padding: 3px 4px;
-    font-size: 0.55rem;
-    gap: 4px;
-  }
-  
-  .immunized-indicator {
-    padding: 3px 4px;
-    font-size: 0.55rem;
-  }
-  
-  .detail-icon {
-    font-size: 0.9rem;
-  }
-}
-
 /* Mejoras específicas para 4 jugadores en móvil */
 @media (max-width: 768px) {
   .boards-container[data-player-count="4"] .board {
-    padding: 6px;
+    padding: 4px;
+    margin: 2px 0;
   }
   
   .boards-container[data-player-count="4"] .organs-container {
-    min-height: 100px;
-    max-height: 120px;
-    gap: 4px;
-  }
-  
-  .boards-container[data-player-count="4"] .board h4 {
-    font-size: 0.9rem;
-    padding: 6px 8px;
-  }
-  
-  .boards-container[data-player-count="4"] .organ-card {
-    padding: 4px;
-  }
-  
-  .boards-container[data-player-count="4"] .organ-details {
-    font-size: 0.6rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .boards-container[data-player-count="4"] .board {
-    padding: 4px;
-  }
-  
-  .boards-container[data-player-count="4"] .organs-container {
-    min-height: 80px;
-    max-height: 100px;
+    min-height: 60px;
+    max-height: 80px;
     gap: 2px;
   }
   
   .boards-container[data-player-count="4"] .board h4 {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     padding: 4px 6px;
     margin: 0 0 4px 0;
   }
   
   .boards-container[data-player-count="4"] .organ-card {
-    padding: 3px;
+    padding: 2px;
+    border-radius: 4px;
   }
   
   .boards-container[data-player-count="4"] .organ-details {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
   }
   
   .boards-container[data-player-count="4"] .my-board::after {
+    font-size: 0.4rem;
+    padding: 1px 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .boards-container[data-player-count="4"] .board {
+    padding: 3px;
+    margin: 1px 0;
+  }
+  
+  .boards-container[data-player-count="4"] .organs-container {
+    min-height: 50px;
+    max-height: 70px;
+    gap: 1px;
+  }
+  
+  .boards-container[data-player-count="4"] .board h4 {
+    font-size: 0.6rem;
+    padding: 3px 4px;
+    margin: 0 0 3px 0;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-card {
+    padding: 1px;
+    border-radius: 3px;
+  }
+  
+  .boards-container[data-player-count="4"] .organ-details {
     font-size: 0.45rem;
-    padding: 1px 3px;
+  }
+  
+  .boards-container[data-player-count="4"] .my-board::after {
+    font-size: 0.35rem;
+    padding: 0px 1px;
   }
 }
