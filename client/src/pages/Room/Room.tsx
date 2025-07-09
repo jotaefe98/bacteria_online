@@ -6,7 +6,6 @@ import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
 import { useGame } from "../../hooks/game/useGame";
 
-
 function Room() {
   const { roomId } = useParams();
   //const socketRef = useRef<Socket | null>(null);
@@ -16,17 +15,19 @@ function Room() {
   const {
     updateNickname,
     disconect,
+    startGame,
     showRoom,
     nickname,
     showNicknameInput,
     players,
     isHost,
     maxPlayers,
+    isGameStarted,
   } = useRoomSocket({
     roomId,
   });
 
-  const { startGame, isGameStarted } = useGame({ roomId });
+  const {} = useGame({ roomId });
 
   if (!showRoom) {
     return <div>Loading...</div>;

@@ -1,6 +1,6 @@
 import { Card } from "../types/interfaces";
 
-export const MIN_NUM_PLAYERS = 1;
+export const MIN_NUM_PLAYERS = 2;
 export const MAX_NUM_PLAYERS = 4;
 
 // En el mazo hay 68 cartas divididas así:

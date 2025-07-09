@@ -3,13 +3,14 @@
 ## 📝 Pendientes
 - [ ] Borrar room si se termina el juego
 - [ ] Iniciar juego
-- [ ] Controlar que no se pueda unir mas de el maximo
-- [x] Aplicar el leave room
+
 
 
 ## 🚧 En progreso
 
 ## ✅ Completado
+- [x] Controlar que no se pueda unir mas de el maximo
+- [x] Aplicar el leave room
 - [x] Crear la sala en el backend y solo poder unirse por enlace o boton si existe
 - [x] Si un usuario pone el enlace comprobar si puede unirse
 - [x] Comprobar que la sala no haya iniciado a la hora de unirse

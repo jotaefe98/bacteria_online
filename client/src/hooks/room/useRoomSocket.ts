@@ -6,15 +6,13 @@ import type {
 import { useNavigate } from "react-router-dom";
 import { usePlayerId } from "../usePlayerId";
 import { useAppContext } from "../../context/AppContext";
-
+import type { GameState } from "../../interfaces/game/gameInterfaces";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
 };
 
-export function useRoomSocket({
-  roomId
-}: UseRoomSocketProps) {
+export function useRoomSocket({ roomId }: UseRoomSocketProps) {
   const { socket } = useAppContext();
   const navigate = useNavigate();
   const playerId = usePlayerId();
@@ -24,6 +22,7 @@ export function useRoomSocket({
 
   const [minPlayers, setMinPlayers] = useState<number>();
   const [maxPlayers, setMaxPlayers] = useState<number>();
+  const [isGameStarted, setIsGameStarted] = useState(false);
   const [nickname, setNickname] = useState<string>(
     () => localStorage.getItem("nickname") || ""
   );
@@ -58,6 +57,13 @@ export function useRoomSocket({
     setIsHost(!!me?.isHost);
   };
 
+  const startGame = useCallback(() => {
+    if (socket) {
+      console.log("Starting game in room:", roomId);
+      socket.emit("start-game", roomId);
+    }
+  }, [roomId, socket]);
+
   useEffect(() => {
     if (!roomId || !socket) return;
 
@@ -78,7 +84,6 @@ export function useRoomSocket({
         roomIsFull: boolean,
         isPlayerInRoom: boolean
       ) => {
-
         if (!exist) {
           alert(`Room ${roomId} does not exist.`);
           navigate("/");
@@ -94,16 +99,31 @@ export function useRoomSocket({
         }
       }
     );
+    socket?.on(
+      "game-started",
+      (isStarted: boolean, log: string, gameStatus: GameState) => {
+        console.log("Game started:", isStarted);
+
+        if (isStarted) {
+          console.log("Game status:", JSON.stringify(gameStatus, null, 2));
+          setIsGameStarted(isStarted);
+          //TODO Algo se hara aqui
+        } else {
+          alert(`Cannot start game: ${log}`);
+        }
+      }
+    );
     socket.on("players-update", onPlayersUpdate);
     socket.on("force-disconnect", disconect);
     return () => {
-    socket.off("room-settings");
-    socket.off("existing-room");
-    socket.off("players-update");
-    socket.off("force-disconnect");
-    socket.emit("leave-room", { roomId, playerId });
-  };
-  }, [roomId,socket]);
+      socket.off("room-settings");
+      socket.off("existing-room");
+      socket.off("players-update");
+      socket.off("force-disconnect");
+      socket.off("game-started");
+      socket.emit("leave-room", { roomId, playerId });
+    };
+  }, [roomId, socket]);
 
   return {
     updateNickname,
@@ -115,5 +135,7 @@ export function useRoomSocket({
     isHost,
     minPlayers,
     maxPlayers,
+    startGame,
+    isGameStarted,
   };
 }
