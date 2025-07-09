@@ -33,15 +33,47 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
   const [canEndTurn, setCanEndTurn] = useState(false);
 
   useEffect(() => {
-    if (!isGameStarted || !socket || !isHost) return;
-    console.log("Game started, shuffling deck...");
-    socket.emit("shuffle-deck", roomId);
-  }, [isGameStarted]);
+    console.log("isGameStarted effect:", {
+      isGameStarted,
+      socket: !!socket,
+      isHost,
+      roomId,
+      playerId,
+    });
+
+    if (!isGameStarted || !socket || !roomId) {
+      console.log("Early return - conditions not met");
+      return;
+    }
+
+    // Añadir un pequeño delay para asegurar que el socket esté completamente conectado
+    setTimeout(() => {
+      if (isHost) {
+        console.log("Game started, shuffling deck...");
+        socket.emit("shuffle-deck", roomId);
+      } else {
+        // Los jugadores no-host solicitan el estado actual del juego
+        console.log("Game started, requesting game state...");
+        socket.emit("request-game-state", roomId);
+      }
+    }, 100);
+  }, [isGameStarted, socket, isHost, roomId, playerId]);
 
   useEffect(() => {
     if (!roomId || !socket) return;
 
     socket?.on("deck-shuffled", (data) => {
+      console.log("Received deck-shuffled event:", data);
+      console.log(
+        "Setting hand for playerId:",
+        playerId,
+        "cards:",
+        data.hands[playerId]?.length
+      );
+      console.log("Setting boards:", Object.keys(data.boards || {}));
+      console.log("Setting currentTurn:", data.currentTurn);
+      console.log("Setting playerNames:", data.playerNames);
+
       setHand(data.hands[playerId] || []);
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
@@ -52,6 +84,15 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     });
 
     socket?.on("update-game", (data) => {
+      console.log("Received update-game event:", data);
+      console.log(
+        "Updating hand for playerId:",
+        playerId,
+        "cards:",
+        data.hands[playerId]?.length
+      );
+      console.log("Updating boards:", Object.keys(data.boards || {}));
+
       setHand(data.hands[playerId] || []);
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
@@ -83,7 +124,17 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     setCanDraw(isMyTurn && currentPhase === "draw");
     setCanPlay(isMyTurn && currentPhase === "play_or_discard");
     setCanEndTurn(isMyTurn && currentPhase === "end_turn");
-  }, [currentTurn, currentPhase, playerId]);
+
+    console.log("Game state update:", {
+      playerId,
+      currentTurn,
+      currentPhase,
+      isMyTurn,
+      handCount: hand.length,
+      boards: Object.keys(boards),
+      playerNames,
+    });
+  }, [currentTurn, currentPhase, playerId, hand, boards, playerNames]);
 
   const handleDraw = () => {
     if (socket && canDraw) {

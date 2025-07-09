@@ -44,12 +44,7 @@ function Room() {
 
   if (isGameStarted) {
     return (
-      <Game
-        roomId={roomId!}
-        isGameStarted={isGameStarted}
-        onLeaveRoom={disconect}
-        isHost={isHost}
-      />
+      <Game roomId={roomId!} isGameStarted={isGameStarted} isHost={isHost} />
     );
   }
 

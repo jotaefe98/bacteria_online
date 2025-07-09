@@ -9,32 +9,22 @@ type GameProps = {
   roomId: string;
   isGameStarted: boolean;
   isHost: boolean;
-  onLeaveRoom: () => void;
 };
 
-export function Game({
-  roomId,
-  isGameStarted,
-  onLeaveRoom,
-  isHost,
-}: GameProps) {
+export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   const {
     hand,
     boards,
     currentTurn,
-    currentPhase,
     winner,
-    gameError,
     canDraw,
     canPlay,
-    canEndTurn,
     playerId,
     playerNames,
     handleDraw,
     handleDiscard,
     handleDiscardMultiple,
     handlePlayCard,
-    handleEndTurn,
   } = useGame({ roomId, isGameStarted, isHost });
 
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
@@ -44,11 +34,6 @@ export function Game({
   }>({});
   const getPlayerName = (id: string) => {
     return playerNames[id] || id;
-  };
-
-  const getCurrentTurnPlayerName = () => {
-    if (currentTurn === playerId) return "Your turn!";
-    return getPlayerName(currentTurn);
   };
 
   const getWinnerText = () => {
@@ -105,19 +90,6 @@ export function Game({
     setSelectedTarget({ playerId: organPlayerId, organColor });
   };
 
-  const getPhaseText = () => {
-    switch (currentPhase) {
-      case "play_or_discard":
-        return "Play card or discard";
-      case "draw":
-        return "Draw cards";
-      case "end_turn":
-        return "End turn";
-      default:
-        return currentPhase;
-    }
-  };
-
   if (winner) {
     return (
       <div className="game-container">
@@ -141,9 +113,6 @@ export function Game({
                 </>
               )}
             </div>
-            <button onClick={onLeaveRoom} className="victory-button">
-              🚪 Leave Room
-            </button>
           </div>
         </div>
       </div>
@@ -171,117 +140,15 @@ export function Game({
         ))}
       </div>
 
-      {/* Game controls */}
-
-      {/* Selected target */}
-      {selectedTarget.playerId && selectedTarget.organColor && (
-        <div className="target-info">
-          <div className="target-icon">🎯</div>
-          <div className="target-details">
-            <strong>Target Selected:</strong>
-            <span className="target-description">
-              <span className="target-organ">
-                {selectedTarget.organColor.toUpperCase()}
-              </span>
-              organ from{" "}
-              <span className="target-player">
-                {selectedTarget.playerId === playerId
-                  ? "yourself"
-                  : getPlayerName(selectedTarget.playerId)}
-              </span>
-            </span>
-          </div>
-          <button
-            className="clear-target-btn"
-            onClick={() => setSelectedTarget({})}
-            title="Clear target selection"
-          >
-            ✖
-          </button>
-        </div>
-      )}
-
-      {/* Your hand */}
+      {/* Hand section - Siguiendo estructura exacta del HTML de ejemplo */}
       <div className="hand-section">
-        {/* Game notifications just above hand */}
-        {gameError && <div className="error-message">❌ {gameError}</div>}
-
-        <div className="hand-header">
-          <div className="hand-title-section">
-            <h3>🃏 Your Hand ({hand.length} cards)</h3>
-            <div className="game-status-compact">
-              <div
-                className={`turn-status ${
-                  currentTurn === playerId ? "your-turn" : "other-turn"
-                }`}
-              >
-                <strong>Turn:</strong>
-                <span>
-                  {currentTurn === playerId ? (
-                    <>🎯 Your turn!</>
-                  ) : (
-                    <>⏳ {getPlayerName(currentTurn)}</>
-                  )}
-                </span>
-              </div>
-              <div className="phase-status">
-                <strong>Phase:</strong>
-                <span>
-                  {currentPhase === "play_or_discard"
-                    ? "🎯"
-                    : currentPhase === "draw"
-                    ? "🃏"
-                    : "⏭"}{" "}
-                  {getPhaseText()}
-                </span>
-              </div>
+        <div className="div2">
+          {/* div2-top - Turno y radio buttons */}
+          <div className="div2-top">
+            <div className="turn-display">
+              Turn:{" "}
+              {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
             </div>
-          </div>
-          {/* Hand actions integradas en el header */}
-          {((canPlay && selectedCards.length > 0) || canDraw || canEndTurn) && (
-            <div className="hand-actions-integrated">
-              {canDraw && (
-                <button
-                  onClick={handleDraw}
-                  className="action-button draw-button"
-                >
-                  🃏 Draw Cards
-                </button>
-              )}
-
-              {canEndTurn && (
-                <button
-                  onClick={handleEndTurn}
-                  className="action-button end-turn-button"
-                >
-                  ⏭ End Turn
-                </button>
-              )}
-
-              {canPlay && selectedCards.length > 0 && (
-                <>
-                  {playMode === "single" && selectedCards.length === 1 && (
-                    <button
-                      onClick={handlePlaySelectedCard}
-                      className="action-button play-button"
-                    >
-                      🎯 Play Card
-                    </button>
-                  )}
-                  <button
-                    onClick={handleDiscardSelected}
-                    className="action-button discard-button"
-                  >
-                    🗑 Discard{" "}
-                    {selectedCards.length > 1
-                      ? `${selectedCards.length} cards`
-                      : "card"}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-          <div className="hand-controls">
             <div className="play-mode-selector">
               <label>
                 <input
@@ -302,23 +169,51 @@ export function Game({
                 Discard multiple
               </label>
             </div>
-
-            <button onClick={onLeaveRoom} className="leave-button-compact">
-              🚪 Leave
-            </button>
           </div>
-        </div>
 
-        <div className="hand-container">
-          {hand.map((card) => (
-            <Card
-              key={card.id}
-              card={card}
-              isSelected={selectedCards.includes(card.id)}
-              onClick={() => canPlay && toggleCardSelection(card.id)}
-              disabled={!canPlay}
-            />
-          ))}
+          {/* div2-bottom - Cartas a la izquierda, botones a la derecha */}
+          <div className="div2-bottom">
+            <div className="cards-left">
+              {hand.map((card) => (
+                <Card
+                  key={card.id}
+                  card={card}
+                  isSelected={selectedCards.includes(card.id)}
+                  onClick={() => canPlay && toggleCardSelection(card.id)}
+                  disabled={!canPlay}
+                />
+              ))}
+            </div>
+            <div className="cards-right">
+              <button
+                onClick={handlePlaySelectedCard}
+                className="action-button-new play-button"
+                disabled={
+                  !canPlay ||
+                  selectedCards.length !== 1 ||
+                  playMode !== "single"
+                }
+              >
+                Play
+              </button>
+              <button
+                onClick={handleDiscardSelected}
+                className="action-button-new discard-button"
+                disabled={!canPlay || selectedCards.length === 0}
+              >
+                Discard
+              </button>
+              <button
+                onClick={handleDraw}
+                className={`action-button-new draw-button ${
+                  canDraw ? "can-draw" : ""
+                }`}
+                disabled={!canDraw}
+              >
+                Draw
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

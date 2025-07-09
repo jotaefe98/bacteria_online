@@ -73,6 +73,10 @@ export function registerGameEvents(
         currentPhase: room.currentPhase,
         playerIdList: room.players.map((p) => p.playerId),
         discardPile: room.discardPile,
+        playerNames: room.players.reduce((acc, player) => {
+          acc[player.playerId] = player.nickname || player.playerId;
+          return acc;
+        }, {} as { [playerId: string]: string }),
       });
     }
   });
@@ -265,4 +269,33 @@ export function registerGameEvents(
       }
     }
   );
+
+  socket.on("request-game-state", (roomId: string) => {
+    const room = rooms[roomId] as GameRoom;
+    console.log(`Player ${socket.id} requesting game state for room ${roomId}`);
+    console.log(`Room exists: ${!!room}, has_started: ${room?.has_started}`);
+    console.log(
+      `Room hands: ${room?.hands ? Object.keys(room.hands).length : 0} players`
+    );
+
+    if (room && room.has_started) {
+      console.log(
+        `Sending game state to player ${socket.id} in room ${roomId}`
+      );
+      socket.emit("deck-shuffled", {
+        hands: room.hands,
+        boards: room.boards,
+        currentTurn: room.currentTurn,
+        currentPhase: room.currentPhase,
+        playerIdList: room.players.map((p) => p.playerId),
+        discardPile: room.discardPile,
+        playerNames: room.players.reduce((acc, player) => {
+          acc[player.playerId] = player.nickname || player.playerId;
+          return acc;
+        }, {} as { [playerId: string]: string }),
+      });
+    } else {
+      console.log(`Cannot send game state - room not started or doesn't exist`);
+    }
+  });
 }
