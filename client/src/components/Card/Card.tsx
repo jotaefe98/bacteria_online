@@ -15,18 +15,52 @@ const Card: React.FC<CardProps> = ({
   onClick,
   disabled = false,
 }) => {
-  const getCardIcon = (type: CardType["type"]) => {
+  const getCardIcon = (type: CardType["type"], color: string) => {
     switch (type) {
       case "organ":
-        return "🫀";
+        return getOrganIcon(color);
       case "virus":
         return "🦠";
       case "medicine":
         return "💉";
       case "treatment":
-        return "🧪";
+        return getTreatmentIcon(color);
       default:
         return "❓";
+    }
+  };
+
+  const getOrganIcon = (color: string) => {
+    switch (color.toLowerCase()) {
+      case "red":
+        return "❤️"; // Heart
+      case "green":
+        return "�"; // Lungs
+      case "blue":
+        return "🧠"; // Brain
+      case "yellow":
+        return "🦴"; // Bone
+      case "rainbow":
+        return "🌈"; // Rainbow organ
+      default:
+        return "🫀"; // Generic organ
+    }
+  };
+
+  const getTreatmentIcon = (color: string) => {
+    switch (color.toLowerCase()) {
+      case "transplant":
+        return "🔄";
+      case "organ_thief":
+        return "🦹";
+      case "contagion":
+        return "☣️";
+      case "latex_glove":
+        return "🧤";
+      case "medical_error":
+        return "💥";
+      default:
+        return "🧪";
     }
   };
 
@@ -47,23 +81,6 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  const getCardDescription = () => {
-    switch (card.type) {
-      case "organ":
-        return `${card.color} organ`;
-      case "virus":
-        return `${card.color} virus`;
-      case "medicine":
-        return `${card.color} medicine`;
-      case "treatment":
-        return card.color === "rainbow"
-          ? "Universal treatment"
-          : `${card.color} treatment`;
-      default:
-        return "Unknown card";
-    }
-  };
-
   return (
     <div
       className={`game-card ${getCardColorClass(card.color)} ${
@@ -71,18 +88,11 @@ const Card: React.FC<CardProps> = ({
       } ${disabled ? "disabled" : ""}`}
       onClick={!disabled ? onClick : undefined}
     >
-      <div className="card-header">
-        <div className="card-icon">{getCardIcon(card.type)}</div>
-        <div className="card-type">{card.type.toUpperCase()}</div>
+      <div className="card-icon-center">
+        {getCardIcon(card.type, card.color)}
       </div>
 
-      <div className="card-body">
-        <div className="card-color-display">{card.color.toUpperCase()}</div>
-      </div>
-
-      <div className="card-footer">
-        <div className="card-description">{getCardDescription()}</div>
-      </div>
+      <div className="card-color-display">{card.color.toUpperCase()}</div>
     </div>
   );
 };

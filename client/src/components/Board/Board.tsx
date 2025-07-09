@@ -7,6 +7,7 @@ import "./Board.css";
 interface BoardProps {
   board: PlayerBoard;
   playerId: string;
+  playerName?: string;
   isCurrentPlayer: boolean;
   onOrganClick?: (organColor: string) => void;
 }
@@ -14,6 +15,7 @@ interface BoardProps {
 export function Board({
   board,
   playerId,
+  playerName,
   isCurrentPlayer,
   onOrganClick,
 }: BoardProps) {
@@ -79,7 +81,7 @@ export function Board({
         ) : (
           <>
             <span className="board-icon">🏥</span>
-            {`${playerId}'s Medical Table`}
+            {`${playerName || playerId}'s Medical Table`}
           </>
         )}
       </h4>

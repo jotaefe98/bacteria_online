@@ -24,6 +24,9 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     useState<GamePhase>("play_or_discard");
   const [winner, setWinner] = useState<string | undefined>();
   const [gameError, setGameError] = useState<string>("");
+  const [playerNames, setPlayerNames] = useState<{
+    [playerId: string]: string;
+  }>({});
 
   const [canDraw, setCanDraw] = useState(false);
   const [canPlay, setCanPlay] = useState(false);
@@ -43,6 +46,9 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
       setCurrentPhase(data.currentPhase);
+      if (data.playerNames) {
+        setPlayerNames(data.playerNames);
+      }
     });
 
     socket?.on("update-game", (data) => {
@@ -50,6 +56,9 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
       setCurrentPhase(data.currentPhase);
+      if (data.playerNames) {
+        setPlayerNames(data.playerNames);
+      }
     });
 
     socket?.on("game-won", (data) => {
@@ -118,6 +127,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     canPlay,
     canEndTurn,
     playerId,
+    playerNames,
     handleDraw,
     handleDiscard,
     handleDiscardMultiple,

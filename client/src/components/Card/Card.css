@@ -8,12 +8,15 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin: 6px;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   user-select: none;
+  gap: 8px;
 }
 
 .game-card::before {
@@ -55,59 +58,32 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Card sections */
-.card-header {
-  padding: 6px 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
-  min-height: 28px;
+/* New simplified card layout */
+.card-icon-center {
+  font-size: 2.5rem;
+  text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  animation: icon-float 3s ease-in-out infinite;
 }
 
-.card-icon {
-  font-size: 1.2rem;
-}
-
-.card-type {
-  font-size: 0.6rem;
-  font-weight: bold;
-  color: #666;
-  letter-spacing: 0.5px;
-}
-
-.card-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
+@keyframes icon-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 .card-color-display {
   font-size: 0.9rem;
   font-weight: bold;
   text-align: center;
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 8px;
   background: rgba(0,0,0,0.1);
   color: #333;
-}
-
-.card-footer {
-  padding: 4px 6px;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-}
-
-.card-description {
-  font-size: 0.5rem;
-  color: #666;
-  text-align: center;
-  width: 100%;
-  line-height: 1.2;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 /* Color-specific styles */
