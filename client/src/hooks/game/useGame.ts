@@ -134,7 +134,15 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       boards: Object.keys(boards),
       playerNames,
     });
-  }, [currentTurn, currentPhase, playerId, hand, boards, playerNames]);
+
+    // Pasar turno automáticamente cuando el jugador está en la fase "end_turn"
+    if (isMyTurn && currentPhase === "end_turn" && socket) {
+      console.log("Auto-ending turn for player:", playerId);
+      setTimeout(() => {
+        socket.emit("end-turn", roomId, playerId);
+      }, 500); // Pequeño delay para que el jugador vea el cambio
+    }
+  }, [currentTurn, currentPhase, playerId, hand, boards, playerNames, socket, roomId]);
 
   const handleDraw = () => {
     if (socket && canDraw) {

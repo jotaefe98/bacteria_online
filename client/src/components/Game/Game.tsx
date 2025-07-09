@@ -16,6 +16,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     hand,
     boards,
     currentTurn,
+    currentPhase,
     winner,
     canDraw,
     canPlay,
@@ -40,6 +41,22 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     if (!winner) return "";
     if (winner === playerId) return "You won!";
     return `Winner: ${getPlayerName(winner)}`;
+  };
+
+  const getPhaseText = () => {
+    const isMyTurn = currentTurn === playerId;
+    if (!isMyTurn) return "Wait for your turn";
+    
+    switch (currentPhase) {
+      case "play_or_discard":
+        return "Play a card or discard";
+      case "draw":
+        return "Draw cards";
+      case "end_turn":
+        return "Ending turn...";
+      default:
+        return "";
+    }
   };
 
   const [playMode, setPlayMode] = useState<"single" | "multiple">("single");
@@ -146,8 +163,12 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
           {/* div2-top - Turno y radio buttons */}
           <div className="div2-top">
             <div className="turn-display">
-              Turn:{" "}
-              {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
+              <span>
+                Turn: {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
+              </span>
+              <span className="turn-indicator">
+                {getPhaseText()}
+              </span>
             </div>
             <div className="play-mode-selector">
               <label>
@@ -205,9 +226,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               </button>
               <button
                 onClick={handleDraw}
-                className={`action-button-new draw-button ${
-                  canDraw ? "can-draw" : ""
-                }`}
+                className="action-button-new draw-button"
                 disabled={!canDraw}
               >
                 Draw
