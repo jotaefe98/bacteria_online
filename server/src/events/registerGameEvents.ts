@@ -17,6 +17,19 @@ export function registerGameEvents(
   socket.on("start-game", (roomId: string) => {
     const room = rooms[roomId] as GameRoom;
     if (room && room.players?.length >= MIN_NUM_PLAYERS) {
+      console.log(`Game started in room ${roomId}`);
+      io.to(roomId).emit("game-started", true);
+    } else {
+      console.log(
+        `Cannot start game in room ${roomId}. Not enough players or room does not exist.`
+      );
+      socket.emit("game-started", false, "not enough players");
+    }
+  });
+
+  socket.on("shuffle-deck", (roomId: string) => {
+    const room = rooms[roomId] as GameRoom;
+    if (room && !room.has_started) {
       // Shuffle the deck
       const deck = [...BASE_DECK].sort(() => Math.random() - 0.5);
       room.deck = deck;
@@ -27,17 +40,11 @@ export function registerGameEvents(
       }
       room.has_started = true;
       room.currentTurn = room.players[0].playerId;
-      console.log(`Game started in room ${roomId}`);
-      io.to(roomId).emit("game-started", true, "",{
+      io.to(roomId).emit("deck-shuffled", {
         hands: room.hands,
         currentTurn: room.currentTurn,
         playerIdList: room.players.map((p) => p.playerId),
       });
-    } else {
-      console.log(
-        `Cannot start game in room ${roomId}. Not enough players or room does not exist.`
-      );
-      socket.emit("game-started", false, "not enough players");
     }
   });
 

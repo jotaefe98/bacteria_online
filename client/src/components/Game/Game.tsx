@@ -1,74 +1,23 @@
-import { useEffect, useState } from "react";
-import { useAppContext } from "../../context/AppContext";
-
-type Card = {
-  id: string;
-  type: string;
-  color: string;
-};
+import { useGame } from "../../hooks/game/useGame";
 
 type GameProps = {
+  roomId: string;
+  isGameStarted: boolean;
+  isHost: boolean;
   onLeaveRoom: () => void;
 };
 
-export function Game({ onLeaveRoom }: GameProps) {
-   const { socket } = useAppContext();
-  const [hand, setHand] = useState<Card[]>([]);
-  const [currentTurn, setCurrentTurn] = useState<string>("");
-  const [playerId, setPlayerId] = useState<string>("");
-
-  const [canDraw, setCanDraw] = useState(false);
-
-  const roomId = window.location.pathname.split("/").pop() || "";
-
-  // 1. Carga playerId antes de conectar socket
-  useEffect(() => {
-    const id = localStorage.getItem("playerId") || "";
-    setPlayerId(id);
-  }, []);
-
-  // 2. Solo conecta socket y escucha eventos si hay playerId
-  useEffect(() => {
-    if (!playerId) return;
-
-    socket?.on("game-started", (_ok, data) => {
-      setHand(data.hands[playerId] || []);
-      setCurrentTurn(data.currentTurn);
-    });
-
-    socket?.on("update-game", (data) => {
-      setHand(data.hands[playerId] || []);
-      setCurrentTurn(data.currentTurn);
-    });
-
-    return () => {
-      socket?.off("game-started");
-      socket?.off("update-game");
-    };
-
-  }, [playerId]);
-
-  useEffect(() => {
-    setCanDraw(currentTurn === playerId);
-  }, [currentTurn, playerId]);
-
-  const handleDraw = () => {
-    if (socket && canDraw) {
-      socket.emit("draw-card", roomId, playerId);
-    }
-  };
-
-  const handleDiscard = (cardId: string) => {
-    if (socket && canDraw) {
-      socket.emit("discard-card", roomId, playerId, cardId);
-    }
-  };
+export function Game({ roomId, isGameStarted, onLeaveRoom, isHost }: GameProps) {
+  const { hand, handleDraw, handleDiscard, currentTurn, canDraw, playerId } =
+    useGame({ roomId, isGameStarted, isHost });
 
   return (
     <div>
       <h2>Partida en curso</h2>
       <p>Tu ID: {playerId}</p>
-      <p>Turno actual: {currentTurn === playerId ? "¡Tu turno!" : currentTurn}</p>
+      <p>
+        Turno actual: {currentTurn === playerId ? "¡Tu turno!" : currentTurn}
+      </p>
       <button onClick={handleDraw} disabled={!canDraw}>
         Robar carta
       </button>

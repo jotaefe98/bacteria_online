@@ -4,7 +4,6 @@ import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
-import { useGame } from "../../hooks/game/useGame";
 
 function Room() {
   const { roomId } = useParams();
@@ -27,7 +26,7 @@ function Room() {
     roomId,
   });
 
-  const {} = useGame({ roomId });
+
 
   if (!showRoom) {
     return <div>Loading...</div>;
@@ -45,7 +44,7 @@ function Room() {
   if (isGameStarted) {
     return (
       <>
-        <Game onLeaveRoom={disconect} />
+        <Game roomId={roomId!} isGameStarted={isGameStarted} onLeaveRoom={disconect} isHost={isHost} />
       </>
     );
   }

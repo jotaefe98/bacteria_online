@@ -6,7 +6,6 @@ import type {
 import { useNavigate } from "react-router-dom";
 import { usePlayerId } from "../usePlayerId";
 import { useAppContext } from "../../context/AppContext";
-import type { GameState } from "../../interfaces/game/gameInterfaces";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
@@ -99,20 +98,16 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         }
       }
     );
-    socket?.on(
-      "game-started",
-      (isStarted: boolean, log: string, gameStatus: GameState) => {
-        console.log("Game started:", isStarted);
+    socket?.on("game-started", (isStarted: boolean, log: string) => {
+      console.log("Game started:", isStarted);
 
-        if (isStarted) {
-          console.log("Game status:", JSON.stringify(gameStatus, null, 2));
-          setIsGameStarted(isStarted);
-          //TODO Algo se hara aqui
-        } else {
-          alert(`Cannot start game: ${log}`);
-        }
+      if (isStarted) {
+        setIsGameStarted(isStarted);
+        //TODO Algo se hara aqui
+      } else {
+        alert(`Cannot start game: ${log}`);
       }
-    );
+    });
     socket.on("players-update", onPlayersUpdate);
     socket.on("force-disconnect", disconect);
     return () => {
