@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useGame } from "../../hooks/game/useGame";
 import { Board } from "../Board/Board";
-import type {
-  Card,
-  PlayCardAction,
-} from "../../interfaces/game/gameInterfaces";
+import Card from "../Card/Card";
+import type { PlayCardAction } from "../../interfaces/game/gameInterfaces";
 import "./Game.css";
 
 type GameProps = {
@@ -91,21 +89,6 @@ export function Game({
     setSelectedTarget({ playerId: organPlayerId, organColor });
   };
 
-  const getCardTypeIcon = (type: Card["type"]) => {
-    switch (type) {
-      case "organ":
-        return "🫀";
-      case "virus":
-        return "🦠";
-      case "medicine":
-        return "💉";
-      case "treatment":
-        return "🧪";
-      default:
-        return "❓";
-    }
-  };
-
   const getPhaseText = () => {
     switch (currentPhase) {
       case "play_or_discard":
@@ -122,9 +105,33 @@ export function Game({
   if (winner) {
     return (
       <div className="game-container">
-        <h2>🎉 Game Over! 🎉</h2>
-        <p>{winner === playerId ? "You won!" : `Winner: ${winner}`}</p>
-        <button onClick={onLeaveRoom}>Leave Room</button>
+        <div className="victory-screen">
+          <div className="victory-content">
+            <h1 className="victory-title">🎉 GAME OVER! 🎉</h1>
+            <div className="victory-message">
+              {winner === playerId ? (
+                <>
+                  <div className="winner-badge">🏆 VICTORY! 🏆</div>
+                  <p className="winner-text">
+                    Congratulations! You have won the game!
+                  </p>
+                  <div className="celebration">🎊🎈🎁🎈🎊</div>
+                </>
+              ) : (
+                <>
+                  <div className="loser-badge">😔 DEFEAT</div>
+                  <p className="loser-text">
+                    Winner: <strong>{winner}</strong>
+                  </p>
+                  <p className="encourage-text">Better luck next time!</p>
+                </>
+              )}
+            </div>
+            <button onClick={onLeaveRoom} className="victory-button">
+              🚪 Leave Room
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -134,16 +141,43 @@ export function Game({
       <div className="game-header">
         <h2>🦠 Virus! - Game in Progress</h2>
         <div className="game-info">
-          <p>
-            <strong>Your ID:</strong> {playerId}
-          </p>
-          <p>
-            <strong>Turn:</strong>{" "}
-            {currentTurn === playerId ? "Your turn!" : currentTurn}
-          </p>
-          <p>
-            <strong>Phase:</strong> {getPhaseText()}
-          </p>
+          <div className="info-card player-info">
+            <strong>Your ID:</strong>
+            <span className="player-id">{playerId}</span>
+          </div>
+          <div
+            className={`info-card turn-info ${
+              currentTurn === playerId ? "your-turn" : "other-turn"
+            }`}
+          >
+            <strong>Current Turn:</strong>
+            <span className="turn-player">
+              {currentTurn === playerId ? (
+                <>
+                  <span className="turn-indicator">🎯</span>
+                  Your turn!
+                </>
+              ) : (
+                <>
+                  <span className="turn-indicator">⏳</span>
+                  {currentTurn}
+                </>
+              )}
+            </span>
+          </div>
+          <div className="info-card phase-info">
+            <strong>Phase:</strong>
+            <span className="current-phase">
+              <span className="phase-icon">
+                {currentPhase === "play_or_discard"
+                  ? "🎯"
+                  : currentPhase === "draw"
+                  ? "🃏"
+                  : "⏭"}
+              </span>
+              {getPhaseText()}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -185,8 +219,28 @@ export function Game({
       {/* Selected target */}
       {selectedTarget.playerId && selectedTarget.organColor && (
         <div className="target-info">
-          🎯 Target: {selectedTarget.organColor} organ from{" "}
-          {selectedTarget.playerId}
+          <div className="target-icon">🎯</div>
+          <div className="target-details">
+            <strong>Target Selected:</strong>
+            <span className="target-description">
+              <span className="target-organ">
+                {selectedTarget.organColor.toUpperCase()}
+              </span>
+              organ from{" "}
+              <span className="target-player">
+                {selectedTarget.playerId === playerId
+                  ? "yourself"
+                  : selectedTarget.playerId}
+              </span>
+            </span>
+          </div>
+          <button
+            className="clear-target-btn"
+            onClick={() => setSelectedTarget({})}
+            title="Clear target selection"
+          >
+            ✖
+          </button>
         </div>
       )}
 
@@ -218,17 +272,13 @@ export function Game({
 
         <div className="hand-container">
           {hand.map((card) => (
-            <div
+            <Card
               key={card.id}
-              className={`card ${
-                selectedCards.includes(card.id) ? "selected" : ""
-              }`}
+              card={card}
+              isSelected={selectedCards.includes(card.id)}
               onClick={() => canPlay && toggleCardSelection(card.id)}
-            >
-              <div className="card-icon">{getCardTypeIcon(card.type)}</div>
-              <div className="card-type">{card.type.toUpperCase()}</div>
-              <div className="card-color">{card.color.toUpperCase()}</div>
-            </div>
+              disabled={!canPlay}
+            />
           ))}
         </div>
 

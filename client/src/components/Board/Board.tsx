@@ -37,38 +37,79 @@ export function Board({
   const getStatusText = (status: OrganState["status"]) => {
     switch (status) {
       case "healthy":
-        return "Healthy";
+        return "🌿 Healthy";
       case "infected":
-        return "Infected";
+        return "🦠 Infected";
       case "vaccinated":
-        return "Vaccinated";
+        return "💉 Vaccinated";
       case "immunized":
-        return "Immunized";
+        return "🛡️ Immunized";
       case "destroyed":
-        return "Destroyed";
+        return "💀 Destroyed";
       default:
-        return "Healthy";
+        return "🌿 Healthy";
+    }
+  };
+
+  const getOrganTypeIcon = (color: string) => {
+    switch (color.toLowerCase()) {
+      case "red":
+        return "❤️"; // Heart
+      case "green":
+        return "🫁"; // Lungs
+      case "blue":
+        return "🧠"; // Brain
+      case "yellow":
+        return "🦴"; // Bone
+      case "rainbow":
+        return "🌈"; // Rainbow organ
+      default:
+        return "🫀"; // Generic organ
     }
   };
 
   return (
     <div className={`board ${isCurrentPlayer ? "my-board" : "other-board"}`}>
-      <h4>{isCurrentPlayer ? "Your Table" : `${playerId}'s Table`}</h4>
+      <h4>
+        {isCurrentPlayer ? (
+          <>
+            <span className="board-icon">👤</span>
+            Your Medical Table
+          </>
+        ) : (
+          <>
+            <span className="board-icon">🏥</span>
+            {`${playerId}'s Medical Table`}
+          </>
+        )}
+      </h4>
       <div className="organs-container">
         {Object.entries(board.organs).length === 0 ? (
-          <p className="no-organs">No organs on the table</p>
+          <div className="no-organs">
+            <div className="no-organs-icon">🫀</div>
+            <p>No organs on the table</p>
+            <small>
+              Play organ cards to start building your medical collection
+            </small>
+          </div>
         ) : (
           Object.entries(board.organs).map(([color, organState]) => (
             <div
               key={color}
               className={`organ-card ${organState.status}`}
+              data-color={organState.organ.color}
               style={{ borderColor: getOrganStatusColor(organState.status) }}
               onClick={() => onOrganClick && onOrganClick(color)}
             >
               <div className="organ-header">
-                <span className="organ-color">
-                  {organState.organ.color.toUpperCase()}
-                </span>
+                <div className="organ-info">
+                  <span className="organ-icon">
+                    {getOrganTypeIcon(organState.organ.color)}
+                  </span>
+                  <span className="organ-color">
+                    {organState.organ.color.toUpperCase()}
+                  </span>
+                </div>
                 <span className="organ-status">
                   {getStatusText(organState.status)}
                 </span>
@@ -77,13 +118,22 @@ export function Board({
               <div className="organ-details">
                 {organState.viruses.length > 0 && (
                   <div className="viruses">
-                    <span>🦠 Viruses: {organState.viruses.length}</span>
+                    <span className="detail-icon">🦠</span>
+                    <span>Viruses: {organState.viruses.length}</span>
                   </div>
                 )}
 
                 {organState.medicines.length > 0 && (
                   <div className="medicines">
-                    <span>💉 Medicines: {organState.medicines.length}</span>
+                    <span className="detail-icon">💉</span>
+                    <span>Medicines: {organState.medicines.length}</span>
+                  </div>
+                )}
+
+                {organState.status === "immunized" && (
+                  <div className="immunized-indicator">
+                    <span className="detail-icon">🛡️</span>
+                    <span>Protected from all threats!</span>
                   </div>
                 )}
               </div>
