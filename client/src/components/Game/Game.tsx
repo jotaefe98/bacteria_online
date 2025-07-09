@@ -3,7 +3,7 @@ import { useGame } from "../../hooks/game/useGame";
 import { Board } from "../Board/Board";
 import Card from "../Card/Card";
 import type { PlayCardAction } from "../../interfaces/game/gameInterfaces";
-import "./Game_new.css";
+import "./Game.css";
 
 type GameProps = {
   roomId: string;
@@ -237,7 +237,50 @@ export function Game({
               </div>
             </div>
           </div>
+          {/* Hand actions integradas en el header */}
+          {((canPlay && selectedCards.length > 0) || canDraw || canEndTurn) && (
+            <div className="hand-actions-integrated">
+              {canDraw && (
+                <button
+                  onClick={handleDraw}
+                  className="action-button draw-button"
+                >
+                  🃏 Draw Cards
+                </button>
+              )}
 
+              {canEndTurn && (
+                <button
+                  onClick={handleEndTurn}
+                  className="action-button end-turn-button"
+                >
+                  ⏭ End Turn
+                </button>
+              )}
+
+              {canPlay && selectedCards.length > 0 && (
+                <>
+                  {playMode === "single" && selectedCards.length === 1 && (
+                    <button
+                      onClick={handlePlaySelectedCard}
+                      className="action-button play-button"
+                    >
+                      🎯 Play Card
+                    </button>
+                  )}
+                  <button
+                    onClick={handleDiscardSelected}
+                    className="action-button discard-button"
+                  >
+                    🗑 Discard{" "}
+                    {selectedCards.length > 1
+                      ? `${selectedCards.length} cards`
+                      : "card"}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <div className="hand-controls">
             <div className="play-mode-selector">
               <label>
@@ -277,50 +320,6 @@ export function Game({
             />
           ))}
         </div>
-
-        {((canPlay && selectedCards.length > 0) || canDraw || canEndTurn) && (
-          <div className="hand-actions">
-            {canDraw && (
-              <button
-                onClick={handleDraw}
-                className="action-button draw-button"
-              >
-                🃏 Draw Cards
-              </button>
-            )}
-
-            {canEndTurn && (
-              <button
-                onClick={handleEndTurn}
-                className="action-button end-turn-button"
-              >
-                ⏭ End Turn
-              </button>
-            )}
-
-            {canPlay && selectedCards.length > 0 && (
-              <>
-                {playMode === "single" && selectedCards.length === 1 && (
-                  <button
-                    onClick={handlePlaySelectedCard}
-                    className="action-button play-button"
-                  >
-                    🎯 Play Card
-                  </button>
-                )}
-                <button
-                  onClick={handleDiscardSelected}
-                  className="action-button discard-button"
-                >
-                  🗑 Discard{" "}
-                  {selectedCards.length > 1
-                    ? `${selectedCards.length} cards`
-                    : "card"}
-                </button>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
