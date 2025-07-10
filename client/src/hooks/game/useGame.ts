@@ -151,6 +151,23 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       // No notificamos vacunación, solo curación e inmunización
     });
 
+    socket?.on("organ-vaccinated", (data) => {
+      showNotification({
+        type: "success",
+        message: `${data.byPlayer} vaccinated your ${data.organColor} organ`,
+        icon: "💉",
+      });
+    });
+
+    socket?.on("treatment-used", (data) => {
+      // Global notification for treatment usage
+      showNotification({
+        type: "info",
+        message: `${data.byPlayer} used ${data.treatmentName}`,
+        icon: "🧪",
+      });
+    });
+
     socket?.on("organ-stolen", (data) => {
       gameNotifications.organStolen(data.organColor, data.byPlayer);
     });
@@ -193,6 +210,8 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       socket?.off("organ-destroyed");
       socket?.off("vaccine-destroyed");
       socket?.off("organ-treated");
+      socket?.off("organ-vaccinated");
+      socket?.off("treatment-used");
       socket?.off("organ-stolen");
       socket?.off("medical-error-used");
       socket?.off("hand-discarded");

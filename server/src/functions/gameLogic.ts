@@ -113,6 +113,14 @@ export function canPlayCard(
         };
       }
 
+      // Cannot apply medicine to immunized organs (they already have 2 medicines)
+      if (medicineTargetOrgan.status === "immunized") {
+        return {
+          canPlay: false,
+          reason: "Cannot apply medicine to an immunized organ",
+        };
+      }
+
       return { canPlay: true };
 
     case "treatment":
