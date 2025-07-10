@@ -137,62 +137,64 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
         className="boards-container"
         data-player-count={Object.keys(boards).length}
       >
-        {Object.entries(boards).map(([playerBoardId, board]) => (
-          <Board
-            key={playerBoardId}
-            board={board}
-            playerId={playerBoardId}
-            playerName={getPlayerName(playerBoardId)}
-            isCurrentPlayer={playerBoardId === playerId}
-            currentTurn={currentTurn}
-            onOrganClick={(organColor) =>
-              handleOrganClick(playerBoardId, organColor)
-            }
-          />
-        ))}
+        {Object.entries(boards)
+          .sort(([playerBoardId]) => {
+            // El jugador actual siempre al final
+            return playerBoardId === playerId ? 1 : -1;
+          })
+          .map(([playerBoardId, board]) => (
+            <Board
+              key={playerBoardId}
+              board={board}
+              playerId={playerBoardId}
+              playerName={getPlayerName(playerBoardId)}
+              isCurrentPlayer={playerBoardId === playerId}
+              currentTurn={currentTurn}
+              onOrganClick={(organColor) =>
+                handleOrganClick(playerBoardId, organColor)
+              }
+            />
+          ))}
       </div>
 
       <div className="hand-section">
-
-
-          {/* div2-bottom - Cards in the left, buttons in the right */}
-          <div className="div2-bottom">
-            <div className="cards-left">
-              {hand.map((card) => (
-                <Card
-                  key={card.id}
-                  card={card}
-                  isSelected={selectedCards.includes(card.id)}
-                  onClick={() => canPlay && cardSelection(card.id)}
-                  disabled={!canPlay}
-                />
-              ))}
-            </div>
-            <div className="cards-right">
-              <button
-                onClick={handlePlaySelectedCard}
-                className="action-button-new play-button"
-                disabled={!canPlay || selectedCards.length !== 1}
-              >
-                Play
-              </button>
-              <button
-                onClick={handleDiscardSelected}
-                className="action-button-new discard-button"
-                disabled={!canPlay || selectedCards.length === 0}
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleDraw}
-                className="action-button-new draw-button"
-                disabled={!canDraw}
-              >
-                Draw
-              </button>
-            </div>
+        {/* div2-bottom - Cards in the left, buttons in the right */}
+        <div className="div2-bottom">
+          <div className="cards-left">
+            {hand.map((card) => (
+              <Card
+                key={card.id}
+                card={card}
+                isSelected={selectedCards.includes(card.id)}
+                onClick={() => canPlay && cardSelection(card.id)}
+                disabled={!canPlay}
+              />
+            ))}
           </div>
-        
+          <div className="cards-right">
+            <button
+              onClick={handlePlaySelectedCard}
+              className="action-button-new play-button"
+              disabled={!canPlay || selectedCards.length !== 1}
+            >
+              Play
+            </button>
+            <button
+              onClick={handleDiscardSelected}
+              className="action-button-new discard-button"
+              disabled={!canPlay || selectedCards.length === 0}
+            >
+              Discard
+            </button>
+            <button
+              onClick={handleDraw}
+              className="action-button-new draw-button"
+              disabled={!canDraw}
+            >
+              Draw
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

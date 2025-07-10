@@ -27,26 +27,41 @@
 .my-board {
   border-color: #007bff;
   background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+  position: relative;
+  animation: my-board-glow 3s ease-in-out infinite;
   /* Removido transform: scale(1.02) para evitar problemas de layout */
 }
 
-.my-boardd::after {
+@keyframes my-board-glow {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.35);
+  }
+}
+
+.my-board::after {
   content: '👤 YOU';
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 8px;
+  right: 12px;
   background: linear-gradient(45deg, #007bff, #0056b3);
   color: white;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  z-index: 10;
 }
 
 .other-board {
   border-color: #6c757d;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .board h4 {
@@ -427,8 +442,8 @@
   }
   
   .my-board::after {
-    font-size: 0.55rem;
-    padding: 2px 4px;
+    font-size: 0.6rem;
+    padding: 2px 6px;
     top: 4px;
     right: 6px;
   }
