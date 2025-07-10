@@ -21,15 +21,17 @@ export function registerRoomEvents(
     if (existingPlayer) {
       // Player is reconnecting - update their socket ID and potentially disconnect old connection
       if (existingPlayer.socketId !== socket.id) {
-        console.log(`Player ${playerId} reconnecting - updating socket ID from ${existingPlayer.socketId} to ${socket.id}`);
+        console.log(
+          `Player ${playerId} reconnecting - updating socket ID from ${existingPlayer.socketId} to ${socket.id}`
+        );
         io.to(existingPlayer.socketId).emit("force-disconnect");
         existingPlayer.socketId = socket.id;
-        
+
         // Update nickname if provided
         if (nickname) {
           existingPlayer.nickname = nickname;
         }
-        
+
         // If game has started, send current game state
         const gameRoom = rooms[roomId] as any;
         if (gameRoom.has_started && gameRoom.hands && gameRoom.boards) {

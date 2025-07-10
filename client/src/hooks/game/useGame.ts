@@ -83,7 +83,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       if (data.playerNames) {
         setPlayerNames(data.playerNames);
       }
-      
+
       // Save game session information for persistence
       localStorage.setItem("currentRoomId", roomId!);
       localStorage.setItem("gameStarted", "true");
@@ -116,7 +116,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       } else {
         gameNotifications.gameLost(playerNames[data.winner] || data.winner);
       }
-      
+
       // Clear game session data when game ends
       localStorage.removeItem("currentRoomId");
       localStorage.removeItem("gameStarted");

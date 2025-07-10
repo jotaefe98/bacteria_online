@@ -72,6 +72,18 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
     if (!roomId || !socket) return;
 
     console.log("Connecting to room:", roomId);
+
+    // Check if user was in this specific room when page refreshed
+    const savedRoomId = localStorage.getItem("currentRoomId");
+    const savedGameState = localStorage.getItem("gameStarted");
+    const savedPlayerId = localStorage.getItem("playerId");
+
+    // Only auto-reconnect if we're trying to join the same room that was saved
+    if (savedRoomId === roomId && savedGameState === "true" && savedPlayerId) {
+      console.log("Auto-reconnecting to saved game session in room:", roomId);
+      toast.loading("Reconnecting to your game...", { id: "reconnecting" });
+    }
+
     socket?.emit("existing-room", roomId, playerId);
 
     socket?.on("room-settings", (roomSettings: roomSettings) => {
@@ -90,9 +102,15 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         isReconnecting?: boolean
       ) => {
         if (!exist) {
+          // Clear session data if room doesn't exist
+          localStorage.removeItem("currentRoomId");
+          localStorage.removeItem("gameStarted");
           alert(`Room ${roomId} does not exist.`);
           navigate("/");
         } else if (roomIsStarted && !isPlayerInRoom) {
+          // Clear session data if player isn't in the room
+          localStorage.removeItem("currentRoomId");
+          localStorage.removeItem("gameStarted");
           alert(`The game in room ${roomId} has already started.`);
           navigate("/");
         } else if (roomIsFull && !isPlayerInRoom) {
@@ -101,16 +119,22 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         } else {
           setShowRoom(true);
           socket?.emit("join-room", { roomId, playerId, nickname });
-          
+
           // If this is a reconnection to a game in progress, set the game as started
           if (isReconnecting) {
-            console.log("Reconnecting to game in progress");
+            console.log("Successfully reconnected to game in progress");
             setIsGameStarted(true);
-            // Clear the reconnecting toast if it exists
+            // Clear the reconnecting toast and show success
             setTimeout(() => {
               toast.dismiss("reconnecting");
-              toast.success("Reconnected to game!", { duration: 2000 });
+              toast.success("🎮 Reconnected to your game!", {
+                duration: 3000,
+                icon: "🔄",
+              });
             }, 500);
+          } else {
+            // Clear any existing reconnection toast if this is a normal join
+            toast.dismiss("reconnecting");
           }
         }
       }
@@ -130,7 +154,7 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
     });
     socket.on("players-update", onPlayersUpdate);
     socket.on("force-disconnect", disconect);
-    
+
     // Listen for game end to clean up session data
     socket.on("game-ended", () => {
       console.log("Game ended, cleaning up session data");

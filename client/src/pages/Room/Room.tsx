@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
@@ -9,6 +9,7 @@ import "./Room.css";
 function Room() {
   const { roomId } = useParams();
   const [tempNickname, setTempNickname] = useState<string>("");
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const {
     updateNickname,
@@ -26,13 +27,29 @@ function Room() {
     roomId,
   });
 
+  useEffect(() => {
+    // Check if we're reconnecting to a saved game session
+    const savedRoomId = localStorage.getItem("currentRoomId");
+    const savedGameState = localStorage.getItem("gameStarted");
+
+    if (savedRoomId === roomId && savedGameState === "true") {
+      setIsReconnecting(true);
+      // Clear reconnecting state after a reasonable time
+      setTimeout(() => {
+        setIsReconnecting(false);
+      }, 3000);
+    }
+  }, [roomId]);
+
   if (!showRoom) {
     return (
       <div className="loading-container">
         <div className="loading-spinner">
           <div className="virus-spinner">🦠</div>
         </div>
-        <p>Loading room...</p>
+        <p>
+          {isReconnecting ? "Reconnecting to your game..." : "Loading room..."}
+        </p>
       </div>
     );
   }

@@ -93,7 +93,9 @@ export function registerGameEvents(
   socket.on("request-game-state", (roomId: string) => {
     const room = rooms[roomId] as GameRoom;
     if (room && room.has_started && room.hands && room.boards) {
-      console.log(`Sending current game state to reconnecting player in room ${roomId}`);
+      console.log(
+        `Sending current game state to reconnecting player in room ${roomId}`
+      );
       socket.emit("deck-shuffled", {
         hands: room.hands,
         boards: room.boards,
