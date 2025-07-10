@@ -3,6 +3,7 @@ import { useGame } from "../../hooks/game/useGame";
 import { Board } from "../Board/Board";
 import Card from "../Card/Card";
 import type { PlayCardAction } from "../../interfaces/game/gameInterfaces";
+import { useNavigate } from "react-router-dom";
 import "./Game.css";
 
 type GameProps = {
@@ -12,6 +13,7 @@ type GameProps = {
 };
 
 export function Game({ roomId, isGameStarted, isHost }: GameProps) {
+  const navigate = useNavigate();
   const {
     hand,
     boards,
@@ -82,6 +84,16 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     if (!winner) return "";
     if (winner === playerId) return "You won!";
     return `Winner: ${getPlayerName(winner)}`;
+  };
+
+  const handleBackToMenu = () => {
+    // Clear game session data
+    localStorage.removeItem("currentRoomId");
+    localStorage.removeItem("gameStarted");
+    console.log("Game session cleared - returning to main menu");
+
+    // Navigate to main menu
+    navigate("/");
   };
 
   const cardSelection = (cardId: string) => {
@@ -326,6 +338,9 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                 </>
               )}
             </div>
+            <button className="back-to-menu-button" onClick={handleBackToMenu}>
+              🏠 Back to Main Menu
+            </button>
           </div>
         </div>
       </div>

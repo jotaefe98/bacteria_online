@@ -570,12 +570,23 @@ function applyMedicalError(
 
 // Function to check win condition
 export function checkWinCondition(playerBoard: PlayerBoard): boolean {
-  const healthyOrgans = Object.values(playerBoard.organs).filter(
-    (organ) =>
+  console.log(
+    "Checking win condition for player board:",
+    JSON.stringify(playerBoard, null, 2)
+  );
+
+  const healthyOrgans = Object.values(playerBoard.organs).filter((organ) => {
+    const isHealthy =
       organ.status === "healthy" ||
       organ.status === "vaccinated" ||
-      organ.status === "immunized"
-  );
+      organ.status === "immunized";
+    console.log(
+      `Organ ${organ.organ.color} status: ${organ.status}, is healthy: ${isHealthy}`
+    );
+    return isHealthy;
+  });
+
+  console.log(`Found ${healthyOrgans.length} healthy organs`);
 
   // Needs 4 organs of different colors
   const colors = new Set();
@@ -587,13 +598,21 @@ export function checkWinCondition(playerBoard: PlayerBoard): boolean {
       );
       if (missingColors.length > 0) {
         colors.add(missingColors[0]);
+        console.log(`Rainbow organ added as color: ${missingColors[0]}`);
       }
     } else {
       colors.add(organ.organ.color);
+      console.log(`Added organ color: ${organ.organ.color}`);
     }
   }
 
-  return colors.size >= 4;
+  console.log(
+    `Total unique colors: ${colors.size}, colors: ${Array.from(colors)}`
+  );
+  const hasWon = colors.size >= 4;
+  console.log(`Win condition met: ${hasWon}`);
+
+  return hasWon;
 }
 
 // Function to get playable cards

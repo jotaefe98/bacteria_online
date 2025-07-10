@@ -108,7 +108,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         setPlayerNames(data.playerNames);
       }
     });
-
     socket?.on("game-won", (data) => {
       setWinner(data.winner);
       if (data.winner === playerId) {
@@ -121,6 +120,13 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       localStorage.removeItem("currentRoomId");
       localStorage.removeItem("gameStarted");
       console.log("Game session cleared from localStorage after game end");
+    });
+
+    socket?.on("clear-session-data", () => {
+      // Server is telling us to clear session data (room was deleted)
+      localStorage.removeItem("currentRoomId");
+      localStorage.removeItem("gameStarted");
+      console.log("Game session cleared from localStorage by server request");
     });
 
     socket?.on("game-error", (error) => {

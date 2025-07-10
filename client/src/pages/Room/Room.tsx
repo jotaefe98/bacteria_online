@@ -4,6 +4,7 @@ import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
+import toast from "react-hot-toast";
 import "./Room.css";
 
 function Room() {
@@ -41,6 +42,39 @@ function Room() {
     }
   }, [roomId]);
 
+  const copyRoomCode = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId!);
+      toast.success("Room code copied to clipboard!", { duration: 2000 });
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = roomId!;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success("Room code copied to clipboard!", { duration: 2000 });
+    }
+  };
+
+  const copyRoomLink = async () => {
+    const roomLink = `${window.location.origin}/room/${roomId}`;
+    try {
+      await navigator.clipboard.writeText(roomLink);
+      toast.success("Room link copied to clipboard!", { duration: 2000 });
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = roomLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success("Room link copied to clipboard!", { duration: 2000 });
+    }
+  };
+
   if (!showRoom) {
     return (
       <div className="loading-container">
@@ -70,9 +104,27 @@ function Room() {
       <div className="room-header">
         <div className="room-title">
           <h1>🦠 Virus! Room</h1>
-          <div className="room-code">
-            <span className="code-label">Room Code:</span>
-            <span className="code-value">{roomId}</span>
+          <div className="room-code-section">
+            <div className="room-code">
+              <span className="code-label">Room Code:</span>
+              <span className="code-value">{roomId}</span>
+            </div>
+            <div className="copy-buttons">
+              <button
+                className="copy-btn code-copy"
+                onClick={copyRoomCode}
+                title="Copy room code"
+              >
+                📋 Copy Code
+              </button>
+              <button
+                className="copy-btn link-copy"
+                onClick={copyRoomLink}
+                title="Copy room link"
+              >
+                🔗 Copy Link
+              </button>
+            </div>
           </div>
         </div>
 
