@@ -324,7 +324,7 @@ export function registerGameEvents(
                   io.to(contagion.targetPlayer).emit("organ-infected", {
                     organColor: contagion.organColor,
                     byPlayer: currentPlayerName,
-                    cardType: contagion.virusType,
+                    cardType: contagion.bacteriaType,
                     reason: "contagion",
                   });
                 });
@@ -381,10 +381,10 @@ export function registerGameEvents(
             `Direct action by player: ${playerId} (${currentPlayerName})`
           );
 
-          // Handle virus and medicine actions against other players
+          // Handle bacteria and medicine actions against other players
           if (action.targetPlayerId && action.targetPlayerId !== playerId) {
             switch (result.changes.type) {
-              case "virus_played":
+              case "bacteria_played":
                 // Check if organ was destroyed or infected
                 const targetOrganAfter =
                   room.boards![action.targetPlayerId].organs[

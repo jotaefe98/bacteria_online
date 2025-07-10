@@ -10,15 +10,15 @@ function Lobby() {
     <div className="lobby-container">
       <div className="lobby-header">
         <div className="logo">
-          <span className="virus-icon">🦠</span>
-          <h1>Virus!</h1>
+          <span className="bacteria-icon">🦠</span>
+          <h1>Bacteria!</h1>
         </div>
         <p className="subtitle">The Ultimate Card Battle Game</p>
       </div>
 
       <div className="lobby-content">
         <div className="welcome-section">
-          <h2>Welcome to the Virus Online Experience</h2>
+          <h2>Welcome to the Bacteria Online Experience</h2>
           <p>
             Challenge your friends in this exciting card game where strategy
             meets chaos!
@@ -68,7 +68,7 @@ function Lobby() {
             </div>
             <div className="info-item">
               <span className="info-icon">🦠</span>
-              <span>Attack with viruses</span>
+              <span>Attack with bacteria</span>
             </div>
             <div className="info-item">
               <span className="info-icon">💉</span>

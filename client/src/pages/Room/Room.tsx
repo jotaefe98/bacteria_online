@@ -79,7 +79,7 @@ function Room() {
     return (
       <div className="loading-container">
         <div className="loading-spinner">
-          <div className="virus-spinner">🦠</div>
+          <div className="bacteria-spinner">🦠</div>
         </div>
         <p>
           {isReconnecting ? "Reconnecting to your game..." : "Loading room..."}
@@ -103,7 +103,7 @@ function Room() {
     <div className="room-container">
       <div className="room-header">
         <div className="room-title">
-          <h1>🦠 Virus! Room</h1>
+          <h1>🦠 Bacteria! Room</h1>
           <div className="room-code-section">
             <div className="room-code">
               <span className="code-label">Room Code:</span>

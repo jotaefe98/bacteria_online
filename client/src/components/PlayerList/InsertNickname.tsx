@@ -22,7 +22,7 @@ export default function InsertNickname({
     <div className="nickname-container">
       <div className="nickname-card">
         <div className="card-header">
-          <div className="virus-icon">🦠</div>
+          <div className="bacteria-icon">🦠</div>
           <h2>Join the Battle!</h2>
           <p>Enter your nickname to enter the room</p>
         </div>

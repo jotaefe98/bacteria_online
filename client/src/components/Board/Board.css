@@ -275,7 +275,7 @@
   gap: 6px;
 }
 
-.viruses, .medicines {
+.bacteria, .medicines {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -287,7 +287,7 @@
   transition: all 0.3s ease;
 }
 
-.viruses:hover, .medicines:hover {
+.bacteria:hover, .medicines:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -320,7 +320,7 @@
   }
 }
 
-.viruses {
+.bacteria {
   background: rgba(220, 53, 69, 0.1);
   color: #dc3545;
 }
@@ -467,7 +467,7 @@
     gap: 3px;
   }
   
-  .viruses, .medicines {
+  .bacteria, .medicines {
     padding: 3px 5px;
     font-size: 0.55rem;
   }
@@ -536,7 +536,7 @@
     right: 4px;
   }
   
-  .boards-container[data-player-count="4"] .viruses, 
+  .boards-container[data-player-count="4"] .bacteria, 
   .boards-container[data-player-count="4"] .medicines {
     padding: 1px 2px;
     font-size: 0.4rem;
@@ -601,7 +601,7 @@
     right: 2px;
   }
   
-  .boards-container[data-player-count="4"] .viruses, 
+  .boards-container[data-player-count="4"] .bacteria, 
   .boards-container[data-player-count="4"] .medicines {
     padding: 1px;
     font-size: 0.35rem;
@@ -662,7 +662,7 @@
     right: 1px;
   }
   
-  .boards-container[data-player-count="4"] .viruses, 
+  .boards-container[data-player-count="4"] .bacteria, 
   .boards-container[data-player-count="4"] .medicines {
     padding: 0;
     font-size: 0.3rem;

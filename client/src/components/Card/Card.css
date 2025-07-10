@@ -1,4 +1,4 @@
-/* Game card styles for the Virus! card game */
+/* Game card styles for the Bacteria! card game */
 .game-card {
   width: 90px;
   height: 130px;
@@ -273,13 +273,13 @@
   padding: 8px;
 }
 
-.virus-logo {
+.bacteria-logo {
   font-size: 2rem;
   margin-bottom: 4px;
-  animation: virus-spin 4s ease-in-out infinite;
+  animation: bacteria-spin 4s ease-in-out infinite;
 }
 
-@keyframes virus-spin {
+@keyframes bacteria-spin {
   0%, 100% {
     transform: rotate(0deg) scale(1);
   }
@@ -350,7 +350,7 @@
   height: 85px;
 }
 
-.card-back.small .virus-logo {
+.card-back.small .bacteria-logo {
   font-size: 1.2rem;
 }
 
@@ -367,7 +367,7 @@
   height: 160px;
 }
 
-.card-back.large .virus-logo {
+.card-back.large .bacteria-logo {
   font-size: 2.5rem;
 }
 
@@ -425,7 +425,7 @@
     height: 110px;
   }
   
-  .virus-logo {
+  .bacteria-logo {
     font-size: 1.5rem;
   }
   

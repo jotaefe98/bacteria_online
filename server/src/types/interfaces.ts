@@ -25,7 +25,7 @@ export interface DataUpdateNickname {
   nickname: string;
 }
 
-type TypeCard = "virus" | "organ" | "medicine" | "treatment";
+type TypeCard = "bacteria" | "organ" | "medicine" | "treatment";
 type ColorCard =
   | "red"
   | "green"
@@ -47,7 +47,7 @@ export interface Card {
 // Estado de un órgano en la mesa
 export interface OrganState {
   organ: Card;
-  viruses: Card[];
+  bacteria: Card[];
   medicines: Card[];
   status: "healthy" | "infected" | "vaccinated" | "immunized" | "destroyed";
 }

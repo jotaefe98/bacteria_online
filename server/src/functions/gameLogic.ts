@@ -21,10 +21,10 @@ export function isColorCompatible(
 export function calculateOrganStatus(
   organState: OrganState
 ): "healthy" | "infected" | "vaccinated" | "immunized" | "destroyed" {
-  const virusCount = organState.viruses.length;
+  const bacteriaCount = organState.bacteria.length;
   const medicineCount = organState.medicines.length;
 
-  if (virusCount >= 2) {
+  if (bacteriaCount >= 2) {
     return "destroyed";
   }
 
@@ -33,13 +33,13 @@ export function calculateOrganStatus(
   }
 
   if (medicineCount === 1) {
-    if (virusCount === 1) {
-      return "healthy"; // Medicine cures the virus
+    if (bacteriaCount === 1) {
+      return "healthy"; // Medicine cures the bacteria
     }
     return "vaccinated";
   }
 
-  if (virusCount === 1) {
+  if (bacteriaCount === 1) {
     return "infected";
   }
 
@@ -64,7 +64,7 @@ export function canPlayCard(
       }
       return { canPlay: true };
 
-    case "virus":
+    case "bacteria":
       if (!targetBoard || !targetOrganColor) {
         return {
           canPlay: false,
@@ -80,7 +80,7 @@ export function canPlayCard(
       if (!isColorCompatible(card.color, targetOrgan.organ.color)) {
         return {
           canPlay: false,
-          reason: "Virus must be the same color as the organ",
+          reason: "Bacteria must be the same color as the organ",
         };
       }
 
@@ -145,32 +145,32 @@ export function applyCardEffect(
       const organColor = card.color === "rainbow" ? "rainbow" : card.color;
       playerBoard.organs[organColor] = {
         organ: card,
-        viruses: [],
+        bacteria: [],
         medicines: [],
         status: "healthy",
       };
       return { success: true, changes: { type: "organ_played", organ: card } };
 
-    case "virus":
+    case "bacteria":
       if (!targetBoard || !targetOrganColor) {
         return { success: false, reason: "Invalid target" };
       }
 
       const targetOrgan = targetBoard.organs[targetOrganColor];
       if (targetOrgan.status === "vaccinated") {
-        // Virus destroys the vaccine
+        // Bacteria destroys the vaccine
         targetOrgan.medicines = [];
         targetOrgan.status = calculateOrganStatus(targetOrgan);
         return {
           success: true,
           changes: {
-            type: "virus_played",
+            type: "bacteria_played",
             target: targetOrganColor,
             vaccineDestroyed: true,
           },
         };
       } else {
-        targetOrgan.viruses.push(card);
+        targetOrgan.bacteria.push(card);
         targetOrgan.status = calculateOrganStatus(targetOrgan);
 
         // If organ is destroyed, remove it from board
@@ -179,7 +179,7 @@ export function applyCardEffect(
           return {
             success: true,
             changes: {
-              type: "virus_played",
+              type: "bacteria_played",
               target: targetOrganColor,
               organDestroyed: true,
             },
@@ -189,7 +189,7 @@ export function applyCardEffect(
 
       return {
         success: true,
-        changes: { type: "virus_played", target: targetOrganColor },
+        changes: { type: "bacteria_played", target: targetOrganColor },
       };
 
     case "medicine":
@@ -199,11 +199,11 @@ export function applyCardEffect(
 
       const medicineTarget = targetBoard.organs[targetOrganColor];
 
-      // If there are viruses, medicine cures one
-      if (medicineTarget.viruses.length > 0) {
-        medicineTarget.viruses.pop(); // Remove one virus
+      // If there are bacteria, medicine cures one
+      if (medicineTarget.bacteria.length > 0) {
+        medicineTarget.bacteria.pop(); // Remove one bacteria
       } else {
-        // If no viruses, medicine is applied as vaccine/immunization
+        // If no bacteria, medicine is applied as vaccine/immunization
         medicineTarget.medicines.push(card);
       }
 
@@ -393,14 +393,14 @@ function applyOrganThief(
   };
 }
 
-// CONTAGION: Transfer viruses from current player to others randomly
+// CONTAGION: Transfer bacteria from current player to others randomly
 function applyContagion(
   allBoards: { [playerId: string]: PlayerBoard },
   currentPlayerId: string
 ): { success: boolean; changes?: any; reason?: string } {
   const currentBoard = allBoards[currentPlayerId];
   const infectedOrgans = Object.entries(currentBoard.organs).filter(
-    ([_, organ]) => organ.viruses.length > 0
+    ([_, organ]) => organ.bacteria.length > 0
   );
 
   if (infectedOrgans.length === 0) {
@@ -414,8 +414,8 @@ function applyContagion(
 
   // For each infected organ, try to spread to other players
   infectedOrgans.forEach(([organColor, organState]) => {
-    if (organState.viruses.length > 0) {
-      const virus = organState.viruses[0]; // Take one virus
+    if (organState.bacteria.length > 0) {
+      const bacteria = organState.bacteria[0]; // Take one bacteria
 
       // Find all players with healthy (free) organs of compatible color
       const validTargets = otherPlayerIds.filter((playerId) => {
@@ -429,7 +429,7 @@ function applyContagion(
               organColor === "rainbow";
             const isFree =
               targetOrgan.status === "healthy" &&
-              targetOrgan.viruses.length === 0 &&
+              targetOrgan.bacteria.length === 0 &&
               targetOrgan.medicines.length === 0;
             return isColorCompatible && isFree;
           }
@@ -451,7 +451,7 @@ function applyContagion(
               organColor === "rainbow";
             const isFree =
               targetOrgan.status === "healthy" &&
-              targetOrgan.viruses.length === 0 &&
+              targetOrgan.bacteria.length === 0 &&
               targetOrgan.medicines.length === 0;
             return isColorCompatible && isFree;
           }
@@ -463,9 +463,9 @@ function applyContagion(
               Math.floor(Math.random() * compatibleOrgans.length)
             ];
 
-          // Transfer virus
-          organState.viruses.splice(0, 1); // Remove virus from source
-          targetOrgan.viruses.push(virus); // Add to target
+          // Transfer bacteria
+          organState.bacteria.splice(0, 1); // Remove bacteria from source
+          targetOrgan.bacteria.push(bacteria); // Add to target
 
           // Update statuses
           organState.status = calculateOrganStatus(organState);
@@ -474,7 +474,7 @@ function applyContagion(
           contagionResults.push({
             targetPlayer: randomTargetPlayerId,
             organColor: targetOrganColor,
-            virusType: virus.color,
+            bacteriaType: bacteria.color,
           });
         }
       }
@@ -626,7 +626,7 @@ export function getPlayableCards(
       return canPlayCard(card, playerBoard).canPlay;
     }
 
-    if (card.type === "virus" || card.type === "medicine") {
+    if (card.type === "bacteria" || card.type === "medicine") {
       // Check if there's at least one valid target
       for (const [playerId, board] of Object.entries(allBoards)) {
         for (const organColor of Object.keys(board.organs)) {
@@ -661,13 +661,13 @@ export function rebuildDeck(
     hand.forEach((card) => cardsInUse.add(card.id));
   });
 
-  // Add cards from all boards (organs, viruses, medicines)
+  // Add cards from all boards (organs, bacteria, medicines)
   Object.values(boards).forEach((board) => {
     Object.values(board.organs).forEach((organState) => {
       // Add the organ itself
       cardsInUse.add(organState.organ.id);
-      // Add viruses on this organ
-      organState.viruses.forEach((virus) => cardsInUse.add(virus.id));
+      // Add bacteria on this organ
+      organState.bacteria.forEach((bacteria) => cardsInUse.add(bacteria.id));
       // Add medicines on this organ
       organState.medicines.forEach((medicine) => cardsInUse.add(medicine.id));
     });

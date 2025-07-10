@@ -16,7 +16,7 @@ Sistema completo de notificaciones implementado usando `react-hot-toast` que pro
 
 - **Órgano infectado**: Cuando otro jugador infecta tu órgano (NO LE SALE AL JUGADOR QUE HA SIDO INFECTADO)
 - **Órgano destruido**: Cuando otro jugador destruye tu órgano (NO LE SALE AL JUGADOR QUE HA SIDO DESTRUIDO)
-- **Vacuna destruida**: Cuando un virus destruye la vacuna de tu órgano (NO LE SALE AL JUGADOR QUE HA SIDO DESTRUIDO)
+- **Vacuna destruida**: Cuando un bacteria destruye la vacuna de tu órgano (NO LE SALE AL JUGADOR QUE HA SIDO DESTRUIDO)
 
 ### 💊 Tratamientos Beneficiosos
 

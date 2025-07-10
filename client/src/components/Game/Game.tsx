@@ -112,7 +112,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     if (!card) return;
 
     // Validate selection based on card type
-    if (card.type === "virus" || card.type === "medicine") {
+    if (card.type === "bacteria" || card.type === "medicine") {
       if (!selectedTarget.playerId || !selectedTarget.organColor) {
         // Could add toast notification here for better UX
         return;
@@ -180,10 +180,10 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
         ? hand.find((c) => c.id === selectedCards[0])
         : null;
 
-    // For virus and medicine, only allow one organ selection
+    // For bacteria and medicine, only allow one organ selection
     if (
       selectedCard &&
-      (selectedCard.type === "virus" || selectedCard.type === "medicine")
+      (selectedCard.type === "bacteria" || selectedCard.type === "medicine")
     ) {
       if (
         selectedTarget.playerId === organPlayerId &&
@@ -426,7 +426,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="game-rules-header">
-              <h2 className="game-rules-title">🦠 Virus! - Game Rules</h2>
+              <h2 className="game-rules-title">🦠 Bacteria! - Game Rules</h2>
               <button
                 className="close-button"
                 onClick={() => setShowRulesModal(false)}
@@ -479,13 +479,13 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
             <div className="treatment-section">
               <div className="treatment-title">🧫 CONTAGION</div>
               <div className="treatment-description">
-                🧟 Transfer viruses from your organs to other players' organs.
+                🧟 Transfer bacteria from your organs to other players' organs.
               </div>
               <div className="treatment-rules">
                 <ul>
                   <li>Can only infect completely free organs</li>
                   <li>Cannot infect already infected or vaccinated organs</li>
-                  <li>Transfers one virus per infected organ you have</li>
+                  <li>Transfers one bacteria per infected organ you have</li>
                   <li>Targets are chosen randomly</li>
                 </ul>
               </div>
@@ -511,7 +511,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               </div>
               <div className="treatment-rules">
                 <ul>
-                  <li>Includes: organs, viruses, and medicines</li>
+                  <li>Includes: organs, bacteria, and medicines</li>
                   <li>Immunized organs are also exchanged</li>
                   <li>Number of cards on the table doesn't matter</li>
                 </ul>
@@ -530,7 +530,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                     boards
                   </li>
                   <li>
-                    <strong>Virus/Medicine:</strong> Select 1 organ
+                    <strong>Bacteria/Medicine:</strong> Select 1 organ
                   </li>
                   <li>
                     <strong>Transplant:</strong> Select 2 organs from different

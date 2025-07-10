@@ -10,7 +10,7 @@ const CardBack: React.FC<CardBackProps> = ({ count, size = "medium" }) => {
   return (
     <div className={`card-back ${size}`}>
       <div className="card-back-content">
-        <div className="virus-logo">🦠</div>
+        <div className="bacteria-logo">🦠</div>
         <div className="card-back-title">VIRUS!</div>
         <div className="card-back-pattern">
           <div className="pattern-element">💉</div>

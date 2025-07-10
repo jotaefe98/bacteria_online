@@ -34,29 +34,29 @@ export const BASE_DECK: Card[] = [
   // Rainbow organ (1)
   { id: "organ_rainbow_1", type: "organ", color: "rainbow" },
 
-  // Virus (4 for each color)
-  { id: "virus_red_1", type: "virus", color: "red" },
-  { id: "virus_red_2", type: "virus", color: "red" },
-  { id: "virus_red_3", type: "virus", color: "red" },
-  { id: "virus_red_4", type: "virus", color: "red" },
+  // Bacteria (4 for each color)
+  { id: "bacteria_red_1", type: "bacteria", color: "red" },
+  { id: "bacteria_red_2", type: "bacteria", color: "red" },
+  { id: "bacteria_red_3", type: "bacteria", color: "red" },
+  { id: "bacteria_red_4", type: "bacteria", color: "red" },
 
-  { id: "virus_green_1", type: "virus", color: "green" },
-  { id: "virus_green_2", type: "virus", color: "green" },
-  { id: "virus_green_3", type: "virus", color: "green" },
-  { id: "virus_green_4", type: "virus", color: "green" },
+  { id: "bacteria_green_1", type: "bacteria", color: "green" },
+  { id: "bacteria_green_2", type: "bacteria", color: "green" },
+  { id: "bacteria_green_3", type: "bacteria", color: "green" },
+  { id: "bacteria_green_4", type: "bacteria", color: "green" },
 
-  { id: "virus_blue_1", type: "virus", color: "blue" },
-  { id: "virus_blue_2", type: "virus", color: "blue" },
-  { id: "virus_blue_3", type: "virus", color: "blue" },
-  { id: "virus_blue_4", type: "virus", color: "blue" },
+  { id: "bacteria_blue_1", type: "bacteria", color: "blue" },
+  { id: "bacteria_blue_2", type: "bacteria", color: "blue" },
+  { id: "bacteria_blue_3", type: "bacteria", color: "blue" },
+  { id: "bacteria_blue_4", type: "bacteria", color: "blue" },
 
-  { id: "virus_yellow_1", type: "virus", color: "yellow" },
-  { id: "virus_yellow_2", type: "virus", color: "yellow" },
-  { id: "virus_yellow_3", type: "virus", color: "yellow" },
-  { id: "virus_yellow_4", type: "virus", color: "yellow" },
+  { id: "bacteria_yellow_1", type: "bacteria", color: "yellow" },
+  { id: "bacteria_yellow_2", type: "bacteria", color: "yellow" },
+  { id: "bacteria_yellow_3", type: "bacteria", color: "yellow" },
+  { id: "bacteria_yellow_4", type: "bacteria", color: "yellow" },
 
-  // Rainbow virus (1)
-  { id: "virus_rainbow_1", type: "virus", color: "rainbow" },
+  // Rainbow bacteria (1)
+  { id: "bacteria_rainbow_1", type: "bacteria", color: "rainbow" },
 
   // Medicines (4 for each color)
   { id: "medicine_red_1", type: "medicine", color: "red" },

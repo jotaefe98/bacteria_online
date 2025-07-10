@@ -70,10 +70,10 @@ export const useGameNotifications = () => {
         icon: "🥷",
       }),
 
-    virusBlocked: (organColor: string) =>
+    bacteriaBlocked: (organColor: string) =>
       showNotification({
         type: "success",
-        message: `Virus blocked! Your ${organColor} organ is protected`,
+        message: `Bacteria blocked! Your ${organColor} organ is protected`,
         icon: "🛡️",
       }),
 

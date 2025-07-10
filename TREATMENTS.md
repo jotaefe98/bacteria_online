@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of the 5 special treatment cards in the Virus! game, including their rules, effects, and user interface behaviors.
+This document describes the implementation of the 5 special treatment cards in the Bacteria! game, including their rules, effects, and user interface behaviors.
 
 ## Treatment Types
 
@@ -53,13 +53,13 @@ This document describes the implementation of the 5 special treatment cards in t
 
 ### 🧫 CONTAGION (Blue)
 
-**Effect**: Transfer viruses randomly to other players
+**Effect**: Transfer bacteria randomly to other players
 
 **Rules**:
 
 - Only affects healthy (completely free) organs
 - Cannot infect vaccinated or already infected organs
-- Transfers one virus per infected organ you have
+- Transfers one bacteria per infected organ you have
 - Targets are chosen randomly among valid options
 - Uses color compatibility (including rainbow logic)
 
@@ -103,7 +103,7 @@ This document describes the implementation of the 5 special treatment cards in t
 
 **Rules**:
 
-- Exchanges all organs, viruses, and medicines
+- Exchanges all organs, bacteria, and medicines
 - Immunized organs are also exchanged
 - Number of organs doesn't matter
 
@@ -137,7 +137,7 @@ This document describes the implementation of the 5 special treatment cards in t
 - **Hand Discarded**: "Player X used Latex Glove - all your cards were discarded!"
 - **Organ Transplanted**: "Player X transplanted your Y organ with Player Z's W organ"
 - **Medical Error**: "Player X swapped bodies with you!"
-- **Contagion**: "Player X spread a virus to your Y organ!"
+- **Contagion**: "Player X spread a bacteria to your Y organ!"
 
 ### Error Messages
 

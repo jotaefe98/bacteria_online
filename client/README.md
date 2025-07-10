@@ -1,6 +1,6 @@
 # Bacteria Online - Cliente
 
-Este proyecto es el cliente web de **Bacteria Online**, un juego multijugador en línea inspirado en juegos de cartas como Virus. El cliente está desarrollado con **React**, **TypeScript** y utiliza **Vite** para el desarrollo y build rápido.
+Este proyecto es el cliente web de **Bacteria Online**, un juego multijugador en línea inspirado en juegos de cartas como Bacteria. El cliente está desarrollado con **React**, **TypeScript** y utiliza **Vite** para el desarrollo y build rápido.
 
 ## 🕹️ ¿De qué va el juego?
 

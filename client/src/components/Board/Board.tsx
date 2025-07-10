@@ -131,10 +131,10 @@ export function Board({
                 </div>
 
                 <div className="organ-details">
-                  {organState.viruses.length > 0 && (
-                    <div className="viruses">
+                  {organState.bacteria.length > 0 && (
+                    <div className="bacteria">
                       <span className="detail-icon">🦠</span>
-                      <span>Viruses: {organState.viruses.length}</span>
+                      <span>bacteria: {organState.bacteria.length}</span>
                     </div>
                   )}
 

@@ -19,7 +19,7 @@ const Card: React.FC<CardProps> = ({
     switch (type) {
       case "organ":
         return getOrganIcon(color);
-      case "virus":
+      case "bacteria":
         return "🦠";
       case "medicine":
         return "💉";
