@@ -153,6 +153,14 @@ export function applyCardEffect(
         // Virus destroys the vaccine
         targetOrgan.medicines = [];
         targetOrgan.status = calculateOrganStatus(targetOrgan);
+        return {
+          success: true,
+          changes: {
+            type: "virus_played",
+            target: targetOrganColor,
+            vaccineDestroyed: true,
+          },
+        };
       } else {
         targetOrgan.viruses.push(card);
         targetOrgan.status = calculateOrganStatus(targetOrgan);
@@ -160,6 +168,14 @@ export function applyCardEffect(
         // If organ is destroyed, remove it from board
         if (targetOrgan.status === "destroyed") {
           delete targetBoard.organs[targetOrganColor];
+          return {
+            success: true,
+            changes: {
+              type: "virus_played",
+              target: targetOrganColor,
+              organDestroyed: true,
+            },
+          };
         }
       }
 

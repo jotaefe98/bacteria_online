@@ -26,6 +26,7 @@ interface GameRoom extends Room {
   currentPhase?: GamePhase;
   discardPile?: Card[];
   winner?: string;
+  playerNames?: { [playerId: string]: string };
 }
 
 export function registerGameEvents(
@@ -215,6 +216,101 @@ export function registerGameEvents(
 
         // Remover la carta de la mano
         room.hands![playerId].splice(cardIndex, 1);
+
+        // Emitir eventos específicos para notificaciones
+        if (
+          result.changes &&
+          action.targetPlayerId &&
+          action.targetPlayerId !== playerId
+        ) {
+          const targetPlayerName =
+            room.playerNames?.[action.targetPlayerId] || action.targetPlayerId;
+          const currentPlayerName = room.playerNames?.[playerId] || playerId;
+
+          switch (result.changes.type) {
+            case "virus_played":
+              // Verificar si el órgano fue destruido o solo infectado
+              const targetOrganAfter =
+                room.boards![action.targetPlayerId].organs[
+                  action.targetOrganColor!
+                ];
+              if (result.changes.organDestroyed) {
+                // Órgano fue destruido
+                io.to(action.targetPlayerId).emit("organ-destroyed", {
+                  organColor: action.targetOrganColor,
+                  byPlayer: currentPlayerName,
+                  cardType: card.color,
+                });
+              } else if (result.changes.vaccineDestroyed) {
+                // La vacuna fue destruida pero el órgano sobrevivió
+                io.to(action.targetPlayerId).emit("vaccine-destroyed", {
+                  organColor: action.targetOrganColor,
+                  byPlayer: currentPlayerName,
+                  cardType: card.color,
+                });
+              } else if (!targetOrganAfter) {
+                // Órgano fue destruido (doble verificación)
+                io.to(action.targetPlayerId).emit("organ-destroyed", {
+                  organColor: action.targetOrganColor,
+                  byPlayer: currentPlayerName,
+                  cardType: card.color,
+                });
+              } else {
+                // Órgano fue infectado
+                io.to(action.targetPlayerId).emit("organ-infected", {
+                  organColor: action.targetOrganColor,
+                  byPlayer: currentPlayerName,
+                  cardType: card.color,
+                });
+              }
+              break;
+
+            case "medicine_played":
+              // Notificar al jugador objetivo que su órgano fue curado/vacunado
+              const organStatus =
+                room.boards![action.targetPlayerId].organs[
+                  action.targetOrganColor!
+                ]?.status;
+              io.to(action.targetPlayerId).emit("organ-treated", {
+                organColor: action.targetOrganColor,
+                byPlayer: currentPlayerName,
+                cardType: card.color,
+                treatmentType: organStatus,
+              });
+              break;
+
+            case "treatment_played":
+              // Manejar notificaciones para tratamientos especiales
+              switch (result.changes.treatment) {
+                case "organ_thief":
+                  // Este evento necesitaría más lógica para determinar qué órgano fue robado
+                  // Por ahora, solo emitimos un evento genérico
+                  io.to(action.targetPlayerId).emit("organ-stolen", {
+                    byPlayer: currentPlayerName,
+                    organColor: action.targetOrganColor,
+                  });
+                  break;
+
+                case "contagion":
+                  // Notificar sobre contagio (esto requeriría implementación específica)
+                  io.to(roomId).emit("contagion-spread", {
+                    byPlayer: currentPlayerName,
+                    affectedPlayers: [], // Esto se llenaría con la lógica específica
+                  });
+                  break;
+
+                case "medical_error":
+                  // Notificar sobre error médico
+                  if (action.targetPlayerId) {
+                    io.to(action.targetPlayerId).emit("medical-error-used", {
+                      byPlayer: currentPlayerName,
+                    });
+                  }
+                  break;
+              }
+              break;
+          }
+        }
 
         // Verificar condición de victoria
         if (checkWinCondition(playerBoard)) {
