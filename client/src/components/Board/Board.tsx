@@ -21,23 +21,6 @@ export function Board({
   currentTurn,
   onOrganClick,
 }: BoardProps) {
-  const getOrganStatusColor = (status: OrganState["status"]) => {
-    switch (status) {
-      case "healthy":
-        return "#28a745";
-      case "infected":
-        return "#dc3545";
-      case "vaccinated":
-        return "#007bff";
-      case "immunized":
-        return "#6f42c1";
-      case "destroyed":
-        return "#6c757d";
-      default:
-        return "#28a745";
-    }
-  };
-
   const getStatusText = (status: OrganState["status"]) => {
     switch (status) {
       case "healthy":
@@ -113,7 +96,6 @@ export function Board({
               key={color}
               className={`organ-card ${organState.status}`}
               data-color={organState.organ.color}
-              style={{ borderColor: getOrganStatusColor(organState.status) }}
               onClick={() => onOrganClick && onOrganClick(color)}
             >
               <div className="organ-header">

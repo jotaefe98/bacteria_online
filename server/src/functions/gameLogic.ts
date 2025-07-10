@@ -301,3 +301,36 @@ export function getPlayableCards(
     return false;
   });
 }
+
+// Function to rebuild deck when it's empty, excluding cards in play
+export function rebuildDeck(
+  baseDeck: Card[],
+  hands: { [playerId: string]: Card[] },
+  boards: { [playerId: string]: PlayerBoard },
+  discardPile: Card[]
+): Card[] {
+  // Get all cards currently in use (hands + boards only)
+  const cardsInUse = new Set<string>();
+
+  // Add cards from all hands
+  Object.values(hands).forEach((hand) => {
+    hand.forEach((card) => cardsInUse.add(card.id));
+  });
+
+  // Add cards from all boards (organs, viruses, medicines)
+  Object.values(boards).forEach((board) => {
+    Object.values(board.organs).forEach((organState) => {
+      // Add the organ itself
+      cardsInUse.add(organState.organ.id);
+      // Add viruses on this organ
+      organState.viruses.forEach((virus) => cardsInUse.add(virus.id));
+      // Add medicines on this organ
+      organState.medicines.forEach((medicine) => cardsInUse.add(medicine.id));
+    });
+  });
+
+  // Filter base deck to exclude cards in use (discard pile cards are available)
+  const availableCards = baseDeck.filter((card) => !cardsInUse.has(card.id));
+
+  return availableCards;
+}

@@ -14,6 +14,7 @@ import {
   applyCardEffect,
   checkWinCondition,
   getPlayableCards,
+  rebuildDeck,
 } from "../functions/gameLogic";
 
 // Añade esto al tipo Room:
@@ -83,18 +84,43 @@ export function registerGameEvents(
 
   socket.on("draw-card", (roomId: string, playerId: string) => {
     const room = rooms[roomId] as GameRoom;
-    if (
-      room &&
-      room.currentTurn === playerId &&
-      room.currentPhase === "draw" &&
-      room.deck &&
-      room.deck.length > 0
-    ) {
+    if (room && room.currentTurn === playerId && room.currentPhase === "draw") {
       // Robar cartas hasta tener 3 en la mano
-      while (room.hands![playerId].length < 3 && room.deck.length > 0) {
+      while (room.hands![playerId].length < 3) {
+        // Check if deck is empty
+        if (!room.deck || room.deck.length === 0) {
+          console.log("Deck is empty, rebuilding deck...");
+
+          // Rebuild deck from base deck excluding cards in use
+          const newDeck = rebuildDeck(
+            BASE_DECK,
+            room.hands!,
+            room.boards!,
+            room.discardPile!
+          );
+
+          // Shuffle the new deck
+          room.deck = shuffle(newDeck);
+
+          console.log(`Deck rebuilt with ${room.deck.length} cards`);
+
+          // Notify players that deck was rebuilt
+          io.to(roomId).emit("deck-rebuilt", {
+            deckSize: room.deck.length,
+          });
+
+          // If still no cards available, break
+          if (room.deck.length === 0) {
+            console.log("No more cards available to rebuild deck");
+            break;
+          }
+        }
+
         const card = room.deck.shift();
         if (card) {
           room.hands![playerId].push(card);
+        } else {
+          break; // No more cards available
         }
       }
 

@@ -111,11 +111,19 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       setTimeout(() => setGameError(""), 3000);
     });
 
+    socket?.on("deck-rebuilt", (data) => {
+      console.log("Deck was rebuilt with", data.deckSize, "cards");
+      // Opcional: mostrar notificación al usuario
+      setGameError(`Deck rebuilt with ${data.deckSize} cards`);
+      setTimeout(() => setGameError(""), 2000);
+    });
+
     return () => {
       socket?.off("deck-shuffled");
       socket?.off("update-game");
       socket?.off("game-won");
       socket?.off("game-error");
+      socket?.off("deck-rebuilt");
     };
   }, [roomId, socket, playerId]);
 
