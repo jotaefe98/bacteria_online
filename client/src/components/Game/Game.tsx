@@ -46,7 +46,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   const getPhaseText = () => {
     const isMyTurn = currentTurn === playerId;
     if (!isMyTurn) return "Wait for your turn";
-    
+
     switch (currentPhase) {
       case "play_or_discard":
         return "Play a card or discard";
@@ -138,7 +138,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
 
   return (
     <div className="game-container">
-      {/* Tableros de todos los jugadores */}
+      {/* Boards of all players */}
       <div
         className="boards-container"
         data-player-count={Object.keys(boards).length}
@@ -157,18 +157,16 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
         ))}
       </div>
 
-      {/* Hand section - Siguiendo estructura exacta del HTML de ejemplo */}
       <div className="hand-section">
         <div className="div2">
           {/* div2-top - Turno y radio buttons */}
           <div className="div2-top">
             <div className="turn-display">
               <span>
-                Turn: {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
+                Turn:{" "}
+                {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
               </span>
-              <span className="turn-indicator">
-                {getPhaseText()}
-              </span>
+              <span className="turn-indicator">{getPhaseText()}</span>
             </div>
             <div className="play-mode-selector">
               <label>

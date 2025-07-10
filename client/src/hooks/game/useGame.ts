@@ -142,7 +142,16 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         socket.emit("end-turn", roomId, playerId);
       }, 500); // Pequeño delay para que el jugador vea el cambio
     }
-  }, [currentTurn, currentPhase, playerId, hand, boards, playerNames, socket, roomId]);
+  }, [
+    currentTurn,
+    currentPhase,
+    playerId,
+    hand,
+    boards,
+    playerNames,
+    socket,
+    roomId,
+  ]);
 
   const handleDraw = () => {
     if (socket && canDraw) {

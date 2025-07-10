@@ -35,7 +35,7 @@ const Card: React.FC<CardProps> = ({
       case "red":
         return "❤️"; // Heart
       case "green":
-        return "�"; // Lungs
+        return "🫁"; // Lungs
       case "blue":
         return "🧠"; // Brain
       case "yellow":
