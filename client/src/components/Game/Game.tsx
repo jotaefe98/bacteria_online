@@ -98,7 +98,16 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   };
 
   const handleOrganClick = (organPlayerId: string, organColor: string) => {
-    setSelectedTarget({ playerId: organPlayerId, organColor });
+    // Si el órgano ya está seleccionado, lo deseleccionamos
+    if (
+      selectedTarget.playerId === organPlayerId &&
+      selectedTarget.organColor === organColor
+    ) {
+      setSelectedTarget({});
+    } else {
+      // Si no está seleccionado, lo seleccionamos
+      setSelectedTarget({ playerId: organPlayerId, organColor });
+    }
   };
 
   if (winner) {
@@ -153,6 +162,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               onOrganClick={(organColor) =>
                 handleOrganClick(playerBoardId, organColor)
               }
+              selectedTarget={selectedTarget}
             />
           ))}
       </div>

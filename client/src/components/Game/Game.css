@@ -662,6 +662,8 @@ html, body {
 
 /* Los estilos de .action-button-new ya están definidos arriba */
 
+/* Archivo limpio sin selection info */
+
 /* Responsive design */
 @media (max-width: 768px) {
   .game-container {

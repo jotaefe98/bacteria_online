@@ -48,28 +48,6 @@ export const useGameNotifications = () => {
 
   // Notificaciones específicas del juego
   const gameNotifications = {
-    // Acciones exitosas
-    cardPlayed: (cardType: string) =>
-      showNotification({
-        type: "success",
-        message: `${cardType} played successfully!`,
-        icon: "🎯",
-      }),
-
-    cardDiscarded: () =>
-      showNotification({
-        type: "info",
-        message: "Card discarded",
-        icon: "🗑️",
-      }),
-
-    cardsDrawn: (count: number) =>
-      showNotification({
-        type: "success",
-        message: `Drew ${count} card${count > 1 ? "s" : ""}`,
-        icon: "🃏",
-      }),
-
     // Acciones de otros jugadores que te afectan
     organInfected: (organColor: string, byPlayer: string) =>
       showNotification({

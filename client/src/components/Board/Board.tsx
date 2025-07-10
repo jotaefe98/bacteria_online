@@ -11,6 +11,10 @@ interface BoardProps {
   isCurrentPlayer: boolean;
   currentTurn: string;
   onOrganClick?: (organColor: string) => void;
+  selectedTarget?: {
+    playerId?: string;
+    organColor?: string;
+  };
 }
 
 export function Board({
@@ -20,6 +24,7 @@ export function Board({
   isCurrentPlayer,
   currentTurn,
   onOrganClick,
+  selectedTarget,
 }: BoardProps) {
   const getStatusText = (status: OrganState["status"]) => {
     switch (status) {
@@ -91,51 +96,59 @@ export function Board({
             </small>
           </div>
         ) : (
-          Object.entries(board.organs).map(([color, organState]) => (
-            <div
-              key={color}
-              className={`organ-card ${organState.status}`}
-              data-color={organState.organ.color}
-              onClick={() => onOrganClick && onOrganClick(color)}
-            >
-              <div className="organ-header">
-                <div className="organ-info">
-                  <span className="organ-icon">
-                    {getOrganTypeIcon(organState.organ.color)}
-                  </span>
-                  <span className="organ-color">
-                    {organState.organ.color.toUpperCase()}
+          Object.entries(board.organs).map(([color, organState]) => {
+            const isSelected =
+              selectedTarget?.playerId === playerId &&
+              selectedTarget?.organColor === color;
+
+            return (
+              <div
+                key={color}
+                className={`organ-card ${organState.status} ${
+                  isSelected ? "selected" : ""
+                }`}
+                data-color={organState.organ.color}
+                onClick={() => onOrganClick && onOrganClick(color)}
+              >
+                <div className="organ-header">
+                  <div className="organ-info">
+                    <span className="organ-icon">
+                      {getOrganTypeIcon(organState.organ.color)}
+                    </span>
+                    <span className="organ-color">
+                      {organState.organ.color.toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="organ-status">
+                    {getStatusText(organState.status)}
                   </span>
                 </div>
-                <span className="organ-status">
-                  {getStatusText(organState.status)}
-                </span>
+
+                <div className="organ-details">
+                  {organState.viruses.length > 0 && (
+                    <div className="viruses">
+                      <span className="detail-icon">🦠</span>
+                      <span>Viruses: {organState.viruses.length}</span>
+                    </div>
+                  )}
+
+                  {organState.medicines.length > 0 && (
+                    <div className="medicines">
+                      <span className="detail-icon">💉</span>
+                      <span>Medicines: {organState.medicines.length}</span>
+                    </div>
+                  )}
+
+                  {organState.status === "immunized" && (
+                    <div className="immunized-indicator">
+                      <span className="detail-icon">🛡️</span>
+                      <span>Protected from all threats!</span>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <div className="organ-details">
-                {organState.viruses.length > 0 && (
-                  <div className="viruses">
-                    <span className="detail-icon">🦠</span>
-                    <span>Viruses: {organState.viruses.length}</span>
-                  </div>
-                )}
-
-                {organState.medicines.length > 0 && (
-                  <div className="medicines">
-                    <span className="detail-icon">💉</span>
-                    <span>Medicines: {organState.medicines.length}</span>
-                  </div>
-                )}
-
-                {organState.status === "immunized" && (
-                  <div className="immunized-indicator">
-                    <span className="detail-icon">🛡️</span>
-                    <span>Protected from all threats!</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

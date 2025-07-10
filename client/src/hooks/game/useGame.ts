@@ -84,7 +84,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         setPlayerNames(data.playerNames);
       }
     });
-
     socket?.on("update-game", (data) => {
       console.log("Received update-game event:", data);
       console.log(
@@ -95,22 +94,13 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       );
       console.log("Updating boards:", Object.keys(data.boards || {}));
 
-      // Detectar si se robaron cartas
-      const previousHandSize = hand.length;
-      const newHandSize = data.hands[playerId]?.length || 0;
-      const cardsDifference = newHandSize - previousHandSize;
-
+      // Quitamos la notificación de cartas robadas - es información redundante
       setHand(data.hands[playerId] || []);
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
       setCurrentPhase(data.currentPhase);
       if (data.playerNames) {
         setPlayerNames(data.playerNames);
-      }
-
-      // Notificar sobre cartas robadas (solo si aumentó la mano)
-      if (cardsDifference > 0 && previousHandSize > 0) {
-        gameNotifications.cardsDrawn(cardsDifference);
       }
     });
 
@@ -152,13 +142,13 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     });
 
     socket?.on("organ-treated", (data) => {
+      // Solo notificar si el tratamiento fue beneficioso Y fue hecho por otro jugador
       if (data.treatmentType === "healthy") {
         gameNotifications.organCured(data.organColor);
-      } else if (data.treatmentType === "vaccinated") {
-        // No notificamos la vacunación por otros jugadores, solo si es beneficiosa
       } else if (data.treatmentType === "immunized") {
         gameNotifications.organImmunized(data.organColor);
       }
+      // No notificamos vacunación, solo curación e inmunización
     });
 
     socket?.on("organ-stolen", (data) => {
@@ -249,7 +239,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
   const handleDiscard = (cardId: string) => {
     if (socket && canPlay) {
       socket.emit("discard-card", roomId, playerId, cardId);
-      gameNotifications.cardDiscarded();
+      // Quitamos la notificación de carta descartada - es información redundante
     } else if (!canPlay) {
       gameNotifications.cannotPlayCard("It's not your turn");
     }
@@ -258,7 +248,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
   const handleDiscardMultiple = (cardIds: string[]) => {
     if (socket && canPlay) {
       socket.emit("discard-cards", roomId, playerId, cardIds);
-      gameNotifications.cardDiscarded();
+      // Quitamos la notificación de cartas descartadas - es información redundante
     } else if (!canPlay) {
       gameNotifications.cannotPlayCard("It's not your turn");
     }
@@ -266,45 +256,9 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
 
   const handlePlayCard = (action: PlayCardAction) => {
     if (socket && canPlay) {
-      const card = hand.find((c) => c.id === action.cardId);
       socket.emit("play-card", roomId, playerId, action);
-
-      // Notificaciones más específicas basadas en el tipo de carta y acción
-      if (card) {
-        if (card.type === "organ") {
-          gameNotifications.cardPlayed(`${card.color} organ`);
-        } else if (card.type === "virus") {
-          const targetPlayerName = action.targetPlayerId
-            ? playerNames[action.targetPlayerId] || action.targetPlayerId
-            : "target";
-          if (action.targetPlayerId === playerId) {
-            gameNotifications.cardPlayed(
-              `${card.color} virus on your own organ`
-            );
-          } else {
-            gameNotifications.cardPlayed(
-              `${card.color} virus on ${targetPlayerName}'s organ`
-            );
-          }
-        } else if (card.type === "medicine") {
-          const targetPlayerName = action.targetPlayerId
-            ? playerNames[action.targetPlayerId] || action.targetPlayerId
-            : "target";
-          if (action.targetPlayerId === playerId) {
-            gameNotifications.cardPlayed(
-              `${card.color} medicine on your organ`
-            );
-          } else {
-            gameNotifications.cardPlayed(
-              `${card.color} medicine on ${targetPlayerName}'s organ`
-            );
-          }
-        } else if (card.type === "treatment") {
-          gameNotifications.cardPlayed(`${card.color} treatment`);
-        } else {
-          gameNotifications.cardPlayed(card.type);
-        }
-      }
+      // Quitamos todas las notificaciones de "carta jugada" - son redundantes
+      // El servidor ya enviará notificaciones específicas si hay errores
     } else if (!canPlay) {
       gameNotifications.cannotPlayCard("It's not your turn");
     }

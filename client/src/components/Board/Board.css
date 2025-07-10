@@ -701,3 +701,162 @@
   color: #ed8936;
   background: rgba(237, 137, 54, 0.1);
 }
+
+/* Organ card selection states */
+.organ-card.selected {
+  border-width: 4px !important;
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.4) !important;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+  animation: selected-pulse 1.5s ease-in-out infinite;
+}
+
+.organ-card.selected::before {
+  opacity: 1 !important;
+  background: linear-gradient(45deg, rgba(0, 123, 255, 0.2) 30%, rgba(255, 255, 255, 0.4) 50%, rgba(0, 123, 255, 0.2) 70%);
+}
+
+.organ-card.selected::after {
+  content: '✅ SELECTED';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  z-index: 11;
+  animation: selected-badge 0.5s ease-out;
+}
+
+@keyframes selected-pulse {
+  0%, 100% {
+    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.4);
+    border-color: #007bff;
+  }
+  50% {
+    box-shadow: 0 15px 35px rgba(0, 123, 255, 0.6);
+    border-color: #0056b3;
+  }
+}
+
+@keyframes selected-badge {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Selection glow effect for different organ colors */
+.organ-card[data-color="red"].selected {
+  box-shadow: 0 12px 30px rgba(220, 53, 69, 0.4) !important;
+  border-color: #dc3545 !important;
+}
+
+.organ-card[data-color="red"].selected::after {
+  background: linear-gradient(45deg, #dc3545, #c82333);
+}
+
+.organ-card[data-color="green"].selected {
+  box-shadow: 0 12px 30px rgba(40, 167, 69, 0.4) !important;
+  border-color: #28a745 !important;
+}
+
+.organ-card[data-color="green"].selected::after {
+  background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.organ-card[data-color="blue"].selected {
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.4) !important;
+  border-color: #007bff !important;
+}
+
+.organ-card[data-color="blue"].selected::after {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.organ-card[data-color="yellow"].selected {
+  box-shadow: 0 12px 30px rgba(255, 193, 7, 0.4) !important;
+  border-color: #ffc107 !important;
+}
+
+.organ-card[data-color="yellow"].selected::after {
+  background: linear-gradient(45deg, #ffc107, #e0a800);
+  color: #333;
+}
+
+.organ-card[data-color="rainbow"].selected {
+  box-shadow: 0 12px 30px rgba(111, 66, 193, 0.5) !important;
+  border-color: #6f42c1 !important;
+  animation: rainbow-selected-pulse 1.5s ease-in-out infinite;
+}
+
+.organ-card[data-color="rainbow"].selected::after {
+  background: linear-gradient(45deg, #6f42c1, #5a32a3);
+}
+
+@keyframes rainbow-selected-pulse {
+  0%, 100% {
+    box-shadow: 0 12px 30px rgba(111, 66, 193, 0.5);
+  }
+  50% {
+    box-shadow: 0 15px 35px rgba(111, 66, 193, 0.7);
+  }
+}
+
+/* Responsive adjustments for selection indicators */
+@media (max-width: 768px) {
+  .organ-card.selected::after {
+    font-size: 0.45rem;
+    padding: 2px 4px;
+    top: -6px;
+  }
+
+  .organ-card.selected {
+    transform: scale(1.03);
+  }
+
+  .boards-container[data-player-count="4"] .organ-card.selected::after {
+    font-size: 0.35rem;
+    padding: 1px 2px;
+    top: -4px;
+  }
+
+  .boards-container[data-player-count="4"] .organ-card.selected {
+    transform: scale(1.02);
+  }
+}
+
+@media (max-width: 480px) {
+  .boards-container[data-player-count="4"] .organ-card.selected::after {
+    font-size: 0.3rem;
+    padding: 0px 1px;
+    top: -3px;
+  }
+
+  .boards-container[data-player-count="4"] .organ-card.selected {
+    transform: scale(1.01);
+  }
+}
+
+@media (max-width: 320px) {
+  .boards-container[data-player-count="4"] .organ-card.selected::after {
+    display: none; /* Hide text badge on very small screens */
+  }
+  
+  .boards-container[data-player-count="4"] .organ-card.selected {
+    border-width: 2px !important;
+    transform: none;
+    /* Keep just the color and shadow indicators */
+  }
+}

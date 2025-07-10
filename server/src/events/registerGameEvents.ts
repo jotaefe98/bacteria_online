@@ -266,17 +266,22 @@ export function registerGameEvents(
               break;
 
             case "medicine_played":
-              // Notificar al jugador objetivo que su órgano fue curado/vacunado
+              // Solo notificar al jugador objetivo si fue curado/inmunizado por OTRO jugador
+              // Si se cura a sí mismo, no necesita notificación
               const organStatus =
                 room.boards![action.targetPlayerId].organs[
                   action.targetOrganColor!
                 ]?.status;
-              io.to(action.targetPlayerId).emit("organ-treated", {
-                organColor: action.targetOrganColor,
-                byPlayer: currentPlayerName,
-                cardType: card.color,
-                treatmentType: organStatus,
-              });
+
+              // Solo emitir si es beneficial (curado o inmunizado) - no vacunación
+              if (organStatus === "healthy" || organStatus === "immunized") {
+                io.to(action.targetPlayerId).emit("organ-treated", {
+                  organColor: action.targetOrganColor,
+                  byPlayer: currentPlayerName,
+                  cardType: card.color,
+                  treatmentType: organStatus,
+                });
+              }
               break;
 
             case "treatment_played":
