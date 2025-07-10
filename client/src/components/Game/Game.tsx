@@ -144,6 +144,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
             playerId={playerBoardId}
             playerName={getPlayerName(playerBoardId)}
             isCurrentPlayer={playerBoardId === playerId}
+            currentTurn={currentTurn}
             onOrganClick={(organColor) =>
               handleOrganClick(playerBoardId, organColor)
             }
@@ -152,17 +153,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
       </div>
 
       <div className="hand-section">
-        <div className="div2">
-          {/* div2-top - Turno y radio buttons */}
-          <div className="div2-top">
-            <div className="turn-display">
-              <span>
-                Turn:{" "}
-                {currentTurn === playerId ? "You" : getPlayerName(currentTurn)}
-              </span>
-              <span className="turn-indicator">{getPhaseText()}</span>
-            </div>
-          </div>
+
 
           {/* div2-bottom - Cards in the left, buttons in the right */}
           <div className="div2-bottom">
@@ -201,7 +192,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               </button>
             </div>
           </div>
-        </div>
+        
       </div>
     </div>
   );

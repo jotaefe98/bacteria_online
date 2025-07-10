@@ -169,7 +169,7 @@ html, body {
   margin-bottom: 8px;
   display: grid;
   gap: 8px;
-  flex: 2;
+  flex: 3;
   overflow-y: auto;
   padding: 8px;
   background: rgba(255, 255, 255, 0.1);

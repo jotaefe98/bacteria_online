@@ -9,6 +9,7 @@ interface BoardProps {
   playerId: string;
   playerName?: string;
   isCurrentPlayer: boolean;
+  currentTurn: string;
   onOrganClick?: (organColor: string) => void;
 }
 
@@ -17,6 +18,7 @@ export function Board({
   playerId,
   playerName,
   isCurrentPlayer,
+  currentTurn,
   onOrganClick,
 }: BoardProps) {
   const getOrganStatusColor = (status: OrganState["status"]) => {
@@ -69,20 +71,31 @@ export function Board({
         return "🫀"; // Generic organ
     }
   };
-
   return (
     <div className={`board ${isCurrentPlayer ? "my-board" : "other-board"}`}>
       <h4>
-        {isCurrentPlayer ? (
-          <>
-            <span className="board-icon">👤</span>
-            Your Medical Table
-          </>
-        ) : (
-          <>
-            <span className="board-icon">🏥</span>
-            {`${playerName || playerId}'s Medical Table`}
-          </>
+        <div>
+          {isCurrentPlayer ? (
+            <>
+              <span className="board-icon">👤</span>
+              Your Medical Table
+            </>
+          ) : (
+            <>
+              <span className="board-icon">🏥</span>
+              {`${playerName || playerId}'s Medical Table`}
+            </>
+          )}
+        </div>
+
+        {currentTurn === playerId && (
+          <div
+            className={`turn-indicator ${
+              isCurrentPlayer ? "my-turn" : "other-turn"
+            }`}
+          >
+            {isCurrentPlayer ? "Your Turn" : `${playerName || playerId}'s Turn`}
+          </div>
         )}
       </h4>
       <div className="organs-container">
