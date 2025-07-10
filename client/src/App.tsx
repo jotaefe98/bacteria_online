@@ -18,6 +18,7 @@ function App() {
       setSocket(null);
     };
   }, []);
+
   return (
     <AppContext.Provider value={{ socket, setSocket }}>
       <BrowserRouter>

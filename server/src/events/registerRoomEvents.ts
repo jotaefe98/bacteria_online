@@ -19,8 +19,34 @@ export function registerRoomEvents(
     );
 
     if (existingPlayer) {
-      io.to(existingPlayer.socketId).emit("force-disconnect");
-      existingPlayer.socketId = socket.id;
+      // Player is reconnecting - update their socket ID and potentially disconnect old connection
+      if (existingPlayer.socketId !== socket.id) {
+        console.log(`Player ${playerId} reconnecting - updating socket ID from ${existingPlayer.socketId} to ${socket.id}`);
+        io.to(existingPlayer.socketId).emit("force-disconnect");
+        existingPlayer.socketId = socket.id;
+        
+        // Update nickname if provided
+        if (nickname) {
+          existingPlayer.nickname = nickname;
+        }
+        
+        // If game has started, send current game state
+        const gameRoom = rooms[roomId] as any;
+        if (gameRoom.has_started && gameRoom.hands && gameRoom.boards) {
+          console.log(`Sending game state to reconnecting player ${playerId}`);
+          setTimeout(() => {
+            socket.emit("deck-shuffled", {
+              hands: gameRoom.hands,
+              boards: gameRoom.boards,
+              currentTurn: gameRoom.currentTurn,
+              currentPhase: gameRoom.currentPhase,
+              playerIdList: gameRoom.players.map((p: any) => p.playerId),
+              discardPile: gameRoom.discardPile,
+              playerNames: gameRoom.playerNames,
+            });
+          }, 500);
+        }
+      }
     } else {
       const isFirstPlayer = rooms[roomId].players.length === 0;
       rooms[roomId].players.push({
@@ -81,13 +107,17 @@ export function registerRoomEvents(
       (p) => p.playerId === playerId
     );
 
+    // If the player is reconnecting to a game in progress, mark this as a reconnection
+    const isReconnecting = roomIsStarted && isPlayerInRoom;
+
     socket.emit(
       "existing-room",
       !!existingRoom,
       roomId,
       roomIsStarted,
       roomIsFull,
-      isPlayerInRoom
+      isPlayerInRoom,
+      isReconnecting
     );
   });
 

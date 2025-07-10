@@ -6,6 +6,7 @@ import type {
 import { useNavigate } from "react-router-dom";
 import { usePlayerId } from "../usePlayerId";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 type UseRoomSocketProps = {
   roomId: string | undefined;
@@ -44,9 +45,13 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
 
   const disconect = useCallback(() => {
     if (socket) {
+      // Clear session data when user manually disconnects
+      localStorage.removeItem("currentRoomId");
+      localStorage.removeItem("gameStarted");
+      console.log("Game session cleared from localStorage - manual disconnect");
       navigate("/");
     }
-  }, [roomId, socket]);
+  }, [roomId, socket, navigate]);
 
   const onPlayersUpdate = (playerList: PlayersUpdate[]) => {
     setPlayers(playerList.map((p) => p.nickname));
@@ -81,7 +86,8 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         roomId: string,
         roomIsStarted: boolean,
         roomIsFull: boolean,
-        isPlayerInRoom: boolean
+        isPlayerInRoom: boolean,
+        isReconnecting?: boolean
       ) => {
         if (!exist) {
           alert(`Room ${roomId} does not exist.`);
@@ -95,6 +101,17 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
         } else {
           setShowRoom(true);
           socket?.emit("join-room", { roomId, playerId, nickname });
+          
+          // If this is a reconnection to a game in progress, set the game as started
+          if (isReconnecting) {
+            console.log("Reconnecting to game in progress");
+            setIsGameStarted(true);
+            // Clear the reconnecting toast if it exists
+            setTimeout(() => {
+              toast.dismiss("reconnecting");
+              toast.success("Reconnected to game!", { duration: 2000 });
+            }, 500);
+          }
         }
       }
     );
@@ -103,19 +120,31 @@ export function useRoomSocket({ roomId }: UseRoomSocketProps) {
 
       if (isStarted) {
         setIsGameStarted(isStarted);
-        //TODO Algo se hara aqui
+        // Save game session information for persistence
+        localStorage.setItem("currentRoomId", roomId!);
+        localStorage.setItem("gameStarted", "true");
+        console.log("Game session saved to localStorage");
       } else {
         alert(`Cannot start game: ${log}`);
       }
     });
     socket.on("players-update", onPlayersUpdate);
     socket.on("force-disconnect", disconect);
+    
+    // Listen for game end to clean up session data
+    socket.on("game-ended", () => {
+      console.log("Game ended, cleaning up session data");
+      localStorage.removeItem("currentRoomId");
+      localStorage.removeItem("gameStarted");
+    });
+
     return () => {
       socket.off("room-settings");
       socket.off("existing-room");
       socket.off("players-update");
       socket.off("force-disconnect");
       socket.off("game-started");
+      socket.off("game-ended");
       socket.emit("leave-room", { roomId, playerId });
     };
   }, [roomId, socket]);

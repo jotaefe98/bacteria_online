@@ -83,6 +83,11 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       if (data.playerNames) {
         setPlayerNames(data.playerNames);
       }
+      
+      // Save game session information for persistence
+      localStorage.setItem("currentRoomId", roomId!);
+      localStorage.setItem("gameStarted", "true");
+      console.log("Game session saved to localStorage after deck shuffle");
     });
     socket?.on("update-game", (data) => {
       console.log("Received update-game event:", data);
@@ -111,6 +116,11 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       } else {
         gameNotifications.gameLost(playerNames[data.winner] || data.winner);
       }
+      
+      // Clear game session data when game ends
+      localStorage.removeItem("currentRoomId");
+      localStorage.removeItem("gameStarted");
+      console.log("Game session cleared from localStorage after game end");
     });
 
     socket?.on("game-error", (error) => {

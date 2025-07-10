@@ -90,6 +90,22 @@ export function registerGameEvents(
     }
   });
 
+  socket.on("request-game-state", (roomId: string) => {
+    const room = rooms[roomId] as GameRoom;
+    if (room && room.has_started && room.hands && room.boards) {
+      console.log(`Sending current game state to reconnecting player in room ${roomId}`);
+      socket.emit("deck-shuffled", {
+        hands: room.hands,
+        boards: room.boards,
+        currentTurn: room.currentTurn,
+        currentPhase: room.currentPhase,
+        playerIdList: room.players.map((p) => p.playerId),
+        discardPile: room.discardPile,
+        playerNames: room.playerNames,
+      });
+    }
+  });
+
   socket.on("shuffle-deck", (roomId: string) => {
     const room = rooms[roomId] as GameRoom;
     if (room && !room.has_started) {

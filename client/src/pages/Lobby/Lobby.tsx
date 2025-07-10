@@ -1,10 +1,34 @@
 import "./Lobby.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCreateRoom } from "../../hooks/looby/useCreateRoom";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 function Lobby() {
   const [roomCode, setRoomCode] = useState("");
   const { createRoom, existingRoom } = useCreateRoom();
+  const navigate = useNavigate();
+  const { socket } = useAppContext();
+
+  useEffect(() => {
+    // Check if user was in a game session when page refreshed
+    const savedRoomId = localStorage.getItem("currentRoomId");
+    const savedGameState = localStorage.getItem("gameStarted");
+    const playerId = localStorage.getItem("playerId");
+
+    if (savedRoomId && savedGameState === "true" && playerId && socket) {
+      console.log("Found saved game session, attempting to reconnect to room:", savedRoomId);
+      
+      // Show a toast to inform the user
+      toast.loading("Reconnecting to your game...", { id: "reconnecting" });
+      
+      // Wait a bit for socket to be fully connected
+      setTimeout(() => {
+        navigate(`/room/${savedRoomId}`);
+      }, 1000);
+    }
+  }, [socket, navigate]);
 
   return (
     <div className="lobby-container">
