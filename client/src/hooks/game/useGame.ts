@@ -159,6 +159,24 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       gameNotifications.medicalError(data.byPlayer);
     });
 
+    socket?.on("hand-discarded", (data) => {
+      if (data.reason === "latex_glove") {
+        showNotification({
+          type: "warning",
+          message: `${data.byPlayer} used Latex Glove - all your cards were discarded!`,
+          icon: "🧤",
+        });
+      }
+    });
+
+    socket?.on("organ-transplanted", (data) => {
+      showNotification({
+        type: "info",
+        message: `${data.byPlayer} transplanted your ${data.organGiven} organ with ${data.otherPlayer}'s ${data.organReceived} organ`,
+        icon: "🔄",
+      });
+    });
+
     socket?.on("contagion-spread", (data) => {
       if (data.affectedPlayers && data.affectedPlayers.length > 0) {
         gameNotifications.contagion(data.affectedPlayers);
@@ -177,6 +195,8 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       socket?.off("organ-treated");
       socket?.off("organ-stolen");
       socket?.off("medical-error-used");
+      socket?.off("hand-discarded");
+      socket?.off("organ-transplanted");
       socket?.off("contagion-spread");
     };
   }, [roomId, socket, playerId]);

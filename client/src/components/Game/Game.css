@@ -952,3 +952,165 @@ html, body {
     flex: 1;
   }
 }
+
+/* Modificación del cards-left para añadir el icono de ayuda */
+.cards-left {
+  position: relative; /* Necesario para posicionar el icono de ayuda */
+}
+
+/* Icono de ayuda en la esquina superior izquierda */
+.cards-left::before {
+  content: "?";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4c51bf;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+}
+
+.cards-left::before:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* En móviles, hacer el icono un poco más grande y fácil de tocar */
+@media (max-width: 768px) {
+  .cards-left::before {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    top: 6px;
+    left: 6px;
+  }
+}
+
+/* Modal para mostrar las reglas del juego */
+.game-rules-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.game-rules-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.game-rules-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.game-rules-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d3748;
+  margin: 0;
+}
+
+.close-button {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: #4a5568;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #cbd5e0;
+  transform: scale(1.1);
+}
+
+.treatment-section {
+  margin-bottom: 20px;
+}
+
+.treatment-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #4c51bf;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.treatment-description {
+  color: #4a5568;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.treatment-rules {
+  background: #f7fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #4c51bf;
+}
+
+.treatment-rules ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.treatment-rules li {
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .game-rules-content {
+    max-width: 95vw;
+    max-height: 90vh;
+    padding: 16px;
+  }
+  
+  .game-rules-title {
+    font-size: 20px;
+  }
+  
+  .treatment-title {
+    font-size: 16px;
+  }
+}

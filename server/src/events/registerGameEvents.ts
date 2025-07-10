@@ -15,6 +15,7 @@ import {
   checkWinCondition,
   getPlayableCards,
   rebuildDeck,
+  applyTreatmentEffect,
 } from "../functions/gameLogic";
 
 // Añade esto al tipo Room:
@@ -202,16 +203,99 @@ export function registerGameEvents(
         }
 
         // Aplicar el efecto de la carta
-        const result = applyCardEffect(
-          card,
-          playerBoard,
-          targetBoard,
-          action.targetOrganColor,
-          room.boards!
-        );
+        let result;
+        if (card.type === "treatment") {
+          // For treatments, use the special function with all context
+          result = applyTreatmentEffect(card, room.boards!, playerId, action);
+        } else {
+          result = applyCardEffect(
+            card,
+            playerBoard,
+            targetBoard,
+            action.targetOrganColor,
+            room.boards!
+          );
+        }
         if (!result.success) {
           socket.emit("game-error", result.reason);
           return;
+        }
+
+        // Handle special treatment effects
+        if (result.success && card.type === "treatment") {
+          switch (card.color) {
+            case "latex_glove":
+              // All players except current discard their hands
+              Object.keys(room.hands!).forEach((pId) => {
+                if (pId !== playerId) {
+                  room.discardPile!.push(...room.hands![pId]);
+                  room.hands![pId] = [];
+
+                  // Notify affected player
+                  io.to(pId).emit("hand-discarded", {
+                    byPlayer: room.playerNames?.[playerId] || playerId,
+                    reason: "latex_glove",
+                  });
+                }
+              });
+              break;
+
+            case "contagion":
+              // Notify affected players from contagion results
+              if (result.changes?.contagionResults) {
+                result.changes.contagionResults.forEach((contagion: any) => {
+                  io.to(contagion.targetPlayer).emit("organ-infected", {
+                    organColor: contagion.organColor,
+                    byPlayer: room.playerNames?.[playerId] || playerId,
+                    cardType: contagion.virusType,
+                    reason: "contagion",
+                  });
+                });
+              }
+              break;
+
+            case "organ_thief":
+              io.to(action.targetPlayerId!).emit("organ-stolen", {
+                byPlayer: room.playerNames?.[playerId] || playerId,
+                organColor: action.targetOrganColor,
+              });
+              break;
+
+            case "transplant":
+              // Notify both players about the transplant
+              io.to(action.targetPlayerId!).emit("organ-transplanted", {
+                byPlayer: room.playerNames?.[playerId] || playerId,
+                organGiven: action.targetOrganColor,
+                organReceived: action.secondTargetOrganColor,
+                otherPlayer:
+                  room.playerNames?.[action.secondTargetPlayerId!] ||
+                  action.secondTargetPlayerId!,
+              });
+              io.to(action.secondTargetPlayerId!).emit("organ-transplanted", {
+                byPlayer: room.playerNames?.[playerId] || playerId,
+                organGiven: action.secondTargetOrganColor,
+                organReceived: action.targetOrganColor,
+                otherPlayer:
+                  room.playerNames?.[action.targetPlayerId!] ||
+                  action.targetPlayerId!,
+              });
+              break;
+
+            case "medical_error":
+              const targetPlayerId =
+                action.targetPlayerId ||
+                Object.keys(room.boards!).find(
+                  (id) =>
+                    id !== playerId &&
+                    room.boards![id].organs[action.targetOrganColor!]
+                );
+              if (targetPlayerId) {
+                io.to(targetPlayerId).emit("medical-error-used", {
+                  byPlayer: room.playerNames?.[playerId] || playerId,
+                });
+              }
+              break;
+          }
         }
 
         // Remover la carta de la mano
@@ -350,8 +434,16 @@ export function registerGameEvents(
         (p) => p.playerId === playerId
       );
       const nextIndex = (currentIndex + 1) % room.players.length;
-      room.currentTurn = room.players[nextIndex].playerId;
-      room.currentPhase = "play_or_discard";
+      const nextPlayerId = room.players[nextIndex].playerId;
+      room.currentTurn = nextPlayerId;
+
+      // Check if next player has no cards (due to latex glove)
+      if (room.hands![nextPlayerId].length === 0) {
+        // They start in draw phase instead of play_or_discard
+        room.currentPhase = "draw";
+      } else {
+        room.currentPhase = "play_or_discard";
+      }
 
       io.to(roomId).emit("update-game", {
         hands: room.hands,

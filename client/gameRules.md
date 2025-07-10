@@ -65,3 +65,63 @@ Un órgano está sano si:
 - Gana quien tenga **4 órganos distintos sanos** sobre la mesa
 
 ---
+
+
+# 💊 Virus! – Instrucciones Específicas de los Tratamientos
+
+Las **cartas de tratamiento** alteran el desarrollo del juego.  
+Se juegan sobre la **pila de descarte** y tienen **efecto inmediato**.  
+No se colocan sobre la mesa ni sobre órganos.
+
+---
+
+## 🫀 TRANSPLANTE
+🔄 **Intercambia un órgano** entre **dos jugadores**.
+
+- No importa el **color**, ni si están **sanos, infectados o vacunados**.
+- **No se puede** intercambiar órganos **inmunizados**.
+- **Ningún jugador** puede terminar con **dos órganos del mismo color** tras el intercambio.
+
+---
+
+## 🦹‍♂️ LADRÓN DE ÓRGANOS
+🩺 **Roba un órgano** de otro jugador y **añádelo a tu cuerpo**.
+
+- Puedes robar órganos:
+  - Libres
+  - Vacunados
+  - Infectados
+- **No puedes** robar órganos **inmunizados**.
+- **No puedes** quedarte con **dos órganos del mismo color**.
+
+---
+
+## 🧫 CONTAGIO
+🧟 **Transfiere virus** desde tus órganos a los de otros jugadores.
+
+- Solo puedes **contagiar órganos libres**.
+- **No puedes** contagiar:
+  - Órganos ya infectados
+  - Órganos vacunados
+- Puedes transferir **todos los virus posibles** (uno por órgano infectado propio).
+
+---
+
+## 🧤 GUANTE DE LÁTEX
+🃏 Todos los jugadores, **excepto tú**, descartan su **mano entera**.
+
+- En su siguiente turno, como no tienen cartas:
+  - Solo podrán **robar 3 cartas**
+  - No podrán jugar ese turno
+
+---
+
+## 🧪 ERROR MÉDICO
+🔁 Intercambia **todo tu cuerpo** con el de otro jugador.
+
+- Incluye: **órganos, virus y medicinas**
+- Los órganos **inmunizados también se intercambian**
+- El número de cartas en mesa **no importa**
+
+---
+

@@ -48,5 +48,7 @@ export interface PlayCardAction {
   cardId: string;
   targetPlayerId?: string;
   targetOrganColor?: string;
+  secondTargetPlayerId?: string;
+  secondTargetOrganColor?: string;
   additionalData?: any;
 }

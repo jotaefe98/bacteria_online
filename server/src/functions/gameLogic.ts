@@ -206,57 +206,358 @@ export function applyCardEffect(
       };
 
     case "treatment":
-      return applyTreatmentEffect(card, allBoards);
+      // Treatment effects need additional parameters
+      return {
+        success: false,
+        reason: "Treatment effects need to be called with proper parameters",
+      };
 
     default:
       return { success: false, reason: "Unknown card type" };
   }
 }
 
-// Function to apply treatment effects
-function applyTreatmentEffect(
+// Function to apply treatment effects with full context
+export function applyTreatmentEffect(
   card: Card,
-  allBoards: { [playerId: string]: PlayerBoard }
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action: PlayCardAction
 ): { success: boolean; changes?: any; reason?: string } {
   switch (card.color) {
     case "transplant":
-      // Transplant is handled in client/server with player selection
-      return {
-        success: true,
-        changes: { type: "treatment_played", treatment: "transplant" },
-      };
+      return applyTransplant(allBoards, currentPlayerId, action);
 
     case "organ_thief":
-      // Organ thief is handled with selection
-      return {
-        success: true,
-        changes: { type: "treatment_played", treatment: "organ_thief" },
-      };
+      return applyOrganThief(allBoards, currentPlayerId, action);
 
     case "contagion":
-      // Contagion is handled with selection
-      return {
-        success: true,
-        changes: { type: "treatment_played", treatment: "contagion" },
-      };
+      return applyContagion(allBoards, currentPlayerId);
 
     case "latex_glove":
-      // All other players discard their hand
-      return {
-        success: true,
-        changes: { type: "treatment_played", treatment: "latex_glove" },
-      };
+      return applyLatexGlove();
 
     case "medical_error":
-      // Body swap is handled with selection
-      return {
-        success: true,
-        changes: { type: "treatment_played", treatment: "medical_error" },
-      };
+      return applyMedicalError(allBoards, currentPlayerId, action);
 
     default:
       return { success: false, reason: "Unknown treatment" };
   }
+}
+
+// TRANSPLANT: Exchange organs between two players
+function applyTransplant(
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action: PlayCardAction
+): { success: boolean; changes?: any; reason?: string } {
+  if (
+    !action.targetPlayerId ||
+    !action.targetOrganColor ||
+    !action.secondTargetPlayerId ||
+    !action.secondTargetOrganColor
+  ) {
+    return {
+      success: false,
+      reason: "Must select two organs from different players",
+    };
+  }
+
+  const firstBoard = allBoards[action.targetPlayerId];
+  const secondBoard = allBoards[action.secondTargetPlayerId];
+
+  if (!firstBoard || !secondBoard) {
+    return { success: false, reason: "Invalid target players" };
+  }
+
+  const firstOrgan = firstBoard.organs[action.targetOrganColor];
+  const secondOrgan = secondBoard.organs[action.secondTargetOrganColor];
+
+  if (!firstOrgan || !secondOrgan) {
+    return { success: false, reason: "Selected organs do not exist" };
+  }
+
+  // Cannot exchange immunized organs
+  if (firstOrgan.status === "immunized" || secondOrgan.status === "immunized") {
+    return { success: false, reason: "Cannot exchange immunized organs" };
+  }
+
+  // Check if exchange would create duplicate colors
+  const firstPlayerColors = Object.keys(firstBoard.organs).filter(
+    (c) => c !== action.targetOrganColor
+  );
+  const secondPlayerColors = Object.keys(secondBoard.organs).filter(
+    (c) => c !== action.secondTargetOrganColor
+  );
+
+  if (
+    secondOrgan.organ.color !== "rainbow" &&
+    firstPlayerColors.includes(secondOrgan.organ.color)
+  ) {
+    return {
+      success: false,
+      reason: "First player would have duplicate organ colors",
+    };
+  }
+
+  if (
+    firstOrgan.organ.color !== "rainbow" &&
+    secondPlayerColors.includes(firstOrgan.organ.color)
+  ) {
+    return {
+      success: false,
+      reason: "Second player would have duplicate organ colors",
+    };
+  }
+
+  // Perform the exchange
+  const temp = firstBoard.organs[action.targetOrganColor];
+  firstBoard.organs[action.targetOrganColor] =
+    secondBoard.organs[action.secondTargetOrganColor];
+  secondBoard.organs[action.secondTargetOrganColor] = temp;
+
+  return {
+    success: true,
+    changes: {
+      type: "treatment_played",
+      treatment: "transplant",
+      firstPlayer: action.targetPlayerId,
+      secondPlayer: action.secondTargetPlayerId,
+      firstOrgan: action.targetOrganColor,
+      secondOrgan: action.secondTargetOrganColor,
+    },
+  };
+}
+
+// ORGAN THIEF: Steal an organ from another player
+function applyOrganThief(
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action: PlayCardAction
+): { success: boolean; changes?: any; reason?: string } {
+  if (!action.targetPlayerId || !action.targetOrganColor) {
+    return { success: false, reason: "Must select an organ to steal" };
+  }
+
+  if (action.targetPlayerId === currentPlayerId) {
+    return { success: false, reason: "Cannot steal from yourself" };
+  }
+
+  const targetBoard = allBoards[action.targetPlayerId];
+  const thiefBoard = allBoards[currentPlayerId];
+
+  if (!targetBoard || !thiefBoard) {
+    return { success: false, reason: "Invalid players" };
+  }
+
+  const organToSteal = targetBoard.organs[action.targetOrganColor];
+
+  if (!organToSteal) {
+    return { success: false, reason: "Target organ does not exist" };
+  }
+
+  // Cannot steal immunized organs
+  if (organToSteal.status === "immunized") {
+    return { success: false, reason: "Cannot steal immunized organs" };
+  }
+
+  // Check if thief would have duplicate colors
+  const thiefColors = Object.keys(thiefBoard.organs);
+  if (
+    organToSteal.organ.color !== "rainbow" &&
+    thiefColors.includes(action.targetOrganColor)
+  ) {
+    return { success: false, reason: "You would have duplicate organ colors" };
+  }
+
+  // Steal the organ
+  thiefBoard.organs[action.targetOrganColor] = organToSteal;
+  delete targetBoard.organs[action.targetOrganColor];
+
+  return {
+    success: true,
+    changes: {
+      type: "treatment_played",
+      treatment: "organ_thief",
+      targetPlayer: action.targetPlayerId,
+      stolenOrgan: action.targetOrganColor,
+    },
+  };
+}
+
+// CONTAGION: Transfer viruses from current player to others randomly
+function applyContagion(
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string
+): { success: boolean; changes?: any; reason?: string } {
+  const currentBoard = allBoards[currentPlayerId];
+  const infectedOrgans = Object.entries(currentBoard.organs).filter(
+    ([_, organ]) => organ.viruses.length > 0
+  );
+
+  if (infectedOrgans.length === 0) {
+    return { success: false, reason: "You have no infected organs to spread" };
+  }
+
+  const contagionResults: any[] = [];
+  const otherPlayerIds = Object.keys(allBoards).filter(
+    (id) => id !== currentPlayerId
+  );
+
+  // For each infected organ, try to spread to other players
+  infectedOrgans.forEach(([organColor, organState]) => {
+    if (organState.viruses.length > 0) {
+      const virus = organState.viruses[0]; // Take one virus
+
+      // Find all players with healthy (free) organs of compatible color
+      const validTargets = otherPlayerIds.filter((playerId) => {
+        const targetBoard = allBoards[playerId];
+        // Look for organs of the same color or rainbow organs
+        const compatibleOrgans = Object.entries(targetBoard.organs).filter(
+          ([targetColor, targetOrgan]) => {
+            const isColorCompatible =
+              targetColor === organColor ||
+              targetColor === "rainbow" ||
+              organColor === "rainbow";
+            const isFree =
+              targetOrgan.status === "healthy" &&
+              targetOrgan.viruses.length === 0 &&
+              targetOrgan.medicines.length === 0;
+            return isColorCompatible && isFree;
+          }
+        );
+        return compatibleOrgans.length > 0;
+      });
+
+      if (validTargets.length > 0) {
+        const randomTargetPlayerId =
+          validTargets[Math.floor(Math.random() * validTargets.length)];
+        const targetBoard = allBoards[randomTargetPlayerId];
+
+        // Find a random compatible organ in the target player's board
+        const compatibleOrgans = Object.entries(targetBoard.organs).filter(
+          ([targetColor, targetOrgan]) => {
+            const isColorCompatible =
+              targetColor === organColor ||
+              targetColor === "rainbow" ||
+              organColor === "rainbow";
+            const isFree =
+              targetOrgan.status === "healthy" &&
+              targetOrgan.viruses.length === 0 &&
+              targetOrgan.medicines.length === 0;
+            return isColorCompatible && isFree;
+          }
+        );
+
+        if (compatibleOrgans.length > 0) {
+          const [targetOrganColor, targetOrgan] =
+            compatibleOrgans[
+              Math.floor(Math.random() * compatibleOrgans.length)
+            ];
+
+          // Transfer virus
+          organState.viruses.splice(0, 1); // Remove virus from source
+          targetOrgan.viruses.push(virus); // Add to target
+
+          // Update statuses
+          organState.status = calculateOrganStatus(organState);
+          targetOrgan.status = calculateOrganStatus(targetOrgan);
+
+          contagionResults.push({
+            targetPlayer: randomTargetPlayerId,
+            organColor: targetOrganColor,
+            virusType: virus.color,
+          });
+        }
+      }
+    }
+  });
+
+  return {
+    success: true,
+    changes: {
+      type: "treatment_played",
+      treatment: "contagion",
+      contagionResults,
+    },
+  };
+}
+
+// LATEX GLOVE: All other players discard their hands
+function applyLatexGlove(): {
+  success: boolean;
+  changes?: any;
+  reason?: string;
+} {
+  return {
+    success: true,
+    changes: {
+      type: "treatment_played",
+      treatment: "latex_glove",
+    },
+  };
+}
+
+// MEDICAL ERROR: Exchange entire body with another player
+function applyMedicalError(
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action: PlayCardAction
+): { success: boolean; changes?: any; reason?: string } {
+  if (!action.targetPlayerId && !action.targetOrganColor) {
+    return {
+      success: false,
+      reason: "Must select an organ from target player to exchange bodies",
+    };
+  }
+
+  let targetPlayerId = action.targetPlayerId;
+
+  // If no target player specified but organ is selected, derive player from organ selection
+  if (!targetPlayerId && action.targetOrganColor) {
+    // Find which player has the selected organ color
+    for (const [playerId, board] of Object.entries(allBoards)) {
+      if (
+        playerId !== currentPlayerId &&
+        board.organs[action.targetOrganColor]
+      ) {
+        targetPlayerId = playerId;
+        break;
+      }
+    }
+  }
+
+  if (!targetPlayerId) {
+    return {
+      success: false,
+      reason: "Must select a target player to exchange bodies with",
+    };
+  }
+
+  if (targetPlayerId === currentPlayerId) {
+    return { success: false, reason: "Cannot exchange body with yourself" };
+  }
+
+  const currentBoard = allBoards[currentPlayerId];
+  const targetBoard = allBoards[targetPlayerId];
+
+  if (!currentBoard || !targetBoard) {
+    return { success: false, reason: "Invalid players" };
+  }
+
+  // Exchange entire organ collections
+  const temp = currentBoard.organs;
+  currentBoard.organs = targetBoard.organs;
+  targetBoard.organs = temp;
+
+  return {
+    success: true,
+    changes: {
+      type: "treatment_played",
+      treatment: "medical_error",
+      targetPlayer: targetPlayerId,
+    },
+  };
 }
 
 // Function to check win condition

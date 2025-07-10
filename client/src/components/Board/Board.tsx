@@ -14,6 +14,8 @@ interface BoardProps {
   selectedTarget?: {
     playerId?: string;
     organColor?: string;
+    secondPlayerId?: string;
+    secondOrganColor?: string;
   };
 }
 
@@ -97,9 +99,13 @@ export function Board({
           </div>
         ) : (
           Object.entries(board.organs).map(([color, organState]) => {
-            const isSelected =
+            const isFirstSelected =
               selectedTarget?.playerId === playerId &&
               selectedTarget?.organColor === color;
+            const isSecondSelected =
+              selectedTarget?.secondPlayerId === playerId &&
+              selectedTarget?.secondOrganColor === color;
+            const isSelected = isFirstSelected || isSecondSelected;
 
             return (
               <div
