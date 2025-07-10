@@ -59,18 +59,12 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     }
   };
 
-  const [playMode, setPlayMode] = useState<"single" | "multiple">("single");
-
-  const toggleCardSelection = (cardId: string) => {
-    if (playMode === "single") {
-      setSelectedCards([cardId]);
-    } else {
-      setSelectedCards((prev) =>
-        prev.includes(cardId)
-          ? prev.filter((id) => id !== cardId)
-          : [...prev, cardId]
-      );
-    }
+  const cardSelection = (cardId: string) => {
+    setSelectedCards((prev) =>
+      prev.includes(cardId)
+        ? prev.filter((id) => id !== cardId)
+        : [...prev, cardId]
+    );
   };
 
   const handlePlaySelectedCard = () => {
@@ -168,29 +162,9 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               </span>
               <span className="turn-indicator">{getPhaseText()}</span>
             </div>
-            <div className="play-mode-selector">
-              <label>
-                <input
-                  type="radio"
-                  value="single"
-                  checked={playMode === "single"}
-                  onChange={() => setPlayMode("single")}
-                />
-                Play one card
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="multiple"
-                  checked={playMode === "multiple"}
-                  onChange={() => setPlayMode("multiple")}
-                />
-                Discard multiple
-              </label>
-            </div>
           </div>
 
-          {/* div2-bottom - Cartas a la izquierda, botones a la derecha */}
+          {/* div2-bottom - Cards in the left, buttons in the right */}
           <div className="div2-bottom">
             <div className="cards-left">
               {hand.map((card) => (
@@ -198,7 +172,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                   key={card.id}
                   card={card}
                   isSelected={selectedCards.includes(card.id)}
-                  onClick={() => canPlay && toggleCardSelection(card.id)}
+                  onClick={() => canPlay && cardSelection(card.id)}
                   disabled={!canPlay}
                 />
               ))}
@@ -207,11 +181,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               <button
                 onClick={handlePlaySelectedCard}
                 className="action-button-new play-button"
-                disabled={
-                  !canPlay ||
-                  selectedCards.length !== 1 ||
-                  playMode !== "single"
-                }
+                disabled={!canPlay || selectedCards.length !== 1}
               >
                 Play
               </button>
