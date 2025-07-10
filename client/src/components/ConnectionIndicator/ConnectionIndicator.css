@@ -1,0 +1,34 @@
+
+
+.connection-icon {
+  font-size: 0.75rem;
+  animation: pulse 2s infinite;
+}
+
+.connection-text {
+  white-space: nowrap;
+}
+
+
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+
+  
+  .connection-text {
+    display: none;
+  }
+  
+  .connection-icon {
+    font-size: 1rem;
+  }
+}

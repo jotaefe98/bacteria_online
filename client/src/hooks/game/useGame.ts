@@ -35,16 +35,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
   const [canEndTurn, setCanEndTurn] = useState(false);
 
   useEffect(() => {
-    console.log("isGameStarted effect:", {
-      isGameStarted,
-      socket: !!socket,
-      isHost,
-      roomId,
-      playerId,
-    });
-
     if (!isGameStarted || !socket || !roomId) {
-      console.log("Early return - conditions not met");
       return;
     }
 
@@ -65,17 +56,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     if (!roomId || !socket) return;
 
     socket?.on("deck-shuffled", (data) => {
-      console.log("Received deck-shuffled event:", data);
-      console.log(
-        "Setting hand for playerId:",
-        playerId,
-        "cards:",
-        data.hands[playerId]?.length
-      );
-      console.log("Setting boards:", Object.keys(data.boards || {}));
-      console.log("Setting currentTurn:", data.currentTurn);
-      console.log("Setting playerNames:", data.playerNames);
-
       setHand(data.hands[playerId] || []);
       setBoards(data.boards || {});
       setCurrentTurn(data.currentTurn);
@@ -87,18 +67,11 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       // Save game session information for persistence
       localStorage.setItem("currentRoomId", roomId!);
       localStorage.setItem("gameStarted", "true");
-      console.log("Game session saved to localStorage after deck shuffle");
+      // Save game session after deck shuffle
+      localStorage.setItem("currentRoomId", roomId);
+      localStorage.setItem("gameStarted", "true");
     });
     socket?.on("update-game", (data) => {
-      console.log("Received update-game event:", data);
-      console.log(
-        "Updating hand for playerId:",
-        playerId,
-        "cards:",
-        data.hands[playerId]?.length
-      );
-      console.log("Updating boards:", Object.keys(data.boards || {}));
-
       // Quitamos la notificación de cartas robadas - es información redundante
       setHand(data.hands[playerId] || []);
       setBoards(data.boards || {});
@@ -119,7 +92,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       // Clear game session data when game ends
       localStorage.removeItem("currentRoomId");
       localStorage.removeItem("gameStarted");
-      console.log("Game session cleared from localStorage after game end");
     });
 
     socket?.on("clear-session-data", () => {
@@ -136,7 +108,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     });
 
     socket?.on("deck-rebuilt", (data) => {
-      console.log("Deck was rebuilt with", data.deckSize, "cards");
       gameNotifications.deckRebuilt(data.deckSize);
     });
 

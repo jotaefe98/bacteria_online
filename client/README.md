@@ -1,19 +1,35 @@
 # Bacteria Online - Cliente
 
-Este proyecto es el cliente web de **Bacteria Online**, un juego multijugador en línea inspirado en juegos de cartas como Bacteria. El cliente está desarrollado con **React**, **TypeScript** y utiliza **Vite** para el desarrollo y build rápido.
+Este proyecto es el cliente web de **Bacteria Online**, un juego multijugador en línea inspirado en el juego de cartas Bacteria. El cliente está desarrollado con **React**, **TypeScript** y utiliza **Vite** para el desarrollo y build rápido.
 
 ## 🕹️ ¿De qué va el juego?
 
-El objetivo es crear salas donde los jugadores pueden unirse mediante un código o enlace, elegir su nickname y esperar a que el host inicie la partida. El flujo principal es:
+Bacteria Online es un juego de cartas estratégico donde los jugadores compiten para ser los primeros en completar cuerpos sanos con 4 órganos de diferentes colores, mientras sabotean a sus oponentes con virus y tratamientos especiales.
 
-1. Un usuario crea una sala (se genera un código único).
-2. Otros jugadores pueden unirse introduciendo el código de la sala.
-3. Cada jugador debe elegir un nickname.
-4. El host puede iniciar la partida cuando haya suficientes jugadores.
+### Flujo del juego:
 
-> **Nota:** La lógica del juego como tal aún no está implementada, solo la gestión de salas y jugadores.
+1. **Crear/Unirse a sala**: Un usuario crea una sala (código único de 6 caracteres) o se une con un código existente.
+2. **Configuración**: Los jugadores eligen sus nicknames y esperan a que el host inicie la partida.
+3. **Gameplay**: Por turnos, los jugadores:
+   - Juegan cartas (órganos, virus, medicinas, tratamientos)
+   - Roban nuevas cartas
+   - Usan tratamientos especiales para cambiar el curso del juego
+4. **Victoria**: El primer jugador en completar 4 órganos saludables de diferentes colores gana.
 
-## 📦 Estructura actual
+## ✨ Características principales
+
+- 🎮 **Multijugador en tiempo real** con WebSockets
+- 🔄 **Reconexión automática** al entrar por enlace de partida
+- 📋 **Compartir fácilmente** código de sala y enlace directo
+- 🧪 **Tratamientos especiales**: Transplante, Ladrón de órganos, Contagio, Guante de látex, Error médico
+- 🔔 **Sistema de notificaciones** inteligente con react-hot-toast
+- 📱 **Diseño responsivo** para móviles y escritorio
+- 🎯 **Indicador de conexión** en tiempo real
+- ✅ **Validación robusta** de entrada (nicknames, códigos de sala)
+- 🎨 **Interfaz moderna** con gradientes y animaciones
+- 💾 **Persistencia de sesión** para reconexión
+
+## 📦 Estructura del proyecto
 
 - **src/pages/Lobby/**: Pantalla principal para crear o unirse a una sala.
 - **src/pages/Room/**: Pantalla de la sala, muestra jugadores, permite cambiar nickname y empezar la partida.

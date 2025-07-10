@@ -4,7 +4,9 @@ import { useRoomSocket } from "../../hooks/room/useRoomSocket";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
+import { validateNickname } from "../../utils/validation";
 import toast from "react-hot-toast";
+import { copyToClipboard, generateRoomLink } from "../../utils/clipboardUtils";
 import "./Room.css";
 
 function Room() {
@@ -43,35 +45,29 @@ function Room() {
   }, [roomId]);
 
   const copyRoomCode = async () => {
-    try {
-      await navigator.clipboard.writeText(roomId!);
+    const success = await copyToClipboard(
+      roomId!,
+      "Room code copied to clipboard!",
+      "Failed to copy room code"
+    );
+    if (success) {
       toast.success("Room code copied to clipboard!", { duration: 2000 });
-    } catch (err) {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = roomId!;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      toast.success("Room code copied to clipboard!", { duration: 2000 });
+    } else {
+      toast.error("Failed to copy room code", { duration: 2000 });
     }
   };
 
   const copyRoomLink = async () => {
-    const roomLink = `${window.location.origin}/room/${roomId}`;
-    try {
-      await navigator.clipboard.writeText(roomLink);
+    const roomLink = generateRoomLink(roomId!);
+    const success = await copyToClipboard(
+      roomLink,
+      "Room link copied to clipboard!",
+      "Failed to copy room link"
+    );
+    if (success) {
       toast.success("Room link copied to clipboard!", { duration: 2000 });
-    } catch (err) {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = roomLink;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      toast.success("Room link copied to clipboard!", { duration: 2000 });
+    } else {
+      toast.error("Failed to copy room link", { duration: 2000 });
     }
   };
 
@@ -160,20 +156,42 @@ function Room() {
                 type="text"
                 placeholder="Change nickname"
                 value={tempNickname}
-                onChange={(e) => setTempNickname(e.target.value)}
+                onChange={(e) => setTempNickname(e.target.value.slice(0, 20))}
                 className="nickname-input"
                 maxLength={20}
               />
               <button
                 className="change-btn"
                 onClick={() => {
-                  if (tempNickname.trim()) {
-                    localStorage.setItem("nickname", tempNickname.trim());
-                    updateNickname(tempNickname.trim());
-                    setTempNickname("");
+                  const trimmedNickname = tempNickname.trim();
+
+                  if (!trimmedNickname) {
+                    toast.error("Please enter a nickname");
+                    return;
                   }
+
+                  if (trimmedNickname === nickname) {
+                    toast("This is already your current nickname", {
+                      icon: "ℹ️",
+                    });
+                    setTempNickname("");
+                    return;
+                  }
+
+                  const validation = validateNickname(trimmedNickname);
+                  if (!validation.isValid) {
+                    toast.error(validation.error!);
+                    return;
+                  }
+
+                  localStorage.setItem("nickname", trimmedNickname);
+                  updateNickname(trimmedNickname);
+                  setTempNickname("");
+                  toast.success("Nickname updated!");
                 }}
-                disabled={!tempNickname.trim()}
+                disabled={
+                  !tempNickname.trim() || tempNickname.trim() === nickname
+                }
               >
                 Update
               </button>

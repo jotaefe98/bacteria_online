@@ -90,7 +90,6 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     // Clear game session data
     localStorage.removeItem("currentRoomId");
     localStorage.removeItem("gameStarted");
-    console.log("Game session cleared - returning to main menu");
 
     // Navigate to main menu
     navigate("/");

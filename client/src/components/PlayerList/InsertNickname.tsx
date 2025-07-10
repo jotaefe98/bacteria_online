@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { validateNickname } from "../../utils/validation";
+import toast from "react-hot-toast";
 import "./InsertNickname.css";
 
 type InsertNicknameProps = {
@@ -12,10 +14,21 @@ export default function InsertNickname({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (tempNickname.trim()) {
-      onNicknameSubmit(tempNickname.trim());
-      setTempNickname("");
+    const trimmed = tempNickname.trim();
+
+    if (!trimmed) {
+      toast.error("Please enter a nickname");
+      return;
     }
+
+    const validation = validateNickname(trimmed);
+    if (!validation.isValid) {
+      toast.error(validation.error!);
+      return;
+    }
+
+    onNicknameSubmit(trimmed);
+    setTempNickname("");
   };
 
   return (

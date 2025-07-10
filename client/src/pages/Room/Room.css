@@ -41,10 +41,23 @@
   color: white;
 }
 
+.room-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .room-title h1 {
   font-size: 2.5rem;
   margin: 0 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.room-connection-status {
+  align-self: flex-start;
+  margin-left: auto;
 }
 
 .room-code-section {

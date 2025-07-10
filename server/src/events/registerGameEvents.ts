@@ -8,6 +8,7 @@ import {
   PlayCardAction,
 } from "../types/interfaces";
 import { BASE_DECK, MIN_NUM_PLAYERS } from "../const/const";
+import { logger } from "../utils/logger";
 import { shuffle } from "../functions/shuffle";
 import {
   canPlayCard,
