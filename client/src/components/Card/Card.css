@@ -147,6 +147,27 @@
   color: #856404;
 }
 
+.card-orange {
+  border-color: #fd7e14;
+  background: linear-gradient(135deg, #ffe8d1 0%, #ffffff 100%);
+}
+
+.card-orange.selected {
+  border-color: #e8650e;
+  background: linear-gradient(135deg, #ffd6b3 0%, #ffffff 100%);
+}
+
+.card-orange .card-color-display {
+  background: rgba(253, 126, 20, 0.2);
+  color: #fd7e14;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+}
+
 .card-rainbow {
   border: 3px solid;
   border-image: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7) 1;
@@ -387,6 +408,12 @@
   
   .card-color-display {
     font-size: 0.8rem;
+  }
+  
+  .card-orange .card-color-display {
+    font-size: 0.6rem;
+    padding: 3px 6px;
+    max-width: 60px;
   }
   
   .card-description {

@@ -41,7 +41,7 @@ const Card: React.FC<CardProps> = ({
       case "yellow":
         return "🦴"; // Bone
       case "rainbow":
-        return "🌈"; // Rainbow organ
+        return "🦾"; // Rainbow organ
       default:
         return "🫀"; // Generic organ
     }
@@ -64,7 +64,28 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  const getCardColorClass = (color: string) => {
+  const getTreatmentDisplayName = (color: string) => {
+    switch (color.toLowerCase()) {
+      case "transplant":
+        return "Transplant";
+      case "organ_thief":
+        return "Organ Thief";
+      case "contagion":
+        return "Contagion";
+      case "latex_glove":
+        return "Latex Glove";
+      case "medical_error":
+        return "Medical Error";
+      default:
+        return "Treatment";
+    }
+  };
+
+  const getCardColorClass = (color: string, type: string) => {
+    if (type === "treatment") {
+      return "card-orange";
+    }
+
     switch (color.toLowerCase()) {
       case "red":
         return "card-red";
@@ -83,7 +104,7 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`game-card ${getCardColorClass(card.color)} ${
+      className={`game-card ${getCardColorClass(card.color, card.type)} ${
         isSelected ? "selected" : ""
       } ${disabled ? "disabled" : ""}`}
       onClick={!disabled ? onClick : undefined}
@@ -92,7 +113,11 @@ const Card: React.FC<CardProps> = ({
         {getCardIcon(card.type, card.color)}
       </div>
 
-      <div className="card-color-display">{card.color.toUpperCase()}</div>
+      <div className="card-color-display">
+        {card.type === "treatment"
+          ? getTreatmentDisplayName(card.color)
+          : card.color.toUpperCase()}
+      </div>
     </div>
   );
 };

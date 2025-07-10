@@ -36,6 +36,30 @@ function getTreatmentName(treatmentColor: string): string {
   }
 }
 
+// Helper function to get player name safely
+function getPlayerName(room: GameRoom, playerId: string): string {
+  // First try playerNames mapping
+  if (room.playerNames && room.playerNames[playerId]) {
+    console.log(
+      `Found player name in playerNames: ${playerId} -> ${room.playerNames[playerId]}`
+    );
+    return room.playerNames[playerId];
+  }
+
+  // Fallback to players array
+  const player = room.players.find((p) => p.playerId === playerId);
+  if (player && player.nickname) {
+    console.log(
+      `Found player name in players array: ${playerId} -> ${player.nickname}`
+    );
+    return player.nickname;
+  }
+
+  // Last resort: return playerId
+  console.log(`No player name found, using playerId: ${playerId}`);
+  return playerId;
+}
+
 // Añade esto al tipo Room:
 interface GameRoom extends Room {
   deck?: Card[];
@@ -86,6 +110,13 @@ export function registerGameEvents(
       room.currentTurn = room.players[0].playerId;
       room.currentPhase = "play_or_discard";
 
+      // Establecer el mapeo de nombres de jugadores
+      room.playerNames = room.players.reduce((acc, player) => {
+        acc[player.playerId] = player.nickname || player.playerId;
+        return acc;
+      }, {} as { [playerId: string]: string });
+
+      console.log("Player names mapping:", room.playerNames);
       console.log("deck: ", JSON.stringify(room.deck));
       io.to(roomId).emit("deck-shuffled", {
         hands: room.hands,
@@ -94,10 +125,7 @@ export function registerGameEvents(
         currentPhase: room.currentPhase,
         playerIdList: room.players.map((p) => p.playerId),
         discardPile: room.discardPile,
-        playerNames: room.players.reduce((acc, player) => {
-          acc[player.playerId] = player.nickname || player.playerId;
-          return acc;
-        }, {} as { [playerId: string]: string }),
+        playerNames: room.playerNames,
       });
     }
   });
@@ -241,7 +269,10 @@ export function registerGameEvents(
 
         // Handle special treatment effects and global notifications
         if (result.success && card.type === "treatment") {
-          const currentPlayerName = room.playerNames?.[playerId] || playerId;
+          const currentPlayerName = getPlayerName(room, playerId);
+          console.log(
+            `Treatment used by player: ${playerId} (${currentPlayerName})`
+          );
 
           // Global notification for treatment usage
           io.to(roomId).emit("treatment-used", {
@@ -294,17 +325,13 @@ export function registerGameEvents(
                 byPlayer: currentPlayerName,
                 organGiven: action.targetOrganColor,
                 organReceived: action.secondTargetOrganColor,
-                otherPlayer:
-                  room.playerNames?.[action.secondTargetPlayerId!] ||
-                  action.secondTargetPlayerId!,
+                otherPlayer: getPlayerName(room, action.secondTargetPlayerId!),
               });
               io.to(action.secondTargetPlayerId!).emit("organ-transplanted", {
                 byPlayer: currentPlayerName,
                 organGiven: action.secondTargetOrganColor,
                 organReceived: action.targetOrganColor,
-                otherPlayer:
-                  room.playerNames?.[action.targetPlayerId!] ||
-                  action.targetPlayerId!,
+                otherPlayer: getPlayerName(room, action.targetPlayerId!),
               });
               break;
 
@@ -330,7 +357,10 @@ export function registerGameEvents(
 
         // Emitir eventos específicos para notificaciones de acciones directas
         if (result.success && result.changes) {
-          const currentPlayerName = room.playerNames?.[playerId] || playerId;
+          const currentPlayerName = getPlayerName(room, playerId);
+          console.log(
+            `Direct action by player: ${playerId} (${currentPlayerName})`
+          );
 
           // Handle virus and medicine actions against other players
           if (action.targetPlayerId && action.targetPlayerId !== playerId) {

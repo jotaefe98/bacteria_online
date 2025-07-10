@@ -56,7 +56,7 @@ export function Board({
       case "yellow":
         return "🦴"; // Bone
       case "rainbow":
-        return "🌈"; // Rainbow organ
+        return "🦾"; // Rainbow organ
       default:
         return "🫀"; // Generic organ
     }
