@@ -156,10 +156,14 @@ Each turn consists of **3 phases** that must be completed in order:
 **Rules**:
 
 - **Automatic targeting** (no selection needed)
-- Only infects **completely healthy organs**
+- Only infects **completely healthy organs** (no bacteria, no medicines)
 - Cannot infect vaccinated or already infected organs
 - Transfers **1 bacteria per infected organ you have**
 - Uses color compatibility (including rainbow logic)
+- **Can only be played if valid targets exist** for transmission
+- If no valid targets exist, the card cannot be played
+
+**Note**: The game will prevent you from playing this card if no other player has compatible healthy organs that can be infected.
 
 ### 🧤 Latex Glove (Yellow)
 

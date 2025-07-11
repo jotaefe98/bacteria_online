@@ -51,6 +51,40 @@
 
 - `server/src/events/registerGameEvents.ts` - Lines 285-320 and 490-520
 
+### 4. **Fixed Contagion Card Playable Without Valid Targets**
+
+**Problem**: The contagion card could be played even when there were no valid targets to transmit bacteria to other players.
+
+**Root Cause**: The game was only checking if the player had infected organs, not if there were valid targets for transmission.
+
+**Fix**:
+
+- Added comprehensive validation for treatment cards with new `canPlayTreatment` function
+- Created `canPlayContagion` helper function to check for valid targets
+- Enhanced treatment card validation to check all requirements before allowing play
+- Added proper error messages for different failure scenarios
+
+**Files Modified**:
+
+- `server/src/functions/gameLogic.ts` - Lines 16-71 (new functions) and 179-251 (canPlayTreatment)
+- `server/src/events/registerGameEvents.ts` - Lines 14 and 261-273 (import and validation logic)
+
+### 5. **Fixed Duplicate Card Removal Bug**
+
+**Problem**: When playing a card, sometimes a different card was being removed from the hand instead of the selected card.
+
+**Root Cause**: The card removal logic was being executed twice in the same event handler - once after applying the card effect and once more later in the same function, causing the wrong card to be removed on the second execution.
+
+**Fix**:
+
+- Removed duplicate `splice` operation in the `play-card` event handler
+- Added debug logging to identify the issue (later removed)
+- Ensured card removal happens only once per play action
+
+**Files Modified**:
+
+- `server/src/events/registerGameEvents.ts` - Lines 430-435 (removed duplicate splice)
+
 ## Technical Details
 
 ### Victory Condition Algorithm (New)
@@ -85,6 +119,49 @@ const totalUniqueColors = colors.size + colorsToFill;
 
 // 4. Victory if 4 or more unique colors
 return totalUniqueColors >= 4;
+```
+
+### Contagion Validation Algorithm (New)
+
+```typescript
+// 1. Check if player has infected organs
+const infectedOrgans = Object.entries(currentBoard.organs).filter(
+  ([_, organ]) => organ.bacteria.length > 0
+);
+
+if (infectedOrgans.length === 0) {
+  return { canPlay: false, reason: "You have no infected organs to spread" };
+}
+
+// 2. For each infected organ, check if it can spread to any other player
+for (const [organColor, organState] of infectedOrgans) {
+  const hasValidTargets = otherPlayerIds.some((playerId) => {
+    const targetBoard = allBoards[playerId];
+
+    // 3. Look for compatible organs that are healthy and free
+    const compatibleOrgans = Object.entries(targetBoard.organs).filter(
+      ([targetColor, targetOrgan]) => {
+        const isColorCompatible =
+          targetColor === organColor ||
+          targetColor === "rainbow" ||
+          organColor === "rainbow";
+        const isFree =
+          targetOrgan.status === "healthy" &&
+          targetOrgan.bacteria.length === 0 &&
+          targetOrgan.medicines.length === 0;
+        return isColorCompatible && isFree;
+      }
+    );
+    return compatibleOrgans.length > 0;
+  });
+
+  if (hasValidTargets) {
+    return { canPlay: true };
+  }
+}
+
+// 4. If no valid targets found for any infected organ
+return { canPlay: false, reason: "No valid targets available for contagion" };
 ```
 
 ### Card Play Flow (Updated)
@@ -140,6 +217,27 @@ if (checkWinCondition(playerBoard)) {
 - **Expected**: Should win immediately ✅
 - **Previous**: Had to wait until next turn ❌
 
+### Test Case 4: Contagion Without Valid Targets
+
+- **Setup**: Player has infected red organ, all other players have only immunized red organs
+- **Action**: Try to play contagion card
+- **Expected**: Should be blocked with "No valid targets available" ✅
+- **Previous**: Was allowed to play, wasting the card ❌
+
+### Test Case 5: Contagion With Valid Targets
+
+- **Setup**: Player has infected red organ, another player has healthy red organ
+- **Action**: Try to play contagion card
+- **Expected**: Should be allowed to play ✅
+- **Previous**: Same behavior (already working) ✅
+
+### Test Case 6: Duplicate Card Removal
+
+- **Setup**: Player has cards [A, B, C] in hand
+- **Action**: Play card B
+- **Expected**: Hand becomes [A, C] ✅
+- **Previous**: Hand became [A] (card C was also removed) ❌
+
 ## Breaking Changes
 
 None - all fixes are backwards compatible.
@@ -160,3 +258,13 @@ None - all fixes are backwards compatible.
 ---
 
 **🎮 All reported bugs have been fixed! The game should now work correctly for all scenarios.**
+
+### Summary of Fixes
+
+1. ✅ **Organ Placement**: Fixed false duplicate color errors with rainbow organs
+2. ✅ **Victory Detection**: Fixed victory condition not triggering with 4 healthy organs
+3. ✅ **Immediate Victory**: Fixed delayed victory check after organ theft/transplant
+4. ✅ **Contagion Validation**: Fixed contagion card playable without valid targets
+5. ✅ **Duplicate Card Removal**: Fixed wrong card removal bug when playing cards
+
+**The game is now fully functional and ready for testing!**

@@ -17,6 +17,60 @@ export function isColorCompatible(
   );
 }
 
+// Function to check if contagion can be played (has valid targets)
+export function canPlayContagion(
+  currentBoard: PlayerBoard,
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string
+): { canPlay: boolean; reason?: string } {
+  // Check if player has infected organs
+  const infectedOrgans = Object.entries(currentBoard.organs).filter(
+    ([_, organ]) => organ.bacteria.length > 0
+  );
+
+  if (infectedOrgans.length === 0) {
+    return { canPlay: false, reason: "You have no infected organs to spread" };
+  }
+
+  const otherPlayerIds = Object.keys(allBoards).filter(
+    (id) => id !== currentPlayerId
+  );
+
+  // Check if any infected organ can spread to any other player
+  for (const [organColor, organState] of infectedOrgans) {
+    if (organState.bacteria.length > 0) {
+      // Find if there are any valid targets for this infected organ
+      const hasValidTargets = otherPlayerIds.some((playerId) => {
+        const targetBoard = allBoards[playerId];
+        // Look for organs of compatible color that are healthy and free
+        const compatibleOrgans = Object.entries(targetBoard.organs).filter(
+          ([targetColor, targetOrgan]) => {
+            const isColorCompatible =
+              targetColor === organColor ||
+              targetColor === "rainbow" ||
+              organColor === "rainbow";
+            const isFree =
+              targetOrgan.status === "healthy" &&
+              targetOrgan.bacteria.length === 0 &&
+              targetOrgan.medicines.length === 0;
+            return isColorCompatible && isFree;
+          }
+        );
+        return compatibleOrgans.length > 0;
+      });
+
+      if (hasValidTargets) {
+        return { canPlay: true };
+      }
+    }
+  }
+
+  return {
+    canPlay: false,
+    reason: "No valid targets available for contagion",
+  };
+}
+
 // Function to calculate organ status
 export function calculateOrganStatus(
   organState: OrganState
@@ -138,11 +192,108 @@ export function canPlayCard(
       return { canPlay: true };
 
     case "treatment":
-      // Treatments have specific rules that will be verified in applyCardEffect
+      // Treatments have specific rules that will be verified in canPlayTreatment
       return { canPlay: true };
 
     default:
       return { canPlay: false, reason: "Unknown card type" };
+  }
+}
+
+// Function to verify if a treatment card can be played (requires all boards context)
+export function canPlayTreatment(
+  card: Card,
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action?: PlayCardAction
+): { canPlay: boolean; reason?: string } {
+  if (card.type !== "treatment") {
+    return { canPlay: false, reason: "Not a treatment card" };
+  }
+
+  const currentBoard = allBoards[currentPlayerId];
+
+  switch (card.color) {
+    case "contagion":
+      return canPlayContagion(currentBoard, allBoards, currentPlayerId);
+
+    case "transplant":
+      // Transplant requires two valid organs from different players
+      if (
+        !action?.targetPlayerId ||
+        !action?.targetOrganColor ||
+        !action?.secondTargetPlayerId ||
+        !action?.secondTargetOrganColor
+      ) {
+        return {
+          canPlay: false,
+          reason: "Transplant requires two target organs",
+        };
+      }
+
+      const targetBoard = allBoards[action.targetPlayerId];
+      const secondTargetBoard = allBoards[action.secondTargetPlayerId];
+
+      if (!targetBoard || !secondTargetBoard) {
+        return { canPlay: false, reason: "Invalid target players" };
+      }
+
+      if (!targetBoard.organs[action.targetOrganColor]) {
+        return { canPlay: false, reason: "First target organ does not exist" };
+      }
+
+      if (!secondTargetBoard.organs[action.secondTargetOrganColor]) {
+        return { canPlay: false, reason: "Second target organ does not exist" };
+      }
+
+      return { canPlay: true };
+
+    case "organ_thief":
+      // Organ thief requires a valid target organ
+      if (!action?.targetPlayerId || !action?.targetOrganColor) {
+        return {
+          canPlay: false,
+          reason: "Organ thief requires a target organ",
+        };
+      }
+
+      const theftTargetBoard = allBoards[action.targetPlayerId];
+      if (!theftTargetBoard) {
+        return { canPlay: false, reason: "Invalid target player" };
+      }
+
+      if (!theftTargetBoard.organs[action.targetOrganColor]) {
+        return { canPlay: false, reason: "Target organ does not exist" };
+      }
+
+      return { canPlay: true };
+
+    case "medical_error":
+      // Medical error requires a valid target organ
+      if (!action?.targetPlayerId || !action?.targetOrganColor) {
+        return {
+          canPlay: false,
+          reason: "Medical error requires a target organ",
+        };
+      }
+
+      const errorTargetBoard = allBoards[action.targetPlayerId];
+      if (!errorTargetBoard) {
+        return { canPlay: false, reason: "Invalid target player" };
+      }
+
+      if (!errorTargetBoard.organs[action.targetOrganColor]) {
+        return { canPlay: false, reason: "Target organ does not exist" };
+      }
+
+      return { canPlay: true };
+
+    case "latex_glove":
+      // Latex glove can always be played
+      return { canPlay: true };
+
+    default:
+      return { canPlay: false, reason: "Unknown treatment" };
   }
 }
 

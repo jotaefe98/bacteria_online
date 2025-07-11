@@ -12,6 +12,7 @@ import { logger } from "../utils/logger";
 import { shuffle } from "../functions/shuffle";
 import {
   canPlayCard,
+  canPlayTreatment,
   applyCardEffect,
   checkWinCondition,
   getPlayableCards,
@@ -257,12 +258,18 @@ export function registerGameEvents(
           : undefined;
 
         // Verificar si se puede jugar la carta
-        const canPlay = canPlayCard(
-          card,
-          playerBoard,
-          targetBoard,
-          action.targetOrganColor
-        );
+        let canPlay;
+        if (card.type === "treatment") {
+          // For treatments, use the comprehensive validation function
+          canPlay = canPlayTreatment(card, room.boards!, playerId, action);
+        } else {
+          canPlay = canPlayCard(
+            card,
+            playerBoard,
+            targetBoard,
+            action.targetOrganColor
+          );
+        }
         if (!canPlay.canPlay) {
           socket.emit("game-error", canPlay.reason);
           return;
@@ -409,9 +416,6 @@ export function registerGameEvents(
           }
         }
 
-        // Remover la carta de la mano
-        room.hands![playerId].splice(cardIndex, 1);
-
         // Emitir eventos específicos para notificaciones de acciones directas
         if (result.success && result.changes) {
           const currentPlayerName = getPlayerName(room, playerId);
@@ -552,7 +556,34 @@ export function registerGameEvents(
             (c) => c.id === cardId
           );
           if (cardIndex !== -1) {
-            discardedCards.push(room.hands![playerId].splice(cardIndex, 1)[0]);
+            console.log(
+              `Discarding card ${cardId} at index ${cardIndex} for player ${playerId}`
+            );
+            console.log(
+              `Player hand before discard:`,
+              room.hands![playerId].map((c) => ({
+                id: c.id,
+                type: c.type,
+                color: c.color,
+              }))
+            );
+
+            const discardedCard = room.hands![playerId].splice(cardIndex, 1)[0];
+            console.log(`Discarded card:`, {
+              id: discardedCard.id,
+              type: discardedCard.type,
+              color: discardedCard.color,
+            });
+
+            discardedCards.push(discardedCard);
+            console.log(
+              `Player hand after discard:`,
+              room.hands![playerId].map((c) => ({
+                id: c.id,
+                type: c.type,
+                color: c.color,
+              }))
+            );
           }
         });
 

@@ -630,6 +630,72 @@ All game constants are defined in `src/const/const.ts`:
 - Victory conditions (4 different colored organs)
 - Card deck composition
 
+### Core Game Logic Functions
+
+#### Card Validation
+
+```typescript
+// Basic card validation for organs, bacteria, and medicines
+canPlayCard(
+  card: Card,
+  playerBoard: PlayerBoard,
+  targetBoard?: PlayerBoard,
+  targetOrganColor?: string
+): { canPlay: boolean; reason?: string }
+
+// Comprehensive treatment card validation
+canPlayTreatment(
+  card: Card,
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string,
+  action?: PlayCardAction
+): { canPlay: boolean; reason?: string }
+
+// Specific contagion validation
+canPlayContagion(
+  currentBoard: PlayerBoard,
+  allBoards: { [playerId: string]: PlayerBoard },
+  currentPlayerId: string
+): { canPlay: boolean; reason?: string }
+```
+
+#### Game State Management
+
+```typescript
+// Calculate organ status based on bacteria and medicines
+calculateOrganStatus(organState: OrganState): OrganStatus
+
+// Check if a player has won (4 different colored healthy organs)
+checkWinCondition(playerBoard: PlayerBoard): boolean
+
+// Apply card effects to game state
+applyCardEffect(card: Card, ...params): { success: boolean; changes?: any; reason?: string }
+
+// Apply treatment effects with full context
+applyTreatmentEffect(card: Card, allBoards: {...}, currentPlayerId: string, action: PlayCardAction)
+```
+
+#### Utility Functions
+
+```typescript
+// Check color compatibility (including rainbow logic)
+isColorCompatible(cardColor: string, targetColor: string): boolean
+
+// Shuffle cards using Fisher-Yates algorithm
+shuffle<T>(array: T[]): T[]
+```
+
+### Game Rules Implementation
+
+The server implements all official game rules:
+
+- **Organ Placement**: Maximum 4 organs per player, no duplicates (except rainbow)
+- **Bacteria Transmission**: Only to compatible colors, cannot infect immunized organs
+- **Medicine Application**: Can cure bacteria or vaccinate healthy organs
+- **Victory Conditions**: 4 different colored healthy organs (healthy, vaccinated, or immunized)
+- **Treatment Cards**: Each has specific validation and effect logic
+- **Contagion**: Can only be played if valid targets exist for transmission
+
 ---
 
 **🎮 The server is ready to handle your strategic battles in Bacteria Online!**
