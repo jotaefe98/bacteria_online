@@ -242,14 +242,24 @@ An organ counts toward victory if it's in one of these states:
 ### Color Requirements
 
 - **Must be 4 different colors**
-- **Rainbow organs** count as any missing color
-- Cannot count two organs of the same color
+- **Rainbow organs** count as any missing color needed for victory
+- **Multiple rainbow organs** can be used to fill different missing colors
+- **Cannot count two organs of the same regular color** (red, green, blue, yellow)
+- **Up to 4 organs maximum** per player
+
+### Victory Timing
+
+- **Victory is checked immediately** after each card effect is applied
+- **No waiting for turn completion** - win as soon as you meet the conditions
+- **Instant victory** for actions like organ theft or transplant that complete your set
 
 ### Example Winning Combinations
 
 - Red + Green + Blue + Yellow (any status)
 - Red + Green + Blue + Rainbow (rainbow counts as Yellow)
 - Red + Green + Rainbow + Rainbow (rainbows count as Blue + Yellow)
+- Red + Rainbow + Rainbow + Rainbow (rainbows count as Green + Blue + Yellow)
+- Rainbow + Rainbow + Rainbow + Rainbow (rainbows count as Red + Green + Blue + Yellow)
 
 ---
 

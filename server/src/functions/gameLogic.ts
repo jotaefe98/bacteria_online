@@ -62,6 +62,20 @@ export function canPlayCard(
           reason: "You already have an organ of this color",
         };
       }
+
+      // Check if placing this organ would create too many of the same effective color
+      // This is mainly relevant for rainbow organs
+      if (card.color === "rainbow") {
+        // Rainbow organs can be placed as long as we don't have more than 4 total organs
+        const currentOrganCount = Object.keys(playerBoard.organs).length;
+        if (currentOrganCount >= 4) {
+          return {
+            canPlay: false,
+            reason: "You cannot have more than 4 organs",
+          };
+        }
+      }
+
       return { canPlay: true };
 
     case "bacteria":
@@ -588,28 +602,42 @@ export function checkWinCondition(playerBoard: PlayerBoard): boolean {
 
   console.log(`Found ${healthyOrgans.length} healthy organs`);
 
-  // Needs 4 organs of different colors
-  const colors = new Set();
+  if (healthyOrgans.length < 4) {
+    console.log("Not enough healthy organs for victory");
+    return false;
+  }
+
+  // Check for 4 different colors with improved rainbow logic
+  const colors = new Set<string>();
+  let rainbowCount = 0;
+
+  // First pass: count regular colors and rainbow organs
   for (const organ of healthyOrgans) {
     if (organ.organ.color === "rainbow") {
-      // Rainbow counts as any missing color
-      const missingColors = ["red", "green", "blue", "yellow"].filter(
-        (color) => !colors.has(color)
-      );
-      if (missingColors.length > 0) {
-        colors.add(missingColors[0]);
-        console.log(`Rainbow organ added as color: ${missingColors[0]}`);
-      }
+      rainbowCount++;
     } else {
       colors.add(organ.organ.color);
-      console.log(`Added organ color: ${organ.organ.color}`);
     }
   }
 
+  console.log(`Regular colors found: ${Array.from(colors)}`);
+  console.log(`Rainbow organs found: ${rainbowCount}`);
+
+  // Second pass: assign rainbow organs to fill missing colors
+  const allPossibleColors = ["red", "green", "blue", "yellow"];
+  const missingColors = allPossibleColors.filter((color) => !colors.has(color));
+
+  console.log(`Missing colors: ${missingColors}`);
+
+  // Use rainbow organs to fill missing colors
+  const colorsToFill = Math.min(rainbowCount, missingColors.length);
+  const totalUniqueColors = colors.size + colorsToFill;
+
   console.log(
-    `Total unique colors: ${colors.size}, colors: ${Array.from(colors)}`
+    `Total unique colors after rainbow assignment: ${totalUniqueColors}`
   );
-  const hasWon = colors.size >= 4;
+
+  const hasWon = totalUniqueColors >= 4;
   console.log(`Win condition met: ${hasWon}`);
 
   return hasWon;

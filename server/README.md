@@ -289,6 +289,7 @@ function applyTreatmentEffect(
 
 ```typescript
 function checkWinCondition(playerBoard: PlayerBoard): boolean {
+  // Get all healthy organs (healthy, vaccinated, immunized)
   const healthyOrgans = Object.values(playerBoard.organs).filter((organ) => {
     return (
       organ.status === "healthy" ||
@@ -299,25 +300,29 @@ function checkWinCondition(playerBoard: PlayerBoard): boolean {
 
   if (healthyOrgans.length < 4) return false;
 
-  // Check for 4 different colors
-  const colors = new Set();
+  // Count regular colors and rainbow organs separately
+  const colors = new Set<string>();
+  let rainbowCount = 0;
+
   for (const organ of healthyOrgans) {
     if (organ.organ.color === "rainbow") {
-      // Rainbow counts as any missing color
-      const missingColors = ["red", "green", "blue", "yellow"].filter(
-        (color) => !colors.has(color)
-      );
-      if (missingColors.length > 0) {
-        colors.add(missingColors[0]);
-      }
+      rainbowCount++;
     } else {
       colors.add(organ.organ.color);
     }
   }
 
-  return colors.size >= 4;
+  // Use rainbow organs to fill missing colors
+  const allPossibleColors = ["red", "green", "blue", "yellow"];
+  const missingColors = allPossibleColors.filter((color) => !colors.has(color));
+  const colorsToFill = Math.min(rainbowCount, missingColors.length);
+  const totalUniqueColors = colors.size + colorsToFill;
+
+  return totalUniqueColors >= 4;
 }
 ```
+
+**Victory Timing**: Victory is checked immediately after each card effect is applied, ensuring instant win detection for actions like organ theft or transplant.
 
 ## 🎨 Deck Management
 
