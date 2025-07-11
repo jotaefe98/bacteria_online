@@ -378,20 +378,45 @@ export function registerGameEvents(
           room.winner = winner;
           console.log(`Player ${winner} has won the game!`);
 
-          // Send game won event
-          io.to(roomId).emit("game-won", { winner: winner });
+          // Clear the turn timer since the game is over
+          if (room.turnTimer) {
+            clearTimeout(room.turnTimer);
+          }
 
-          // Clear session data immediately for all players
-          room.players.forEach((player) => {
-            io.to(player.socketId).emit("clear-session-data");
+          // FIRST: Send the final game state so players can see the winning move
+          io.to(roomId).emit("update-game", {
+            hands: room.hands,
+            boards: room.boards,
+            currentTurn: room.currentTurn,
+            currentPhase: room.currentPhase,
+            discardPile: room.discardPile,
           });
 
-          // Delete room immediately to prevent reconnections
-          console.log(
-            `Immediately cleaning up room ${roomId} after game completion`
-          );
-          delete rooms[roomId];
-          console.log(`Room ${roomId} has been deleted from server`);
+          // THEN: Send victory notification (like other game notifications)
+          const winnerName = getPlayerName(room, winner);
+          io.to(roomId).emit("victory-notification", {
+            winner: winnerName,
+            winnerId: winner, // Include the actual player ID
+            message: `¡${winnerName} ha ganado!`,
+          });
+
+          // After 1 seconds, show the victory screen and clean up
+          setTimeout(() => {
+            io.to(roomId).emit("game-won", {
+              winner: winnerName,
+              winnerId: winner, // Include the actual player ID
+            });
+
+            // Clear session data for all players
+            room.players.forEach((player) => {
+              io.to(player.socketId).emit("clear-session-data");
+            });
+
+            // Delete room
+            console.log(`Cleaning up room ${roomId} after victory sequence`);
+            delete rooms[roomId];
+            console.log(`Room ${roomId} has been deleted from server`);
+          }, 1000);
 
           return;
         }
@@ -569,20 +594,45 @@ export function registerGameEvents(
             `Player ${winnerAfterRecalc} has won the game after state recalculation!`
           );
 
-          // Send game won event
-          io.to(roomId).emit("game-won", { winner: winnerAfterRecalc });
+          // Clear the turn timer since the game is over
+          if (room.turnTimer) {
+            clearTimeout(room.turnTimer);
+          }
 
-          // Clear session data immediately for all players
-          room.players.forEach((player) => {
-            io.to(player.socketId).emit("clear-session-data");
+          // FIRST: Send the final game state so players can see the winning move
+          io.to(roomId).emit("update-game", {
+            hands: room.hands,
+            boards: room.boards,
+            currentTurn: room.currentTurn,
+            currentPhase: room.currentPhase,
+            discardPile: room.discardPile,
           });
 
-          // Delete room immediately to prevent reconnections
-          console.log(
-            `Immediately cleaning up room ${roomId} after game completion`
-          );
-          delete rooms[roomId];
-          console.log(`Room ${roomId} has been deleted from server`);
+          // THEN: Send victory notification (like other game notifications)
+          const winnerName = getPlayerName(room, winnerAfterRecalc);
+          io.to(roomId).emit("victory-notification", {
+            winner: winnerName,
+            winnerId: winnerAfterRecalc, // Include the actual player ID
+            message: `¡${winnerName} ha ganado!`,
+          });
+
+          // After 1 seconds, show the victory screen and clean up
+          setTimeout(() => {
+            io.to(roomId).emit("game-won", {
+              winner: winnerName,
+              winnerId: winnerAfterRecalc, // Include the actual player ID
+            });
+
+            // Clear session data for all players
+            room.players.forEach((player) => {
+              io.to(player.socketId).emit("clear-session-data");
+            });
+
+            // Delete room
+            console.log(`Cleaning up room ${roomId} after victory sequence`);
+            delete rooms[roomId];
+            console.log(`Room ${roomId} has been deleted from server`);
+          }, 1000);
 
           return;
         }

@@ -82,11 +82,14 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       }
     });
     socket?.on("game-won", (data) => {
-      setWinner(data.winner);
-      if (data.winner === playerId) {
+      // Use winnerId for comparison, but store the winner name for display
+      const winnerId = data.winnerId || data.winner;
+      setWinner(winnerId);
+
+      if (winnerId === playerId) {
         gameNotifications.gameWon();
       } else {
-        gameNotifications.gameLost(playerNames[data.winner] || data.winner);
+        gameNotifications.gameLost(playerNames[winnerId] || data.winner);
       }
 
       // Clear game session data when game ends
