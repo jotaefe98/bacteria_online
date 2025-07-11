@@ -20,12 +20,18 @@ let dbStatus = "connecting";
 // Check database status
 setTimeout(() => {
   const connected = databaseManager.isConnected();
-  dbStatus = connected ? "connected" : "disconnected";
-  if (connected) {
-    console.log("Analytics system initialized with MongoDB persistence");
+  const disabled = databaseManager.isDisabled();
+
+  if (disabled) {
+    dbStatus = "disabled";
+    console.log("⚠️  Analytics system disabled (MongoDB unavailable)");
+  } else if (connected) {
+    dbStatus = "connected";
+    console.log("✅ Analytics system initialized with MongoDB persistence");
   } else {
+    dbStatus = "disconnected";
     console.log(
-      "Analytics system running in memory mode (MongoDB unavailable)"
+      "⏳ Analytics system running in memory mode (MongoDB connecting...)"
     );
   }
 }, 2000); // Give MongoDB 2 seconds to connect
@@ -75,17 +81,24 @@ server.listen(PORT, () => {
   if (databaseManager.isConnected()) {
     startPeriodicReports();
   }
-
   // Check database connection every 30 seconds and update status
   setInterval(() => {
     const connected = databaseManager.isConnected();
-    const newStatus = connected ? "connected" : "disconnected";
+    const disabled = databaseManager.isDisabled();
+
+    let newStatus = "disconnected";
+    if (disabled) {
+      newStatus = "disabled";
+    } else if (connected) {
+      newStatus = "connected";
+    }
+
     if (newStatus !== dbStatus) {
       dbStatus = newStatus;
-      console.log(`Database status changed: ${dbStatus}`);
+      console.log(`📊 Database status changed: ${dbStatus}`);
 
       // Start analytics if connection is restored
-      if (connected) {
+      if (connected && !disabled) {
         startPeriodicReports();
       }
     }
