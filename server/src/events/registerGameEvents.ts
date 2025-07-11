@@ -85,10 +85,10 @@ function startTurnTimer(io: Server, roomId: string, room: GameRoom) {
   if (room.turnTimer) {
     clearTimeout(room.turnTimer);
   }
-  
+
   room.turnStartTime = Date.now();
   room.turnTimeLimit = 90;
-  
+
   room.turnTimer = setTimeout(() => {
     handleTimeOut(io, roomId, room);
   }, 90000);
@@ -96,7 +96,7 @@ function startTurnTimer(io: Server, roomId: string, room: GameRoom) {
 
 function handleTimeOut(io: Server, roomId: string, room: GameRoom) {
   if (!room.currentTurn) return;
-  
+
   if (room.currentPhase === "play_or_discard") {
     passTurn(io, roomId, room);
   } else if (room.currentPhase === "draw") {
@@ -107,13 +107,16 @@ function handleTimeOut(io: Server, roomId: string, room: GameRoom) {
 }
 
 function passTurn(io: Server, roomId: string, room: GameRoom) {
-  const currentIndex = room.players.findIndex(p => p.playerId === room.currentTurn);
+  const currentIndex = room.players.findIndex(
+    (p) => p.playerId === room.currentTurn
+  );
   const nextIndex = (currentIndex + 1) % room.players.length;
   room.currentTurn = room.players[nextIndex].playerId;
-  room.currentPhase = room.hands![room.currentTurn].length === 0 ? "draw" : "play_or_discard";
-  
+  room.currentPhase =
+    room.hands![room.currentTurn].length === 0 ? "draw" : "play_or_discard";
+
   startTurnTimer(io, roomId, room);
-  
+
   io.to(roomId).emit("update-game", {
     hands: room.hands,
     boards: room.boards,
@@ -691,7 +694,7 @@ export function registerGameEvents(
 
     if (room && room.has_started) {
       console.log(`Sending game state to player ${socket.id}`);
-      
+
       socket.emit("update-game", {
         hands: room.hands,
         boards: room.boards,
