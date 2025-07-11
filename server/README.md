@@ -542,6 +542,32 @@ PORT=3000
 CLIENT_URL=https://your-client-domain.com
 ```
 
+## 🚀 Deployment en Render
+
+### Configuración para Render.com:
+
+1. **Build Command**: `npm install && npm run build`
+2. **Start Command**: `npm run start`
+3. **Root Directory**: `server`
+4. **Environment Variables** (configurar en Render dashboard):
+   ```
+   MONGODB_URI=tu_mongodb_atlas_url_aqui
+   NODE_ENV=production
+   ```
+
+### Endpoints de health check:
+
+- `GET /` - Health check principal con información del servidor
+- `GET /health` - Health check detallado con uptime
+
+### Características en producción:
+
+- ✅ Analíticas persistentes con MongoDB Atlas
+- ✅ Manejo automático de reconexiones
+- ✅ Reportes de estadísticas automáticos
+- ✅ Configurado para entorno de producción
+- ✅ Health checks para monitoreo
+
 ## 📈 Monitoring and Logging
 
 ### Server Monitoring

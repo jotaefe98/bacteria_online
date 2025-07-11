@@ -13,6 +13,24 @@ import { startPeriodicReports } from "./utils/analyticsDashboard";
 const app = express();
 app.use(cors());
 
+// Health check endpoint for Render
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Bacteria Online Server is running!",
+    timestamp: new Date().toISOString(),
+    analytics: "MongoDB Atlas connected",
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
