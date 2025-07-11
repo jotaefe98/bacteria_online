@@ -3,7 +3,8 @@ import { GameAnalytics } from "../types/analytics";
 import { logger } from "../utils/logger";
 
 // MongoDB connection configuration - SIMPLE
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
 const DATABASE_NAME = "bacteria_online";
 
 // Flag to disable MongoDB completely if it keeps failing
@@ -30,16 +31,20 @@ class DatabaseManager {
     }
 
     this.connectionAttempts++;
-    
+
     if (this.connectionAttempts > this.maxConnectionAttempts) {
-      logger.log("🔄 Max MongoDB connection attempts reached, disabling MongoDB permanently");
+      logger.log(
+        "🔄 Max MongoDB connection attempts reached, disabling MongoDB permanently"
+      );
       this.disableMongoDB();
       return;
     }
 
     try {
-      logger.log(`🔄 MongoDB connection attempt ${this.connectionAttempts}/${this.maxConnectionAttempts}`);
-      
+      logger.log(
+        `🔄 MongoDB connection attempt ${this.connectionAttempts}/${this.maxConnectionAttempts}`
+      );
+
       // Use the simplest possible configuration
       const options = {
         serverSelectionTimeoutMS: 10000, // 10 seconds
@@ -48,7 +53,7 @@ class DatabaseManager {
       };
 
       this.client = new MongoClient(MONGODB_URI, options);
-      
+
       // Quick connection attempt
       await this.client.connect();
       await this.client.db("admin").command({ ping: 1 });
@@ -57,11 +62,13 @@ class DatabaseManager {
       this.connected = true;
       this.connectionAttempts = 0; // Reset on success
       logger.log("✅ MongoDB connected successfully!");
-      
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      logger.log(`❌ MongoDB connection failed (attempt ${this.connectionAttempts}): ${errorMessage}`);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.log(
+        `❌ MongoDB connection failed (attempt ${this.connectionAttempts}): ${errorMessage}`
+      );
+
       if (this.client) {
         try {
           await this.client.close();
@@ -70,9 +77,9 @@ class DatabaseManager {
         }
         this.client = null;
       }
-      
+
       this.connected = false;
-      
+
       // If we haven't reached max attempts, try again after a short delay
       if (this.connectionAttempts < this.maxConnectionAttempts) {
         setTimeout(() => {
@@ -87,11 +94,13 @@ class DatabaseManager {
   private disableMongoDB(): void {
     mongoDisabled = true;
     this.connected = false;
-    
+
     logger.log("🚫 MongoDB DISABLED - Game will run in memory-only mode");
-    logger.log("🎮 This does NOT affect gameplay - all features work normally!");
+    logger.log(
+      "🎮 This does NOT affect gameplay - all features work normally!"
+    );
     logger.log("📊 Only analytics will be lost (not critical for gameplay)");
-    
+
     if (this.client) {
       this.client.close().catch(() => {
         // Ignore close errors
@@ -127,7 +136,7 @@ class DatabaseManager {
 
   public async ensureConnection(): Promise<boolean> {
     if (mongoDisabled) return false;
-    
+
     if (!this.connected) {
       await this.connect();
     }

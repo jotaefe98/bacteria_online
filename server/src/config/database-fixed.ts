@@ -37,7 +37,7 @@ class DatabaseManager {
   private connected = false;
   private disabled = false;
   private connectionAttempts = 0;
-  private maxConnectionAttempts = 10;
+  private maxConnectionAttempts = 5; // Reducir a 5 intentos para desactivar más rápido
 
   constructor() {
     if (isForceDisabled) {
@@ -116,9 +116,16 @@ class DatabaseManager {
 
           // Schedule retry after longer delay
           setTimeout(() => {
-            logger.log("⏳ Attempting to reconnect to MongoDB...");
-            this.connect();
-          }, 120000); // 2 minutes
+            if (this.connectionAttempts < this.maxConnectionAttempts) {
+              logger.log("⏳ Attempting to reconnect to MongoDB...");
+              this.connect();
+            } else {
+              logger.log(
+                "🔄 Max connection attempts reached, disabling MongoDB..."
+              );
+              this.disable();
+            }
+          }, 60000); // 1 minute
           return;
         }
 
@@ -127,43 +134,35 @@ class DatabaseManager {
       }
     }
   }
-
   private getConnectionOptions(attempt: number): any {
     const baseOptions = {
       serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 75000,
       connectTimeoutMS: 30000,
       maxPoolSize: 10,
-      retryWrites: true,
     };
 
     // Try different SSL configurations based on attempt
     switch (attempt) {
       case 1:
-        // First attempt: Let MongoDB handle SSL automatically
-        logger.log("🔄 Trying automatic SSL configuration");
-        return {
-          ...baseOptions,
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        };
+        // First attempt: Minimal configuration - let MongoDB handle everything
+        logger.log("🔄 Trying minimal configuration");
+        return baseOptions;
 
       case 2:
-        // Second attempt: Explicit SSL true
-        logger.log("🔄 Trying explicit SSL configuration");
+        // Second attempt: Only TLS
+        logger.log("🔄 Trying with TLS only");
         return {
           ...baseOptions,
-          ssl: true,
-          sslValidate: true,
+          tls: true,
         };
 
       case 3:
-        // Third attempt: More permissive SSL
-        logger.log("🔄 Trying permissive SSL configuration");
+        // Third attempt: Disable SSL validation (last resort)
+        logger.log("🔄 Trying with TLS insecure");
         return {
           ...baseOptions,
-          ssl: true,
-          sslValidate: false,
+          tls: true,
           tlsInsecure: true,
         };
 
