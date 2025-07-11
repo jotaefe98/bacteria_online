@@ -1,1 +1,1 @@
-export const SOCKET_SERVER_URL = "http://192.168.18.65:3000/";
+export const SOCKET_SERVER_URL = "https://bacteria-online-server.onrender.com/";

@@ -24,14 +24,14 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     winner,
     canDraw,
     canPlay,
-    canEndTurn,
+    // canEndTurn,
     playerId,
     playerNames,
     handleDraw,
     handleDiscard,
     handleDiscardMultiple,
     handlePlayCard,
-    handleEndTurn,
+    // handleEndTurn,
   } = useGame({ roomId, isGameStarted, isHost });
 
   const [selectedCards, setSelectedCards] = useState<string[]>([]);

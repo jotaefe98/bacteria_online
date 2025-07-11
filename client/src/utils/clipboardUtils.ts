@@ -14,6 +14,7 @@ export async function copyToClipboard(
     // Try modern clipboard API first
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(text);
+      console.log(successMessage);
       return true;
     }
 
@@ -34,7 +35,7 @@ export async function copyToClipboard(
 
     return successful;
   } catch (err) {
-    console.error("Failed to copy text:", err);
+    console.error(errorMessage, err);
     return false;
   }
 }

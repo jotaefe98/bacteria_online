@@ -6,6 +6,39 @@ The React-based frontend client for **Bacteria Online**, a strategic multiplayer
 
 This is the client application for Bacteria Online, a real-time multiplayer implementation of the popular card game "Bacteria!". The frontend provides an intuitive interface for players to create rooms, join games, and play against opponents in real-time.
 
+## 🌐 Live Deployment
+
+- **Server**: https://bacteria-online-server.onrender.com/
+- **Client**: Ready for deployment on Hostinger
+
+## 📦 Deployment to Hostinger
+
+### Quick Deploy
+1. Run the build script:
+   ```bash
+   # Windows
+   ./build-for-hostinger.bat
+   
+   # Linux/Mac
+   ./build-for-hostinger.sh
+   ```
+
+2. Upload all files from `dist/` folder to `public_html` in Hostinger
+
+### Manual Deploy
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+
+2. Upload these files to your Hostinger `public_html` folder:
+   - `dist/index.html`
+   - `dist/assets/` (entire folder)
+   - `dist/bacteria.svg`
+   - `dist/.htaccess`
+
+📖 **Detailed instructions**: See [HOSTINGER_DEPLOYMENT.md](./HOSTINGER_DEPLOYMENT.md)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
