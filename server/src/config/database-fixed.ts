@@ -5,21 +5,27 @@ import * as fs from "fs";
 import * as path from "path";
 
 // Check if MongoDB is force-disabled
-const mongoDisabledFile = path.join(__dirname, '../../.mongodb-disabled');
+const mongoDisabledFile = path.join(__dirname, "../../.mongodb-disabled");
 const isForceDisabled = fs.existsSync(mongoDisabledFile);
 
 // MongoDB connection configuration - MEJORADA para SSL
-const MONGODB_URI_RAW = process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
+const MONGODB_URI_RAW =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
 
 // Asegurar parámetros SSL correctos para MongoDB Atlas SIN duplicar parámetros
-const MONGODB_URI = MONGODB_URI_RAW.includes('mongodb+srv://') 
+const MONGODB_URI = MONGODB_URI_RAW.includes("mongodb+srv://")
   ? (() => {
       // Si ya tiene parámetros SSL, no los duplicar
-      if (MONGODB_URI_RAW.includes('ssl=true') || MONGODB_URI_RAW.includes('retryWrites=true')) {
+      if (
+        MONGODB_URI_RAW.includes("ssl=true") ||
+        MONGODB_URI_RAW.includes("retryWrites=true")
+      ) {
         return MONGODB_URI_RAW;
       }
       // Solo añadir si no existen
-      return `${MONGODB_URI_RAW}${MONGODB_URI_RAW.includes('?') ? '&' : '?'}ssl=true&authSource=admin`;
+      return `${MONGODB_URI_RAW}${
+        MONGODB_URI_RAW.includes("?") ? "&" : "?"
+      }ssl=true&authSource=admin`;
     })()
   : MONGODB_URI_RAW;
 
@@ -49,10 +55,12 @@ class DatabaseManager {
     }
 
     this.connectionAttempts++;
-    
+
     // If we've tried too many times, disable MongoDB
     if (this.connectionAttempts > this.maxConnectionAttempts) {
-      logger.error(`Too many connection attempts (${this.connectionAttempts}), disabling MongoDB`);
+      logger.error(
+        `Too many connection attempts (${this.connectionAttempts}), disabling MongoDB`
+      );
       this.disable();
       return;
     }
@@ -62,19 +70,21 @@ class DatabaseManager {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        logger.log(`MongoDB connection attempt ${attempt}/${maxRetries} (overall: ${this.connectionAttempts})`);
-        
+        logger.log(
+          `MongoDB connection attempt ${attempt}/${maxRetries} (overall: ${this.connectionAttempts})`
+        );
+
         // Try different connection strategies
         const options = this.getConnectionOptions(attempt);
-        
+
         this.client = new MongoClient(MONGODB_URI, options);
-        
+
         // Connect with timeout
         await Promise.race([
           this.client.connect(),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Connection timeout')), 45000)
-          )
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Connection timeout")), 45000)
+          ),
         ]);
 
         // Test the connection
@@ -83,26 +93,27 @@ class DatabaseManager {
         this.db = this.client.db(DATABASE_NAME);
         this.connected = true;
         this.connectionAttempts = 0; // Reset on successful connection
-        logger.log(`✅ Successfully connected to MongoDB Atlas (attempt ${attempt})`);
+        logger.log(
+          `✅ Successfully connected to MongoDB Atlas (attempt ${attempt})`
+        );
         return;
-
       } catch (error) {
         logger.error(`❌ Connection attempt ${attempt} failed:`, error);
-        
+
         if (this.client) {
           try {
             await this.client.close();
           } catch (closeError) {
-            logger.error('Error closing failed connection:', closeError);
+            logger.error("Error closing failed connection:", closeError);
           }
           this.client = null;
         }
-        
+
         // If this is the last attempt, don't retry immediately
         if (attempt === maxRetries) {
-          logger.error('All connection attempts failed');
+          logger.error("All connection attempts failed");
           this.connected = false;
-          
+
           // Schedule retry after longer delay
           setTimeout(() => {
             logger.log("⏳ Attempting to reconnect to MongoDB...");
@@ -110,9 +121,9 @@ class DatabaseManager {
           }, 120000); // 2 minutes
           return;
         }
-        
+
         // Wait before next attempt
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
       }
     }
   }
@@ -136,7 +147,7 @@ class DatabaseManager {
           useNewUrlParser: true,
           useUnifiedTopology: true,
         };
-      
+
       case 2:
         // Second attempt: Explicit SSL true
         logger.log("🔄 Trying explicit SSL configuration");
@@ -145,7 +156,7 @@ class DatabaseManager {
           ssl: true,
           sslValidate: true,
         };
-      
+
       case 3:
         // Third attempt: More permissive SSL
         logger.log("🔄 Trying permissive SSL configuration");
@@ -155,7 +166,7 @@ class DatabaseManager {
           sslValidate: false,
           tlsInsecure: true,
         };
-      
+
       default:
         return baseOptions;
     }
@@ -181,11 +192,11 @@ class DatabaseManager {
     this.disabled = true;
     this.connected = false;
     logger.log("⚠️  MongoDB disabled - running in memory-only mode");
-    
+
     if (this.client) {
-      this.client.close().catch(err => 
-        logger.error('Error closing MongoDB connection:', err)
-      );
+      this.client
+        .close()
+        .catch((err) => logger.error("Error closing MongoDB connection:", err));
       this.client = null;
     }
   }
@@ -203,7 +214,7 @@ class DatabaseManager {
   // Reconnect if connection is lost
   public async ensureConnection(): Promise<boolean> {
     if (this.disabled) return false;
-    
+
     if (!this.connected) {
       await this.connect();
     }
