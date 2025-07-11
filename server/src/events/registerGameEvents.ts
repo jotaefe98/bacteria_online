@@ -9,6 +9,7 @@ import {
 } from "../types/interfaces";
 import { BASE_DECK, MIN_NUM_PLAYERS } from "../const/const";
 import { logger } from "../utils/logger";
+import { analyticsManager } from "../utils/analytics";
 import { shuffle } from "../functions/shuffle";
 import {
   canPlayCard,
@@ -89,6 +90,10 @@ function startTurnTimer(io: Server, roomId: string, room: GameRoom) {
   room.turnStartTime = Date.now();
   room.turnTimeLimit = 90;
 
+  // Log turn start
+  const currentPlayerName = getPlayerName(room, room.currentTurn!);
+  analyticsManager.logTurnStart(roomId, room.currentTurn!, currentPlayerName);
+
   room.turnTimer = setTimeout(() => {
     handleTimeOut(io, roomId, room);
   }, 90000);
@@ -96,6 +101,10 @@ function startTurnTimer(io: Server, roomId: string, room: GameRoom) {
 
 function handleTimeOut(io: Server, roomId: string, room: GameRoom) {
   if (!room.currentTurn) return;
+
+  // Log timeout
+  const currentPlayerName = getPlayerName(room, room.currentTurn);
+  analyticsManager.logTimeout(roomId, room.currentTurn, currentPlayerName);
 
   if (room.currentPhase === "play_or_discard") {
     passTurn(io, roomId, room);
@@ -107,6 +116,12 @@ function handleTimeOut(io: Server, roomId: string, room: GameRoom) {
 }
 
 function passTurn(io: Server, roomId: string, room: GameRoom) {
+  // Log turn end for current player
+  if (room.currentTurn) {
+    const currentPlayerName = getPlayerName(room, room.currentTurn);
+    analyticsManager.logTurnEnd(roomId, room.currentTurn, currentPlayerName);
+  }
+
   const currentIndex = room.players.findIndex(
     (p) => p.playerId === room.currentTurn
   );
@@ -160,6 +175,14 @@ export function registerGameEvents(
       console.log(
         `Sending current game state to reconnecting player in room ${roomId}`
       );
+
+      // Try to identify the player and log reconnection
+      const player = room.players.find((p) => p.socketId === socket.id);
+      if (player) {
+        const playerName = getPlayerName(room, player.playerId);
+        analyticsManager.logReconnection(roomId, player.playerId, playerName);
+      }
+
       socket.emit("deck-shuffled", {
         hands: room.hands,
         boards: room.boards,
@@ -201,6 +224,13 @@ export function registerGameEvents(
         return acc;
       }, {} as { [playerId: string]: string });
 
+      // Initialize analytics
+      analyticsManager.initializeGame(
+        roomId,
+        room.players.map((p) => p.playerId),
+        room.playerNames
+      );
+
       console.log("Player names mapping:", room.playerNames);
       console.log("deck: ", JSON.stringify(room.deck));
       io.to(roomId).emit("deck-shuffled", {
@@ -236,6 +266,10 @@ export function registerGameEvents(
           room.deck = shuffle(newDeck);
 
           console.log(`Deck rebuilt with ${room.deck.length} cards`);
+
+          // Log deck rebuild
+          const currentPlayerName = getPlayerName(room, playerId);
+          analyticsManager.logDeckRebuild(roomId, playerId, currentPlayerName);
 
           // Notify players that deck was rebuilt
           io.to(roomId).emit("deck-rebuilt", {
@@ -286,6 +320,15 @@ export function registerGameEvents(
           const discardedCard = room.hands![playerId].splice(cardIndex, 1)[0];
           room.discardPile!.push(discardedCard);
 
+          // Log card discard
+          const currentPlayerName = getPlayerName(room, playerId);
+          analyticsManager.logCardDiscarded(
+            roomId,
+            playerId,
+            currentPlayerName,
+            [cardId]
+          );
+
           // Cambiar a fase de robar
           room.currentPhase = "draw";
 
@@ -335,6 +378,15 @@ export function registerGameEvents(
           );
         }
         if (!canPlay.canPlay) {
+          // Log invalid move
+          const currentPlayerName = getPlayerName(room, playerId);
+          analyticsManager.logInvalidMove(
+            roomId,
+            playerId,
+            currentPlayerName,
+            canPlay.reason || "Invalid card play"
+          );
+
           socket.emit("game-error", canPlay.reason);
           return;
         }
@@ -354,9 +406,33 @@ export function registerGameEvents(
           );
         }
         if (!result.success) {
+          // Log invalid move
+          const currentPlayerName = getPlayerName(room, playerId);
+          analyticsManager.logInvalidMove(
+            roomId,
+            playerId,
+            currentPlayerName,
+            result.reason || "Card effect failed"
+          );
+
           socket.emit("game-error", result.reason);
           return;
         }
+
+        // Log successful card play
+        const currentPlayerName = getPlayerName(room, playerId);
+        const turnStartTime = room.turnStartTime || Date.now();
+        const turnTime = Date.now() - turnStartTime;
+
+        analyticsManager.logCardPlayed(roomId, playerId, currentPlayerName, {
+          cardId: action.cardId,
+          cardType: card.type,
+          cardColor: card.color,
+          targetPlayerId: action.targetPlayerId,
+          targetOrganColor: action.targetOrganColor,
+          successful: true,
+          turnTime,
+        });
 
         // Remover la carta de la mano DESPUÉS de aplicar el efecto exitosamente
         room.hands![playerId].splice(cardIndex, 1);
@@ -401,7 +477,7 @@ export function registerGameEvents(
           });
 
           // After 1 seconds, show the victory screen and clean up
-          setTimeout(() => {
+          setTimeout(async () => {
             io.to(roomId).emit("game-won", {
               winner: winnerName,
               winnerId: winner, // Include the actual player ID
@@ -411,6 +487,9 @@ export function registerGameEvents(
             room.players.forEach((player) => {
               io.to(player.socketId).emit("clear-session-data");
             });
+
+            // End game analytics
+            await analyticsManager.endGame(roomId, winner, winnerName);
 
             // Delete room
             console.log(`Cleaning up room ${roomId} after victory sequence`);
@@ -423,7 +502,6 @@ export function registerGameEvents(
 
         // Handle special treatment effects and global notifications
         if (result.success && card.type === "treatment") {
-          const currentPlayerName = getPlayerName(room, playerId);
           console.log(
             `Treatment used by player: ${playerId} (${currentPlayerName})`
           );
@@ -456,6 +534,20 @@ export function registerGameEvents(
               // Notify affected players from contagion results
               if (result.changes?.contagionResults) {
                 result.changes.contagionResults.forEach((contagion: any) => {
+                  // Log organ infection
+                  analyticsManager.logOrganAction(
+                    roomId,
+                    playerId,
+                    currentPlayerName,
+                    {
+                      action: "infected",
+                      organColor: contagion.organColor,
+                      targetPlayerId: contagion.targetPlayer,
+                      byPlayerId: playerId,
+                      cardType: contagion.bacteriaType,
+                    }
+                  );
+
                   io.to(contagion.targetPlayer).emit("organ-infected", {
                     organColor: contagion.organColor,
                     byPlayer: currentPlayerName,
@@ -467,6 +559,20 @@ export function registerGameEvents(
               break;
 
             case "organ_thief":
+              // Log organ theft
+              analyticsManager.logOrganAction(
+                roomId,
+                playerId,
+                currentPlayerName,
+                {
+                  action: "stolen",
+                  organColor: action.targetOrganColor!,
+                  targetPlayerId: action.targetPlayerId!,
+                  byPlayerId: playerId,
+                  cardType: card.color,
+                }
+              );
+
               io.to(action.targetPlayerId!).emit("organ-stolen", {
                 byPlayer: currentPlayerName,
                 organColor: action.targetOrganColor,
@@ -474,6 +580,20 @@ export function registerGameEvents(
               break;
 
             case "transplant":
+              // Log organ transplant
+              analyticsManager.logOrganAction(
+                roomId,
+                playerId,
+                currentPlayerName,
+                {
+                  action: "transplanted",
+                  organColor: action.targetOrganColor!,
+                  targetPlayerId: action.targetPlayerId!,
+                  byPlayerId: playerId,
+                  cardType: card.color,
+                }
+              );
+
               // Notify both players about the transplant
               io.to(action.targetPlayerId!).emit("organ-transplanted", {
                 byPlayer: currentPlayerName,
@@ -508,7 +628,6 @@ export function registerGameEvents(
 
         // Emitir eventos específicos para notificaciones de acciones directas
         if (result.success && result.changes) {
-          const currentPlayerName = getPlayerName(room, playerId);
           console.log(
             `Direct action by player: ${playerId} (${currentPlayerName})`
           );
@@ -524,6 +643,20 @@ export function registerGameEvents(
                   ];
 
                 if (result.changes.organDestroyed || !targetOrganAfter) {
+                  // Log organ destruction
+                  analyticsManager.logOrganAction(
+                    roomId,
+                    playerId,
+                    currentPlayerName,
+                    {
+                      action: "destroyed",
+                      organColor: action.targetOrganColor!,
+                      targetPlayerId: action.targetPlayerId,
+                      byPlayerId: playerId,
+                      cardType: card.color,
+                    }
+                  );
+
                   // Organ was destroyed
                   io.to(action.targetPlayerId).emit("organ-destroyed", {
                     organColor: action.targetOrganColor,
@@ -538,6 +671,20 @@ export function registerGameEvents(
                     cardType: card.color,
                   });
                 } else {
+                  // Log organ infection
+                  analyticsManager.logOrganAction(
+                    roomId,
+                    playerId,
+                    currentPlayerName,
+                    {
+                      action: "infected",
+                      organColor: action.targetOrganColor!,
+                      targetPlayerId: action.targetPlayerId,
+                      byPlayerId: playerId,
+                      cardType: card.color,
+                    }
+                  );
+
                   // Organ was infected
                   io.to(action.targetPlayerId).emit("organ-infected", {
                     organColor: action.targetOrganColor,
@@ -555,6 +702,20 @@ export function registerGameEvents(
                   ]?.status;
 
                 if (organStatus === "healthy" || organStatus === "immunized") {
+                  // Log organ healing
+                  analyticsManager.logOrganAction(
+                    roomId,
+                    playerId,
+                    currentPlayerName,
+                    {
+                      action: "healed",
+                      organColor: action.targetOrganColor!,
+                      targetPlayerId: action.targetPlayerId,
+                      byPlayerId: playerId,
+                      cardType: card.color,
+                    }
+                  );
+
                   // Medicine cured or immunized the organ
                   io.to(action.targetPlayerId).emit("organ-treated", {
                     organColor: action.targetOrganColor,
@@ -617,7 +778,7 @@ export function registerGameEvents(
           });
 
           // After 1 seconds, show the victory screen and clean up
-          setTimeout(() => {
+          setTimeout(async () => {
             io.to(roomId).emit("game-won", {
               winner: winnerName,
               winnerId: winnerAfterRecalc, // Include the actual player ID
@@ -627,6 +788,13 @@ export function registerGameEvents(
             room.players.forEach((player) => {
               io.to(player.socketId).emit("clear-session-data");
             });
+
+            // End game analytics
+            await analyticsManager.endGame(
+              roomId,
+              winnerAfterRecalc,
+              winnerName
+            );
 
             // Delete room
             console.log(`Cleaning up room ${roomId} after victory sequence`);
@@ -723,6 +891,15 @@ export function registerGameEvents(
         room.discardPile!.push(...discardedCards);
         room.currentPhase = "draw";
 
+        // Log multiple card discard
+        const currentPlayerName = getPlayerName(room, playerId);
+        analyticsManager.logCardDiscarded(
+          roomId,
+          playerId,
+          currentPlayerName,
+          cardIds
+        );
+
         io.to(roomId).emit("update-game", {
           hands: room.hands,
           boards: room.boards,
@@ -744,6 +921,13 @@ export function registerGameEvents(
 
     if (room && room.has_started) {
       console.log(`Sending game state to player ${socket.id}`);
+
+      // Try to identify the player and log reconnection
+      const player = room.players.find((p) => p.socketId === socket.id);
+      if (player) {
+        const playerName = getPlayerName(room, player.playerId);
+        analyticsManager.logReconnection(roomId, player.playerId, playerName);
+      }
 
       socket.emit("update-game", {
         hands: room.hands,

@@ -1,12 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import {
-  Room,
-} from "./types/interfaces";
+import { Room } from "./types/interfaces";
 import { registerRoomEvents } from "./events/registerRoomEvents";
 import { registerGameEvents } from "./events/registerGameEvents";
+import { startPeriodicReports } from "./utils/analyticsDashboard";
 
 const app = express();
 app.use(cors());
@@ -27,6 +29,12 @@ io.on("connection", (socket) => {
   registerGameEvents(io, socket, rooms);
 });
 
-server.listen(3000, () => {
-  console.log("Server is running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log("Analytics system initialized with MongoDB persistence");
+
+  // Start periodic analytics reports
+  startPeriodicReports();
 });

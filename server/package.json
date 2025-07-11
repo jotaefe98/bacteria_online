@@ -4,7 +4,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev src/server.ts"
+    "dev": "ts-node-dev src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "view-data": "ts-node src/scripts/viewData.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +15,9 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "mongodb": "^6.17.0",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
