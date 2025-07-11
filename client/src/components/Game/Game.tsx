@@ -438,14 +438,86 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               <div className="treatment-title">🎯 Game Objective</div>
               <div className="treatment-description">
                 Be the first player to complete a healthy body with 4 organs of
-                different colors.
+                different colors (red, green, blue, yellow).
+              </div>
+              <div className="treatment-rules">
+                <ul>
+                  <li>
+                    <strong>Healthy organs:</strong> Free, vaccinated, or
+                    immunized organs count for victory
+                  </li>
+                  <li>
+                    <strong>Rainbow organs:</strong> Can represent any missing
+                    color
+                  </li>
+                  <li>
+                    <strong>Infected/Destroyed:</strong> These organs don't
+                    count for victory
+                  </li>
+                </ul>
               </div>
             </div>
 
             <div className="treatment-section">
-              <div className="treatment-title">🫀 TRANSPLANT</div>
+              <div className="treatment-title">🎮 Basic Rules</div>
+              <div className="treatment-rules">
+                <ul>
+                  <li>
+                    <strong>🫀 Organs:</strong> Maximum 4 per player, no
+                    duplicates (except rainbow)
+                  </li>
+                  <li>
+                    <strong>🦠 Bacteria:</strong> 2 bacteria = organ destroyed
+                  </li>
+                  <li>
+                    <strong>� Medicine:</strong> 1 medicine cures 1 bacteria, 2
+                    medicines = immunized
+                  </li>
+                  <li>
+                    <strong>🌈 Rainbow cards:</strong> Compatible with any color
+                  </li>
+                  <li>
+                    <strong>🛡️ Immunized organs:</strong> Cannot be affected by
+                    bacteria or medicine
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="treatment-section">
+              <div className="treatment-title">⏰ Turn Sequence</div>
+              <div className="treatment-rules">
+                <ul>
+                  <li>
+                    <strong>1. Play or Discard:</strong> Play a card or discard
+                    any number of cards
+                  </li>
+                  <li>
+                    <strong>2. Draw Phase:</strong> Draw cards until you have 3
+                    in hand
+                  </li>
+                  <li>
+                    <strong>3. End Turn:</strong> Pass to next player
+                  </li>
+                  <li>
+                    <strong>Victory Check:</strong> Win condition is checked
+                    immediately after playing cards
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="treatment-section">
+              <div className="treatment-title">🧪 Treatment Cards</div>
               <div className="treatment-description">
-                🔄 Exchange one organ between two players.
+                Special cards that have powerful effects on the game:
+              </div>
+            </div>
+
+            <div className="treatment-section">
+              <div className="treatment-title">🔄 TRANSPLANT</div>
+              <div className="treatment-description">
+                Exchange one organ between two players.
               </div>
               <div className="treatment-rules">
                 <ul>
@@ -457,35 +529,52 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                   <li>
                     No player can end up with two organs of the same color
                   </li>
+                  <li>
+                    <strong>Selection:</strong> Choose 2 organs from different
+                    players
+                  </li>
                 </ul>
               </div>
             </div>
 
             <div className="treatment-section">
-              <div className="treatment-title">🦹‍♂️ ORGAN THIEF</div>
+              <div className="treatment-title">🦹 ORGAN THIEF</div>
               <div className="treatment-description">
-                🩺 Steal an organ from another player and add it to your body.
+                Steal an organ from another player and add it to your body.
               </div>
               <div className="treatment-rules">
                 <ul>
                   <li>Can steal: free, vaccinated, or infected organs</li>
                   <li>Cannot steal immunized organs</li>
                   <li>Cannot end up with two organs of the same color</li>
+                  <li>
+                    <strong>Selection:</strong> Choose 1 organ from another
+                    player
+                  </li>
                 </ul>
               </div>
             </div>
 
             <div className="treatment-section">
-              <div className="treatment-title">🧫 CONTAGION</div>
+              <div className="treatment-title">☣️ CONTAGION</div>
               <div className="treatment-description">
-                🧟 Transfer bacteria from your organs to other players' organs.
+                Transfer bacteria from your organs to other players' organs.
               </div>
               <div className="treatment-rules">
                 <ul>
-                  <li>Can only infect completely free organs</li>
-                  <li>Cannot infect already infected or vaccinated organs</li>
+                  <li>
+                    Can only infect completely free organs (no bacteria, no
+                    medicine)
+                  </li>
+                  <li>
+                    Cannot infect already infected, vaccinated, or immunized
+                    organs
+                  </li>
                   <li>Transfers one bacteria per infected organ you have</li>
-                  <li>Targets are chosen randomly</li>
+                  <li>Targets are chosen randomly by color compatibility</li>
+                  <li>
+                    <strong>Selection:</strong> No selection needed - automatic
+                  </li>
                 </ul>
               </div>
             </div>
@@ -493,26 +582,34 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
             <div className="treatment-section">
               <div className="treatment-title">🧤 LATEX GLOVE</div>
               <div className="treatment-description">
-                🃏 All players except you discard their entire hand.
+                All players except you discard their entire hand.
               </div>
               <div className="treatment-rules">
                 <ul>
                   <li>Affected players start their next turn in draw phase</li>
                   <li>They cannot play cards if their hand is empty</li>
+                  <li>
+                    <strong>Selection:</strong> No selection needed - affects
+                    all other players
+                  </li>
                 </ul>
               </div>
             </div>
 
             <div className="treatment-section">
-              <div className="treatment-title">🧪 MEDICAL ERROR</div>
+              <div className="treatment-title">💥 MEDICAL ERROR</div>
               <div className="treatment-description">
-                🔁 Exchange your entire body with another player.
+                Exchange your entire body with another player.
               </div>
               <div className="treatment-rules">
                 <ul>
                   <li>Includes: organs, bacteria, and medicines</li>
                   <li>Immunized organs are also exchanged</li>
                   <li>Number of cards on the table doesn't matter</li>
+                  <li>
+                    <strong>Selection:</strong> Choose any organ from target
+                    player
+                  </li>
                 </ul>
               </div>
             </div>
@@ -523,24 +620,51 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                 <ul>
                   <li>
                     <strong>Select cards:</strong> Click on cards in your hand
+                    to select/deselect
                   </li>
                   <li>
                     <strong>Target organs:</strong> Click on organs on the
-                    boards
+                    boards to select targets
                   </li>
                   <li>
-                    <strong>Bacteria/Medicine:</strong> Select 1 organ
+                    <strong>🦠 Bacteria/💉 Medicine:</strong> Select 1 organ of
+                    compatible color
                   </li>
                   <li>
-                    <strong>Transplant:</strong> Select 2 organs from different
-                    players
+                    <strong>🔄 Transplant:</strong> Select 2 organs from
+                    different players
                   </li>
                   <li>
-                    <strong>Organ Thief/Medical Error:</strong> Select 1 organ
-                    from another player
+                    <strong>🦹 Organ Thief/💥 Medical Error:</strong> Select 1
+                    organ from another player
                   </li>
                   <li>
-                    <strong>Contagion/Latex Glove:</strong> No selection needed
+                    <strong>☣️ Contagion/🧤 Latex Glove:</strong> No selection
+                    needed
+                  </li>
+                  <li>
+                    <strong>Play/Discard:</strong> Use buttons to play selected
+                    card or discard
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="treatment-section">
+              <div className="treatment-title">💡 Strategy Tips</div>
+              <div className="treatment-rules">
+                <ul>
+                  <li>Focus on getting 4 different colored organs</li>
+                  <li>
+                    Use medicine to cure infected organs or prevent infections
+                  </li>
+                  <li>Watch out for other players close to winning</li>
+                  <li>
+                    Use treatment cards strategically to disrupt opponents
+                  </li>
+                  <li>
+                    Rainbow organs are very valuable - they can fill any missing
+                    color
                   </li>
                 </ul>
               </div>

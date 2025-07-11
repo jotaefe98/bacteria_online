@@ -389,7 +389,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Inspired by the original "Bacteria!" card game
 - Built with modern web technologies
 - Community feedback and contributions
 
