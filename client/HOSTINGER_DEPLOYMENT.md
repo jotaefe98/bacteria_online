@@ -3,7 +3,9 @@
 ## Pasos para subir el cliente a Hostinger
 
 ### 1. Preparación de archivos
+
 Los archivos que necesitas subir están en la carpeta `dist/`:
+
 - `index.html` - Archivo principal
 - `assets/` - Carpeta con CSS y JavaScript
 - `bacteria.svg` - Icono de la aplicación
@@ -19,6 +21,7 @@ Los archivos que necesitas subir están en la carpeta `dist/`:
    - Sube `bacteria.svg`
 
 ### 3. Estructura final en Hostinger
+
 ```
 public_html/
 ├── index.html
@@ -29,25 +32,31 @@ public_html/
 ```
 
 ### 4. URLs y configuración
+
 - **Servidor backend**: `https://bacteria-online-server.onrender.com/`
 - **Cliente**: Tu dominio de Hostinger (ej: `https://tudominio.com`)
 
 ### 5. Verificación
+
 1. Accede a tu dominio
 2. Verifica que la aplicación cargue correctamente
 3. Prueba que la conexión con el servidor funcione
 
 ### 6. Archivos importantes
+
 - **URL del servidor**: Configurada en `src/const/const.ts`
 - **Build de producción**: Carpeta `dist/`
 
 ### 7. Actualización de la aplicación
+
 Para actualizar la aplicación:
+
 1. Realiza cambios en el código fuente
 2. Ejecuta `npm run build`
 3. Sube los nuevos archivos de `dist/` a Hostinger
 
 ## Notas importantes
+
 - La aplicación es una SPA (Single Page Application) con React
 - Usa Vite como bundler
 - Se conecta al servidor Socket.IO desplegado en Render

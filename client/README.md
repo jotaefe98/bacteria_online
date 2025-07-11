@@ -14,11 +14,13 @@ This is the client application for Bacteria Online, a real-time multiplayer impl
 ## 📦 Deployment to Hostinger
 
 ### Quick Deploy
+
 1. Run the build script:
+
    ```bash
    # Windows
    ./build-for-hostinger.bat
-   
+
    # Linux/Mac
    ./build-for-hostinger.sh
    ```
@@ -26,7 +28,9 @@ This is the client application for Bacteria Online, a real-time multiplayer impl
 2. Upload all files from `dist/` folder to `public_html` in Hostinger
 
 ### Manual Deploy
+
 1. Build the application:
+
    ```bash
    npm run build
    ```
