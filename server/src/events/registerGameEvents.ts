@@ -74,6 +74,63 @@ interface GameRoom extends Room {
   discardPile?: Card[];
   winner?: string;
   playerNames?: { [playerId: string]: string };
+  // Timer properties
+  turnStartTime?: number;
+  turnTimeLimit?: number; // in seconds
+  turnTimer?: NodeJS.Timeout;
+}
+
+// Timer helper functions
+function startTurnTimer(io: Server, roomId: string, room: GameRoom) {
+  if (room.turnTimer) {
+    clearTimeout(room.turnTimer);
+  }
+  
+  room.turnStartTime = Date.now();
+  room.turnTimeLimit = 90;
+  
+  room.turnTimer = setTimeout(() => {
+    handleTimeOut(io, roomId, room);
+  }, 90000);
+}
+
+function handleTimeOut(io: Server, roomId: string, room: GameRoom) {
+  if (!room.currentTurn) return;
+  
+  if (room.currentPhase === "play_or_discard") {
+    passTurn(io, roomId, room);
+  } else if (room.currentPhase === "draw") {
+    autoDraw(io, roomId, room);
+  } else if (room.currentPhase === "end_turn") {
+    passTurn(io, roomId, room);
+  }
+}
+
+function passTurn(io: Server, roomId: string, room: GameRoom) {
+  const currentIndex = room.players.findIndex(p => p.playerId === room.currentTurn);
+  const nextIndex = (currentIndex + 1) % room.players.length;
+  room.currentTurn = room.players[nextIndex].playerId;
+  room.currentPhase = room.hands![room.currentTurn].length === 0 ? "draw" : "play_or_discard";
+  
+  startTurnTimer(io, roomId, room);
+  
+  io.to(roomId).emit("update-game", {
+    hands: room.hands,
+    boards: room.boards,
+    currentTurn: room.currentTurn,
+    currentPhase: room.currentPhase,
+    discardPile: room.discardPile,
+  });
+}
+
+function autoDraw(io: Server, roomId: string, room: GameRoom) {
+  const playerId = room.currentTurn!;
+  while (room.hands![playerId].length < 3 && room.deck?.length) {
+    const card = room.deck.shift();
+    if (card) room.hands![playerId].push(card);
+  }
+  room.currentPhase = "end_turn";
+  setTimeout(() => passTurn(io, roomId, room), 2000);
 }
 
 export function registerGameEvents(
@@ -131,6 +188,9 @@ export function registerGameEvents(
       room.has_started = true;
       room.currentTurn = room.players[0].playerId;
       room.currentPhase = "play_or_discard";
+
+      // Start the timer for the first player
+      startTurnTimer(io, roomId, room);
 
       // Establecer el mapeo de nombres de jugadores
       room.playerNames = room.players.reduce((acc, player) => {
@@ -545,29 +605,18 @@ export function registerGameEvents(
       room.currentTurn === playerId &&
       room.currentPhase === "end_turn"
     ) {
-      // Pasar turno al siguiente jugador
-      const currentIndex = room.players.findIndex(
-        (p) => p.playerId === playerId
-      );
-      const nextIndex = (currentIndex + 1) % room.players.length;
-      const nextPlayerId = room.players[nextIndex].playerId;
-      room.currentTurn = nextPlayerId;
+      // Use the centralized passTurn function
+      passTurn(io, roomId, room);
+    }
+  });
 
-      // Check if next player has no cards (due to latex glove)
-      if (room.hands![nextPlayerId].length === 0) {
-        // They start in draw phase instead of play_or_discard
-        room.currentPhase = "draw";
-      } else {
-        room.currentPhase = "play_or_discard";
-      }
-
-      io.to(roomId).emit("update-game", {
-        hands: room.hands,
-        boards: room.boards,
-        currentTurn: room.currentTurn,
-        currentPhase: room.currentPhase,
-        discardPile: room.discardPile,
-      });
+  // Timer event - send time left to client
+  socket.on("get-time-left", (roomId: string) => {
+    const room = rooms[roomId] as GameRoom;
+    if (room && room.turnStartTime && room.turnTimeLimit) {
+      const elapsed = (Date.now() - room.turnStartTime) / 1000;
+      const timeLeft = Math.max(0, room.turnTimeLimit - elapsed);
+      socket.emit("time-left", { timeLeft: Math.floor(timeLeft) });
     }
   });
 
@@ -641,23 +690,15 @@ export function registerGameEvents(
     );
 
     if (room && room.has_started) {
-      console.log(
-        `Sending game state to player ${socket.id} in room ${roomId}`
-      );
-      socket.emit("deck-shuffled", {
+      console.log(`Sending game state to player ${socket.id}`);
+      
+      socket.emit("update-game", {
         hands: room.hands,
         boards: room.boards,
         currentTurn: room.currentTurn,
         currentPhase: room.currentPhase,
-        playerIdList: room.players.map((p) => p.playerId),
         discardPile: room.discardPile,
-        playerNames: room.players.reduce((acc, player) => {
-          acc[player.playerId] = player.nickname || player.playerId;
-          return acc;
-        }, {} as { [playerId: string]: string }),
       });
-    } else {
-      console.log(`Cannot send game state - room not started or doesn't exist`);
     }
   });
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGame } from "../../hooks/game/useGame";
+import { useAppContext } from "../../context/AppContext";
 import { Board } from "../Board/Board";
 import Card from "../Card/Card";
 import type { PlayCardAction } from "../../interfaces/game/gameInterfaces";
@@ -14,13 +15,16 @@ type GameProps = {
 
 export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   const navigate = useNavigate();
+  const { socket } = useAppContext();
   const {
     hand,
     boards,
     currentTurn,
+    currentPhase,
     winner,
     canDraw,
     canPlay,
+    canEndTurn,
     playerId,
     playerNames,
     handleDraw,
@@ -40,45 +44,30 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   }>({});
   const [showRulesModal, setShowRulesModal] = useState<boolean>(false);
 
-  // Timer state - 90 seconds per turn
+  // Timer state - now synced with server
   const [timeLeft, setTimeLeft] = useState<number>(90);
-  const [currentTurnPlayer, setCurrentTurnPlayer] = useState<string>("");
 
-  // Handle turn timer
+  // Sync timer with server
   useEffect(() => {
-    // Reset timer when turn changes
-    if (currentTurn !== currentTurnPlayer) {
-      setCurrentTurnPlayer(currentTurn);
-      setTimeLeft(90); // Reset to 90 seconds
-    }
-  }, [currentTurn, currentTurnPlayer]);
+    if (!socket || !roomId || !currentTurn) return;
 
-  // Timer countdown effect
-  useEffect(() => {
-    if (!currentTurn || winner) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // Time's up! Auto-play turn
-          if (currentTurn === playerId) {
-            // If it's my turn and I need to draw, auto-draw
-            if (canDraw) {
-              handleDraw();
-            }
-            // Auto-end turn after a short delay
-            setTimeout(() => {
-              handleEndTurn();
-            }, 100);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
+    // Request time left from server every second
+    const interval = setInterval(() => {
+      socket.emit("get-time-left", roomId);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [currentTurn, playerId, canDraw, handleDraw, handleEndTurn, winner]);
+    // Listen for time updates from server
+    const handleTimeLeft = (data: { timeLeft: number }) => {
+      setTimeLeft(data.timeLeft);
+    };
+
+    socket.on("time-left", handleTimeLeft);
+
+    return () => {
+      clearInterval(interval);
+      socket.off("time-left", handleTimeLeft);
+    };
+  }, [socket, roomId, currentTurn]);
 
   // Handle help icon click
   useEffect(() => {
@@ -407,6 +396,9 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               playerName={getPlayerName(playerBoardId)}
               isCurrentPlayer={playerBoardId === playerId}
               currentTurn={currentTurn}
+              currentPhase={
+                currentTurn === playerBoardId ? currentPhase : undefined
+              }
               timeLeft={currentTurn === playerBoardId ? timeLeft : undefined}
               onOrganClick={(organColor) =>
                 handleOrganClick(playerBoardId, organColor)

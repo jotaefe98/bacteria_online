@@ -10,6 +10,7 @@ interface BoardProps {
   playerName?: string;
   isCurrentPlayer: boolean;
   currentTurn: string;
+  currentPhase?: string;
   timeLeft?: number;
   onOrganClick?: (organColor: string) => void;
   selectedTarget?: {
@@ -26,6 +27,7 @@ export function Board({
   playerName,
   isCurrentPlayer,
   currentTurn,
+  currentPhase,
   timeLeft,
   onOrganClick,
   selectedTarget,
@@ -70,12 +72,12 @@ export function Board({
           {isCurrentPlayer ? (
             <>
               <span className="board-icon">👤</span>
-              Your Medical Table
+              {`${playerName || playerId}`}
             </>
           ) : (
             <>
               <span className="board-icon">🏥</span>
-              {`${playerName || playerId}'s Medical Table`}
+              {`${playerName || playerId}`}
             </>
           )}
         </div>
@@ -89,7 +91,18 @@ export function Board({
             <span className="turn-text">
               {isCurrentPlayer
                 ? "Your Turn"
-                : `${playerName || playerId}'s Turn`}
+                : `His Turn`}
+              {currentPhase && (
+                <span className="phase-indicator">
+                  {currentPhase === "play_or_discard"
+                    ? " - Play/Discard"
+                    : currentPhase === "draw"
+                    ? " - Draw Cards"
+                    : currentPhase === "end_turn"
+                    ? " - End Turn"
+                    : ""}
+                </span>
+              )}
             </span>
             {timeLeft !== undefined && (
               <span
