@@ -702,6 +702,44 @@
   background: rgba(237, 137, 54, 0.1);
 }
 
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.turn-text {
+  flex: 1;
+}
+
+.timer {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+  min-width: 60px;
+  text-align: center;
+  font-family: monospace;
+}
+
+.timer-warning {
+  background: rgba(255, 87, 34, 0.2);
+  color: #ff5722;
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 /* Organ card selection states */
 .organ-card.selected {
   border-width: 4px !important;

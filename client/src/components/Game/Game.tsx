@@ -27,6 +27,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     handleDiscard,
     handleDiscardMultiple,
     handlePlayCard,
+    handleEndTurn,
   } = useGame({ roomId, isGameStarted, isHost });
 
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
@@ -38,6 +39,46 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
     secondOrganColor?: string;
   }>({});
   const [showRulesModal, setShowRulesModal] = useState<boolean>(false);
+
+  // Timer state - 90 seconds per turn
+  const [timeLeft, setTimeLeft] = useState<number>(90);
+  const [currentTurnPlayer, setCurrentTurnPlayer] = useState<string>("");
+
+  // Handle turn timer
+  useEffect(() => {
+    // Reset timer when turn changes
+    if (currentTurn !== currentTurnPlayer) {
+      setCurrentTurnPlayer(currentTurn);
+      setTimeLeft(90); // Reset to 90 seconds
+    }
+  }, [currentTurn, currentTurnPlayer]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (!currentTurn || winner) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          // Time's up! Auto-play turn
+          if (currentTurn === playerId) {
+            // If it's my turn and I need to draw, auto-draw
+            if (canDraw) {
+              handleDraw();
+            }
+            // Auto-end turn after a short delay
+            setTimeout(() => {
+              handleEndTurn();
+            }, 100);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [currentTurn, playerId, canDraw, handleDraw, handleEndTurn, winner]);
 
   // Handle help icon click
   useEffect(() => {
@@ -366,6 +407,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
               playerName={getPlayerName(playerBoardId)}
               isCurrentPlayer={playerBoardId === playerId}
               currentTurn={currentTurn}
+              timeLeft={currentTurn === playerBoardId ? timeLeft : undefined}
               onOrganClick={(organColor) =>
                 handleOrganClick(playerBoardId, organColor)
               }

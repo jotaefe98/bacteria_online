@@ -10,6 +10,7 @@ interface BoardProps {
   playerName?: string;
   isCurrentPlayer: boolean;
   currentTurn: string;
+  timeLeft?: number;
   onOrganClick?: (organColor: string) => void;
   selectedTarget?: {
     playerId?: string;
@@ -25,6 +26,7 @@ export function Board({
   playerName,
   isCurrentPlayer,
   currentTurn,
+  timeLeft,
   onOrganClick,
   selectedTarget,
 }: BoardProps) {
@@ -84,7 +86,19 @@ export function Board({
               isCurrentPlayer ? "my-turn" : "other-turn"
             }`}
           >
-            {isCurrentPlayer ? "Your Turn" : `${playerName || playerId}'s Turn`}
+            <span className="turn-text">
+              {isCurrentPlayer
+                ? "Your Turn"
+                : `${playerName || playerId}'s Turn`}
+            </span>
+            {timeLeft !== undefined && (
+              <span
+                className={`timer ${timeLeft <= 10 ? "timer-warning" : ""}`}
+              >
+                ⏱️ {Math.floor(timeLeft / 60)}:
+                {(timeLeft % 60).toString().padStart(2, "0")}
+              </span>
+            )}
           </div>
         )}
       </h4>
