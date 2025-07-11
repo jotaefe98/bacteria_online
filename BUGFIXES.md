@@ -35,7 +35,25 @@
 
 - `server/src/functions/gameLogic.ts` - Lines 573-618
 
-### 3. **Fixed Delayed Victory Check After Organ Theft**
+### 3. **Fixed Victory Check for All Players**
+
+**Problem**: Victory condition was only checked for the active player, not for all players after each game-changing action. This caused delayed victory when a player completed 4 healthy organs due to actions from other players (e.g., when opponent cured your infected organ).
+
+**Root Cause**: The `checkWinCondition` function was only called for the current player (`playerId`) after playing a card, but not for all players after state changes.
+
+**Fix**:
+
+- Created new function `checkWinConditionForAllPlayers` that checks victory for all players
+- Modified victory checking logic to verify all players after applying card effects
+- Added additional victory check after recalculating organ states
+- This ensures victory is detected immediately when any player reaches 4 healthy organs, regardless of whose turn it is
+
+**Files Modified**:
+
+- `server/src/functions/gameLogic.ts` - Added `checkWinConditionForAllPlayers` function
+- `server/src/events/registerGameEvents.ts` - Updated victory checking logic to check all players
+
+### 4. **Fixed Delayed Victory Check After Organ Theft**
 
 **Problem**: Victory condition was only checked at the end of the turn, not immediately after playing a card (especially organ theft).
 
@@ -51,7 +69,7 @@
 
 - `server/src/events/registerGameEvents.ts` - Lines 285-320 and 490-520
 
-### 4. **Fixed Contagion Card Playable Without Valid Targets**
+### 5. **Fixed Contagion Card Playable Without Valid Targets**
 
 **Problem**: The contagion card could be played even when there were no valid targets to transmit bacteria to other players.
 
@@ -69,7 +87,7 @@
 - `server/src/functions/gameLogic.ts` - Lines 16-71 (new functions) and 179-251 (canPlayTreatment)
 - `server/src/events/registerGameEvents.ts` - Lines 14 and 261-273 (import and validation logic)
 
-### 5. **Fixed Duplicate Card Removal Bug**
+### 6. **Fixed Duplicate Card Removal Bug**
 
 **Problem**: When playing a card, sometimes a different card was being removed from the hand instead of the selected card.
 
@@ -85,7 +103,7 @@
 
 - `server/src/events/registerGameEvents.ts` - Lines 430-435 (removed duplicate splice)
 
-### 6. **Fixed Organ Exchange Synchronization Bug**
+### 7. **Fixed Organ Exchange Synchronization Bug**
 
 **Problem**: After organ exchanges (transplant/organ thief), the client state was not properly synchronized with the server, causing validation errors when trying to play cards on organs.
 

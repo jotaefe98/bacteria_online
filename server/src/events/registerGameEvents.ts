@@ -15,6 +15,7 @@ import {
   canPlayTreatment,
   applyCardEffect,
   checkWinCondition,
+  checkWinConditionForAllPlayers,
   getPlayableCards,
   rebuildDeck,
   applyTreatmentEffect,
@@ -305,16 +306,17 @@ export function registerGameEvents(
           }
         }
 
-        // VERIFICAR CONDICIÓN DE VICTORIA INMEDIATAMENTE DESPUÉS DE APLICAR EL EFECTO
+        // VERIFICAR CONDICIÓN DE VICTORIA PARA TODOS LOS JUGADORES DESPUÉS DE APLICAR EL EFECTO
         console.log(
-          `Checking win condition for player ${playerId} after applying card effect`
+          `Checking win condition for all players after applying card effect`
         );
-        if (checkWinCondition(playerBoard)) {
-          room.winner = playerId;
-          console.log(`Player ${playerId} has won the game!`);
+        const winner = checkWinConditionForAllPlayers(room.boards!);
+        if (winner) {
+          room.winner = winner;
+          console.log(`Player ${winner} has won the game!`);
 
           // Send game won event
-          io.to(roomId).emit("game-won", { winner: playerId });
+          io.to(roomId).emit("game-won", { winner: winner });
 
           // Clear session data immediately for all players
           room.players.forEach((player) => {
@@ -491,6 +493,35 @@ export function registerGameEvents(
             const organState = room.boards![boardId].organs[organColor];
             organState.status = calculateOrganStatus(organState);
           }
+        }
+
+        // VERIFICAR CONDICIÓN DE VICTORIA PARA TODOS LOS JUGADORES DESPUÉS DE RECALCULAR ESTADOS
+        console.log(
+          `Checking win condition for all players after recalculating organ states`
+        );
+        const winnerAfterRecalc = checkWinConditionForAllPlayers(room.boards!);
+        if (winnerAfterRecalc) {
+          room.winner = winnerAfterRecalc;
+          console.log(
+            `Player ${winnerAfterRecalc} has won the game after state recalculation!`
+          );
+
+          // Send game won event
+          io.to(roomId).emit("game-won", { winner: winnerAfterRecalc });
+
+          // Clear session data immediately for all players
+          room.players.forEach((player) => {
+            io.to(player.socketId).emit("clear-session-data");
+          });
+
+          // Delete room immediately to prevent reconnections
+          console.log(
+            `Immediately cleaning up room ${roomId} after game completion`
+          );
+          delete rooms[roomId];
+          console.log(`Room ${roomId} has been deleted from server`);
+
+          return;
         }
 
         // Cambiar a fase de robar

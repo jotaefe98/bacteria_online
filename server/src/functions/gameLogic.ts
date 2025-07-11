@@ -49,11 +49,11 @@ export function canPlayContagion(
               targetColor === organColor ||
               targetColor === "rainbow" ||
               organColor === "rainbow";
-            const isFree =
-              targetOrgan.status === "healthy" &&
+            const isHealthyAndFree =
               targetOrgan.bacteria.length === 0 &&
-              targetOrgan.medicines.length === 0;
-            return isColorCompatible && isFree;
+              targetOrgan.medicines.length === 0 &&
+              targetOrgan.status === "healthy";
+            return isColorCompatible && isHealthyAndFree;
           }
         );
         return compatibleOrgans.length > 0;
@@ -65,10 +65,7 @@ export function canPlayContagion(
     }
   }
 
-  return {
-    canPlay: false,
-    reason: "No valid targets available for contagion",
-  };
+  return { canPlay: false, reason: "No valid targets for contagion" };
 }
 
 // Function to calculate organ status
@@ -741,26 +738,15 @@ function applyMedicalError(
 
 // Function to check win condition
 export function checkWinCondition(playerBoard: PlayerBoard): boolean {
-  console.log(
-    "Checking win condition for player board:",
-    JSON.stringify(playerBoard, null, 2)
-  );
-
   const healthyOrgans = Object.values(playerBoard.organs).filter((organ) => {
     const isHealthy =
       organ.status === "healthy" ||
       organ.status === "vaccinated" ||
       organ.status === "immunized";
-    console.log(
-      `Organ ${organ.organ.color} status: ${organ.status}, is healthy: ${isHealthy}`
-    );
     return isHealthy;
   });
 
-  console.log(`Found ${healthyOrgans.length} healthy organs`);
-
   if (healthyOrgans.length < 4) {
-    console.log("Not enough healthy organs for victory");
     return false;
   }
 
@@ -777,27 +763,35 @@ export function checkWinCondition(playerBoard: PlayerBoard): boolean {
     }
   }
 
-  console.log(`Regular colors found: ${Array.from(colors)}`);
-  console.log(`Rainbow organs found: ${rainbowCount}`);
-
   // Second pass: assign rainbow organs to fill missing colors
   const allPossibleColors = ["red", "green", "blue", "yellow"];
   const missingColors = allPossibleColors.filter((color) => !colors.has(color));
-
-  console.log(`Missing colors: ${missingColors}`);
 
   // Use rainbow organs to fill missing colors
   const colorsToFill = Math.min(rainbowCount, missingColors.length);
   const totalUniqueColors = colors.size + colorsToFill;
 
-  console.log(
-    `Total unique colors after rainbow assignment: ${totalUniqueColors}`
-  );
-
   const hasWon = totalUniqueColors >= 4;
-  console.log(`Win condition met: ${hasWon}`);
 
   return hasWon;
+}
+
+// Function to check win condition for all players and return the winner
+export function checkWinConditionForAllPlayers(allBoards: {
+  [playerId: string]: PlayerBoard;
+}): string | null {
+  console.log("Checking win condition for all players");
+
+  for (const [playerId, board] of Object.entries(allBoards)) {
+    console.log(`Checking win condition for player ${playerId}`);
+    if (checkWinCondition(board)) {
+      console.log(`Player ${playerId} has won the game!`);
+      return playerId;
+    }
+  }
+
+  console.log("No winner found among all players");
+  return null;
 }
 
 // Function to get playable cards
