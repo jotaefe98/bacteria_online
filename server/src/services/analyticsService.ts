@@ -6,6 +6,12 @@ export class AnalyticsService {
   // Save completed game to database
   async saveGameAnalytics(gameAnalytics: GameAnalytics): Promise<boolean> {
     try {
+      // Check if database is connected
+      if (!databaseManager.isConnected()) {
+        logger.log("Database not connected, skipping analytics save");
+        return false;
+      }
+
       await databaseManager.ensureConnection();
       const collection = databaseManager.getGamesCollection();
 
@@ -30,6 +36,13 @@ export class AnalyticsService {
       }
     } catch (error) {
       logger.error("Error saving game analytics:", error);
+
+      // If it's a connection error, try to reconnect
+      if (error instanceof Error && error.message.includes("connection")) {
+        logger.log("Attempting to reconnect to database...");
+        await databaseManager.ensureConnection();
+      }
+
       return false;
     }
   }
@@ -37,6 +50,12 @@ export class AnalyticsService {
   // Get game analytics by ID
   async getGameAnalytics(gameId: string): Promise<GameAnalytics | null> {
     try {
+      // Check if database is connected
+      if (!databaseManager.isConnected()) {
+        logger.log("Database not connected, cannot retrieve analytics");
+        return null;
+      }
+
       await databaseManager.ensureConnection();
       const collection = databaseManager.getGamesCollection();
 

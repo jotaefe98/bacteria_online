@@ -18,14 +18,35 @@ class DatabaseManager {
 
   private async connect(): Promise<void> {
     try {
-      this.client = new MongoClient(MONGODB_URI);
+      // Simplified MongoDB connection options for Atlas
+      const options = {
+        serverSelectionTimeoutMS: 30000, // 30 seconds
+        socketTimeoutMS: 75000, // 75 seconds
+        connectTimeoutMS: 30000, // 30 seconds
+        maxPoolSize: 10, // Maintain up to 10 socket connections
+        retryWrites: true, // Retry writes that fail due to network errors
+        // Use default SSL/TLS settings for MongoDB Atlas
+        ssl: true,
+      };
+
+      this.client = new MongoClient(MONGODB_URI, options);
       await this.client.connect();
+
+      // Test the connection
+      await this.client.db("admin").command({ ping: 1 });
+
       this.db = this.client.db(DATABASE_NAME);
       this.connected = true;
-      logger.log("Successfully connected to MongoDB");
+      logger.log("Successfully connected to MongoDB Atlas");
     } catch (error) {
       logger.error("Failed to connect to MongoDB:", error);
       this.connected = false;
+
+      // Try to reconnect after 30 seconds
+      setTimeout(() => {
+        logger.log("Attempting to reconnect to MongoDB...");
+        this.connect();
+      }, 30000);
     }
   }
 
