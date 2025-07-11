@@ -484,10 +484,16 @@ function applyTransplant(
   }
 
   // Perform the exchange
-  const temp = firstBoard.organs[action.targetOrganColor];
-  firstBoard.organs[action.targetOrganColor] =
-    secondBoard.organs[action.secondTargetOrganColor];
-  secondBoard.organs[action.secondTargetOrganColor] = temp;
+  const firstOrganData = firstBoard.organs[action.targetOrganColor];
+  const secondOrganData = secondBoard.organs[action.secondTargetOrganColor];
+
+  // Remove organs from their current positions
+  delete firstBoard.organs[action.targetOrganColor];
+  delete secondBoard.organs[action.secondTargetOrganColor];
+
+  // Add organs to their new positions using their actual colors
+  firstBoard.organs[secondOrganData.organ.color] = secondOrganData;
+  secondBoard.organs[firstOrganData.organ.color] = firstOrganData;
 
   return {
     success: true,
@@ -538,13 +544,13 @@ function applyOrganThief(
   const thiefColors = Object.keys(thiefBoard.organs);
   if (
     organToSteal.organ.color !== "rainbow" &&
-    thiefColors.includes(action.targetOrganColor)
+    thiefColors.includes(organToSteal.organ.color)
   ) {
     return { success: false, reason: "You would have duplicate organ colors" };
   }
 
   // Steal the organ
-  thiefBoard.organs[action.targetOrganColor] = organToSteal;
+  thiefBoard.organs[organToSteal.organ.color] = organToSteal;
   delete targetBoard.organs[action.targetOrganColor];
 
   return {

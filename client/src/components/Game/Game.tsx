@@ -470,7 +470,7 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                     <strong>🦠 Bacteria:</strong> 2 bacteria = organ destroyed
                   </li>
                   <li>
-                    <strong>� Medicine:</strong> 1 medicine cures 1 bacteria, 2
+                    <strong>💉 Medicine:</strong> 1 medicine cures 1 bacteria, 2
                     medicines = immunized
                   </li>
                   <li>

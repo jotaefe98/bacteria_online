@@ -6,7 +6,7 @@
 
 **Problem**: The game was incorrectly preventing players from placing organs when they didn't have duplicate colors.
 
-**Root Cause**: The `canPlayCard` function was not properly handling the rainbow organ logic and was too restrictive.
+**Root Cause**: The `canPlayCard` function was not properly handling the rainbow3. ✅ **Immediate Victory**: Fixed delayed victory check after organ theft/transplant 4. ✅ **Contagion Validation**: Fixed contagion card playable without valid targets 5. ✅ **Duplicate Card Removal**: Fixed wrong card being removed when playing cards 6. ✅ **Organ Exchange Sync**: Fixed client/server desync after organ exchangesgan logic and was too restrictive.
 
 **Fix**:
 
@@ -84,6 +84,42 @@
 **Files Modified**:
 
 - `server/src/events/registerGameEvents.ts` - Lines 430-435 (removed duplicate splice)
+
+### 6. **Fixed Organ Exchange Synchronization Bug**
+
+**Problem**: After organ exchanges (transplant/organ thief), the client state was not properly synchronized with the server, causing validation errors when trying to play cards on organs.
+
+**Root Cause**: The organ exchange logic was using color keys incorrectly, not properly mapping organs to their actual colors after exchange operations.
+
+**Fix**:
+
+- Fixed `applyTransplant` to properly delete and re-add organs using their actual colors
+- Fixed `applyOrganThief` to use the organ's actual color for duplicate checking and placement
+- Ensured proper mapping between organ colors and board positions
+
+**Files Modified**:
+
+- `server/src/functions/gameLogic.ts` - Lines 487-495 (transplant fix) and 542-550 (organ thief fix)
+
+**Technical Details**:
+
+```typescript
+// BEFORE (Bug): Using action color keys
+thiefBoard.organs[action.targetOrganColor] = organToSteal;
+firstBoard.organs[action.targetOrganColor] =
+  secondBoard.organs[action.secondTargetOrganColor];
+
+// AFTER (Fixed): Using actual organ colors
+thiefBoard.organs[organToSteal.organ.color] = organToSteal;
+firstBoard.organs[secondOrganData.organ.color] = secondOrganData;
+```
+
+**Test Case**:
+
+- **Setup**: Player A has green organ, Player B has yellow organ
+- **Action**: Player C plays transplant to exchange Player A's green with Player B's yellow
+- **Expected**: Player A now has yellow organ, Player B has green organ ✅
+- **Previous**: Player A thought they still had green organ (client/server desync) ❌
 
 ## Technical Details
 
@@ -238,6 +274,13 @@ if (checkWinCondition(playerBoard)) {
 - **Expected**: Hand becomes [A, C] ✅
 - **Previous**: Hand became [A] (card C was also removed) ❌
 
+### Test Case 7: Organ Exchange Synchronization
+
+- **Setup**: Player A has green organ, Player B has yellow organ
+- **Action**: Player C plays transplant to exchange Player A's green with Player B's yellow
+- **Expected**: Player A now has yellow organ, Player B has green organ ✅
+- **Previous**: Player A thought they still had green organ (client/server desync) ❌
+
 ## Breaking Changes
 
 None - all fixes are backwards compatible.
@@ -265,6 +308,7 @@ None - all fixes are backwards compatible.
 2. ✅ **Victory Detection**: Fixed victory condition not triggering with 4 healthy organs
 3. ✅ **Immediate Victory**: Fixed delayed victory check after organ theft/transplant
 4. ✅ **Contagion Validation**: Fixed contagion card playable without valid targets
-5. ✅ **Duplicate Card Removal**: Fixed wrong card removal bug when playing cards
+5. ✅ **Duplicate Card Removal**: Fixed wrong card being removed when playing cards
+6. ✅ **Organ Exchange Sync**: Fixed organ exchange synchronization issues between client and server
 
 **The game is now fully functional and ready for testing!**
