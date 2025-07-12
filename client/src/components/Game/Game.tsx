@@ -44,14 +44,6 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   }>({});
   const [showRulesModal, setShowRulesModal] = useState<boolean>(false);
 
-  // Victory notification state
-  const [victoryNotification, setVictoryNotification] = useState<{
-    show: boolean;
-    winner: string;
-    winnerId: string;
-    message: string;
-  }>({ show: false, winner: "", winnerId: "", message: "" });
-
   // Timer state - now synced with server
   const [timeLeft, setTimeLeft] = useState<number>(90);
 
@@ -80,25 +72,6 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   // Handle victory notification
   useEffect(() => {
     if (!socket) return;
-
-    const handleVictoryNotification = (data: {
-      winner: string;
-      winnerId: string;
-      message: string;
-    }) => {
-      setVictoryNotification({
-        show: true,
-        winner: data.winner,
-        winnerId: data.winnerId,
-        message: data.message,
-      });
-    };
-
-    socket.on("victory-notification", handleVictoryNotification);
-
-    return () => {
-      socket.off("victory-notification", handleVictoryNotification);
-    };
   }, [socket]);
 
   // Handle help icon click
@@ -140,12 +113,6 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
 
   const getPlayerName = (id: string) => {
     return playerNames[id] || id;
-  };
-
-  const getWinnerText = () => {
-    if (!winner) return "";
-    if (winner === playerId) return "You won!";
-    return `Winner: ${getPlayerName(winner)}`;
   };
 
   const handleBackToMenu = () => {
@@ -375,82 +342,6 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
       setSelectedTarget({ playerId: organPlayerId, organColor });
     }
   };
-
-  if (winner) {
-    return (
-      <div className="game-container">
-        {/* Victory notification - temporary overlay */}
-        {victoryNotification.show && (
-          <div className="victory-notification-overlay">
-            <div className="victory-notification">
-              <div className="victory-notification-content">
-                <h2 className="victory-notification-message">
-                  {victoryNotification.message}
-                </h2>
-                <div className="victory-notification-icon">🎉</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Game content with overlay for victory screen */}
-        <div className="game-content">
-          <div className="boards-container">
-            {Object.entries(boards).map(([playerBoardId, board]) => (
-              <Board
-                key={playerBoardId}
-                board={board}
-                playerId={playerBoardId}
-                playerName={getPlayerName(playerBoardId)}
-                isCurrentPlayer={playerBoardId === playerId}
-                currentTurn={currentTurn}
-                currentPhase={
-                  currentTurn === playerBoardId ? currentPhase : undefined
-                }
-                timeLeft={currentTurn === playerBoardId ? timeLeft : undefined}
-                onOrganClick={undefined} // Disable interactions during victory
-                selectedTarget={selectedTarget}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Victory screen - smaller overlay */}
-        <div className="victory-screen-overlay">
-          <div className="victory-screen-small">
-            <div className="victory-content-small">
-              <h1 className="victory-title-small">🎉 GAME OVER! 🎉</h1>
-              <div className="victory-message-small">
-                {winner === playerId ? (
-                  <>
-                    <div className="winner-badge-small">🏆 VICTORY! 🏆</div>
-                    <p className="winner-text-small">
-                      Congratulations! You have won the game!
-                    </p>
-                    <div className="celebration-small">🎊🎈🎁🎈🎊</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="loser-badge-small">😔 DEFEAT</div>
-                    <p className="loser-text-small">{getWinnerText()}</p>
-                    <p className="encourage-text-small">
-                      Better luck next time!
-                    </p>
-                  </>
-                )}
-              </div>
-              <button
-                className="back-to-menu-button-small"
-                onClick={handleBackToMenu}
-              >
-                🏠 Back to Main Menu
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="game-container">
@@ -779,6 +670,28 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Victory Popup/Modal */}
+      {winner && (
+        <div className="victory-screen">
+          <div className="victory-content">
+            <div className="victory-title">
+              {winner === playerId ? "🎉 Victory!" : "🏆 Game Over"}
+            </div>
+            <div className="winner-badge">
+              {winner === playerId
+                ? "You Won!"
+                : `${getPlayerName(winner)} Wins!`}
+            </div>
+            <button
+              className="victory-button back-to-menu-button"
+              onClick={handleBackToMenu}
+            >
+              🏠 Back to Menu
+            </button>
           </div>
         </div>
       )}
