@@ -1,11 +1,32 @@
 import "./Lobby.css";
 import { useState } from "react";
 import { useCreateRoom } from "../../hooks/looby/useCreateRoom";
+import { useSounds } from "../../context/SoundContext";
 
 function Lobby() {
   const [roomCode, setRoomCode] = useState("");
   const { createRoom, existingRoom, isCreatingRoom, isJoiningRoom } =
     useCreateRoom();
+  const { playSound, toggleSounds, soundsEnabled, initializeAudio } = useSounds();
+
+  const handleTestSound = () => {
+    // Inicializar audio si no está inicializado
+    initializeAudio();
+    
+    // Reproducir un sonido de prueba
+    console.log('🔊 Testing sound...');
+    playSound('victory');
+  };
+
+  const handleCreateRoom = () => {
+    initializeAudio(); // Inicializar audio en primera interacción
+    createRoom();
+  };
+
+  const handleJoinRoom = () => {
+    initializeAudio(); // Inicializar audio en primera interacción
+    existingRoom(roomCode);
+  };
 
   return (
     <div className="lobby-container">
@@ -33,7 +54,7 @@ function Lobby() {
             <p>Start a new game and invite your friends</p>
             <button
               className="primary-button"
-              onClick={createRoom}
+              onClick={handleCreateRoom}
               disabled={isCreatingRoom}
             >
               {isCreatingRoom ? (
@@ -62,7 +83,7 @@ function Lobby() {
               />
               <button
                 className="secondary-button"
-                onClick={() => existingRoom(roomCode)}
+                onClick={handleJoinRoom}
                 disabled={!roomCode.trim() || isJoiningRoom}
               >
                 {isJoiningRoom ? (
@@ -98,6 +119,30 @@ function Lobby() {
               <span>Use special treatments</span>
             </div>
           </div>
+        </div>
+
+        <div className="sound-controls">
+          <button
+            className="sound-toggle-button"
+            onClick={toggleSounds}
+            title={soundsEnabled ? "Disable sounds" : "Enable sounds"}
+          >
+            <span className="sound-icon">
+              {soundsEnabled ? "🔊" : "🔇"}
+            </span>
+            <span className="sound-label">
+              {soundsEnabled ? "Sounds ON" : "Sounds OFF"}
+            </span>
+          </button>
+          
+          <button
+            className="sound-test-button"
+            onClick={handleTestSound}
+            title="Test sound"
+          >
+            <span className="sound-icon">🎵</span>
+            <span className="sound-label">Test Sound</span>
+          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import { useSounds } from "../../context/SoundContext";
 import type {
   Card,
   PlayerBoard,
@@ -17,6 +18,7 @@ type UseGameSocketProps = {
 
 export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
   const { socket } = useAppContext();
+  const { playSound } = useSounds();
   const playerId = usePlayerId();
   const { gameNotifications, showNotification } = useGameNotifications();
   const [hand, setHand] = useState<Card[]>([]);
@@ -64,6 +66,9 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         setPlayerNames(data.playerNames);
       }
 
+      // Play game start sound for all players
+      playSound('game_start');
+
       // Save game session information for persistence
       localStorage.setItem("currentRoomId", roomId!);
       localStorage.setItem("gameStarted", "true");
@@ -80,6 +85,11 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       if (data.playerNames) {
         setPlayerNames(data.playerNames);
       }
+
+      // Play your turn sound when it's your turn
+      if (data.currentTurn === playerId) {
+        playSound('your_turn');
+      }
     });
     socket?.on("game-won", (data) => {
       // Use winnerId for comparison, but store the winner name for display
@@ -88,8 +98,10 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
 
       if (winnerId === playerId) {
         gameNotifications.gameWon();
+        playSound('victory');
       } else {
         gameNotifications.gameLost(playerNames[winnerId] || data.winner);
+        playSound('defeat');
       }
 
       // Clear game session data when game ends
@@ -117,10 +129,14 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     // Eventos de notificaciones específicas del juego
     socket?.on("organ-infected", (data) => {
       gameNotifications.organInfected(data.organColor, data.byPlayer);
+      // Play bacteria sound when organ is infected but not destroyed
+      playSound('bacteria_applied');
     });
 
     socket?.on("organ-destroyed", (data) => {
       gameNotifications.organDestroyed(data.organColor, data.byPlayer);
+      // Play organ death sound when organ is destroyed
+      playSound('organ_die');
     });
 
     socket?.on("vaccine-destroyed", (data) => {
@@ -135,8 +151,12 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       // Solo notificar si el tratamiento fue beneficioso Y fue hecho por otro jugador
       if (data.treatmentType === "healthy") {
         gameNotifications.organCured(data.organColor);
+        // Play medicine sound when organ is cured (not immunized)
+        playSound('medicine_applied');
       } else if (data.treatmentType === "immunized") {
         gameNotifications.organImmunized(data.organColor);
+        // Play immunization sound when organ becomes immunized
+        playSound('organ_inmuniced');
       }
       // No notificamos vacunación, solo curación e inmunización
     });
@@ -156,6 +176,8 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         message: `${data.byPlayer} used ${data.treatmentName}`,
         icon: "🧪",
       });
+      // Play treatment card sound when any treatment is used
+      playSound('treatment_card');
     });
 
     socket?.on("organ-stolen", (data) => {

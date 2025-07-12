@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { SOCKET_SERVER_URL } from "./const/const";
 import { io, Socket } from "socket.io-client";
 import { AppContext } from "./context/AppContext";
+import { SoundProvider } from "./context/SoundContext";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -20,14 +21,15 @@ function App() {
   }, []);
 
   return (
-    <AppContext.Provider value={{ socket, setSocket }}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Lobby />} />
-          <Route path="/room/:roomId" element={<Room />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster
+    <SoundProvider>
+      <AppContext.Provider value={{ socket, setSocket }}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Lobby />} />
+            <Route path="/room/:roomId" element={<Room />} />
+          </Routes>
+        </BrowserRouter>
+        <Toaster
         position="top-center"
         toastOptions={{
           duration: 3500,
@@ -70,6 +72,7 @@ function App() {
         }}
       />
     </AppContext.Provider>
+  </SoundProvider>
   );
 }
 
