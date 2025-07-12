@@ -76,13 +76,12 @@ class DatabaseManager {
         }`
       );
 
-      // Use the simplest possible configuration with SSL fix
+      // Use the simplest possible configuration with correct SSL options
       const options = {
         serverSelectionTimeoutMS: 10000, // 10 seconds
         connectTimeoutMS: 10000,
         socketTimeoutMS: 10000,
-        ssl: true,
-        sslValidate: false, // For production, consider setting to true
+        tls: true, // Use tls instead of ssl
         retryWrites: true,
       };
 
