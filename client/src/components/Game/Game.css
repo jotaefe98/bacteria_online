@@ -50,6 +50,18 @@ html, body {
     max-height: 100dvh;
     min-height: 100dvh;
   }
+  
+  /* Ajustar boards-container para dar más espacio a los tableros */
+  .boards-container {
+    flex: 3 !important; /* 3/4 de la pantalla para tableros */
+  }
+  
+  /* Ajustar hand-section para ser más compacta */
+  .hand-section {
+    flex: 1 !important; /* 1/4 de la pantalla para controles */
+    min-height: 200px !important;
+    max-height: 200px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -449,6 +461,35 @@ html, body {
   overflow-x: auto;
   overflow-y: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  cursor: pointer;
+}
+
+/* Icono de ayuda en la esquina superior izquierda */
+.cards-left::before {
+  content: "?";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4c51bf;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cards-left:hover::before {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .cards-right {
@@ -673,6 +714,35 @@ html, body {
   overflow-x: auto;
   overflow-y: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  cursor: pointer;
+}
+
+/* Icono de ayuda en la esquina superior izquierda */
+.cards-left::before {
+  content: "?";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4c51bf;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cards-left:hover::before {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .cards-right {
@@ -690,26 +760,22 @@ html, body {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Los estilos de .action-button-new ya están definidos arriba */
-
-/* Archivo limpio sin selection info */
-
-/* Victory Notification Styles */
-.victory-notification-overlay {
+/* Modal de reglas del juego */
+.game-rules-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: victory-notification-fade-in 0.5s ease-out;
+  animation: modal-fade-in 0.3s ease-out;
 }
 
-@keyframes victory-notification-fade-in {
+@keyframes modal-fade-in {
   0% {
     opacity: 0;
   }
@@ -718,224 +784,116 @@ html, body {
   }
 }
 
-.victory-notification {
-  background: rgba(255, 255, 255, 0.95);
+.game-rules-content {
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
-  padding: 30px 40px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 215, 0, 0.8);
-  animation: victory-notification-bounce 0.6s ease-out;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: modal-slide-in 0.4s ease-out;
 }
 
-@keyframes victory-notification-bounce {
+@keyframes modal-slide-in {
   0% {
-    transform: scale(0.8) translateY(50px);
-  }
-  50% {
-    transform: scale(1.05) translateY(-10px);
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
   }
   100% {
+    opacity: 1;
     transform: scale(1) translateY(0);
   }
 }
 
-.victory-notification-content {
+.game-rules-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
 }
 
-.victory-notification-message {
-  font-size: 2.5rem;
+.game-rules-title {
+  font-size: 1.8rem;
   font-weight: bold;
+  color: #4c51bf;
   margin: 0;
-  background: linear-gradient(45deg, #ffd700, #ff6b35);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.victory-notification-icon {
-  font-size: 3rem;
-  animation: victory-notification-pulse 2s infinite;
-}
-
-@keyframes victory-notification-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-}
-
-/* Victory screen overlay - smaller and with background */
-.victory-screen-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+.close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
-  animation: victory-screen-fade-in 0.8s ease-out;
-}
-
-@keyframes victory-screen-fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.victory-screen-small {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(15px);
-  padding: 40px 35px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-  border: 3px solid rgba(255, 215, 0, 0.6);
-  max-width: 450px;
-  width: 90%;
-  animation: victory-screen-small-entrance 0.8s ease-out;
-}
-
-@keyframes victory-screen-small-entrance {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) translateY(50px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.victory-content-small {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.victory-title-small {
-  font-size: 2.5rem;
-  margin: 0;
-  background: linear-gradient(45deg, #ffd700, #ff6b35, #f7941d);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: victory-glow 2s ease-in-out infinite alternate;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-}
-
-.victory-message-small {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.winner-badge-small {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: bounce 2s infinite;
-}
-
-.loser-badge-small {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #ff6b6b;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.winner-text-small,
-.loser-text-small {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.encourage-text-small {
-  font-size: 1.1rem;
-  color: #666;
-  font-style: italic;
-  margin: 0;
-}
-
-.celebration-small {
-  font-size: 1.8rem;
-  animation: celebration-dance 1.5s infinite;
-}
-
-@keyframes celebration-dance {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-5deg);
-  }
-  75% {
-    transform: rotate(5deg);
-  }
-}
-
-.back-to-menu-button-small {
-  background: linear-gradient(45deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
+  border-radius: 50%;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  margin-top: 10px;
 }
 
-.back-to-menu-button-small:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-  background: linear-gradient(45deg, #5a67d8, #6b46c1);
+.close-button:hover {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+  transform: scale(1.1);
 }
 
-.back-to-menu-button-small:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+.treatment-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
 }
 
-/* Game content during victory */
-.game-content {
-  position: relative;
-  height: 100%;
-  width: 100%;
-}
-
-.game-content .boards-container {
-  height: 100%;
-  width: 100%;
+.treatment-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4c51bf;
+  margin-bottom: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  box-sizing: border-box;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Mobile responsive adjustments */
+.treatment-description {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.treatment-rules {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.treatment-rules ul {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.treatment-rules li {
+  margin-bottom: 8px;
+}
+
+.treatment-rules strong {
+  color: #4c51bf;
+  font-weight: 600;
+}
+
+/* Responsive para móviles */
 @media (max-width: 768px) {
   .victory-notification {
     padding: 20px 25px;
@@ -1012,33 +970,123 @@ html, body {
   
   /* MOBILE LAYOUT: Cambiar disposición de botones en móvil */
   /* Los botones deben estar debajo de las cartas en 3 columnas, 1 fila */
+  
+  /* Asegurar que div2-top se mantenga visible en móvil */
+  .div2-top {
+    flex: 0 !important;
+    min-height: 55px !important;
+    max-height: 55px !important;
+    padding: 0 8px !important;
+    font-size: 13px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  .turn-display {
+    font-size: 0.85rem !important;
+    flex: 1 !important;
+  }
+  
+  .turn-indicator {
+    font-size: 0.65rem !important;
+  }
+  
+  .play-mode-selector {
+    flex: 0 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    min-width: 80px !important;
+  }
+  
+  .play-mode-selector label {
+    font-size: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    white-space: nowrap !important;
+    color: white !important;
+  }
+  
+  .play-mode-selector input[type="radio"] {
+    transform: scale(0.8) !important;
+    margin: 0 !important;
+  }
+  
   .div2-bottom {
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 6px !important;
   }
   
   .cards-left {
     flex: 1 !important;
-    min-height: 80px !important;
+    min-height: 95px !important;
+    max-height: 95px !important;
+  }
+  
+  /* Ajustar icono de ayuda para móvil */
+  .cards-left::before {
+    top: 6px !important;
+    left: 6px !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 14px !important;
   }
   
   .cards-right {
     flex: 0 !important;
     flex-direction: row !important;
     justify-content: space-around !important;
-    padding: 8px 5px !important;
-    min-height: 60px !important;
-    gap: 5px !important;
+    padding: 6px 4px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    gap: 4px !important;
   }
   
   .action-button-new {
     width: 30% !important;
-    padding: 8px 4px !important;
-    font-size: 12px !important;
-    min-height: 40px !important;
+    padding: 6px 3px !important;
+    font-size: 11px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+  
+  /* Estilos del modal para móviles */
+  .game-rules-content {
+    margin: 10px;
+    padding: 20px;
+    max-height: 85vh;
+  }
+  
+  .game-rules-title {
+    font-size: 1.5rem;
+  }
+  
+  .close-button {
+    font-size: 1.5rem;
+    width: 30px;
+    height: 30px;
+  }
+  
+  .treatment-title {
+    font-size: 1.1rem;
+  }
+  
+  .treatment-description {
+    font-size: 0.9rem;
+  }
+  
+  .treatment-rules {
+    font-size: 0.85rem;
+  }
+  
+  .treatment-section {
+    padding: 12px;
   }
 }
 
@@ -1059,5 +1107,28 @@ html, body {
   
   .victory-title-small {
     font-size: 1.5rem;
+  }
+  
+  /* Estilos del modal para móviles pequeños */
+  .game-rules-content {
+    margin: 8px;
+    padding: 15px;
+    max-height: 90vh;
+  }
+  
+  .game-rules-title {
+    font-size: 1.3rem;
+  }
+  
+  .treatment-title {
+    font-size: 1rem;
+  }
+  
+  .treatment-description {
+    font-size: 0.85rem;
+  }
+  
+  .treatment-rules {
+    font-size: 0.8rem;
   }
 }
