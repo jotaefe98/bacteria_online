@@ -55,3 +55,35 @@ node_modules/
 .idea/
 *.swp
 *.swo
+
+# Compiled JavaScript files (generated from TypeScript)
+src/**/*.js
+src/**/*.js.map
+
+# Test and debug files
+src/test.ts
+src/scripts/testAnalytics.ts
+src/scripts/viewData.ts
+
+# Duplicate config files
+src/config/database-fixed.ts
+src/config/database-simple.ts
+src/config/database.js
+
+# MongoDB debug files
+diagnose-mongodb.js
+disable-mongodb.js
+test-connection.js
+
+# Extra documentation files
+MONGODB_SOLUTION.md
+MONGODB_TROUBLESHOOTING.md
+QUICK_FIX.md
+RENDER_CONFIG.md
+
+# MongoDB disable flag
+.mongodb-disabled
+
+# Cleanup scripts
+cleanup.sh
+cleanup.ps1
