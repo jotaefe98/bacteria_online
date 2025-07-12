@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { DataJoinRoom, DataUpdateNickname, Room } from "../types/interfaces";
 import { MAX_NUM_PLAYERS, MIN_NUM_PLAYERS } from "../const/const";
+import { safeStringify } from "../utils/logger";
 
 export function registerRoomEvents(
   io: Server,
@@ -159,7 +160,7 @@ export function registerRoomEvents(
     }
 
     console.log("A user disconnected:", socket.id);
-    console.log("room", JSON.stringify(rooms, null, 2));
+    console.log("room", safeStringify(rooms, 2));
   });
 
   /**

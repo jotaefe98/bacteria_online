@@ -8,6 +8,7 @@ import {
   PlayCardAction,
 } from "../types/interfaces";
 import { BASE_DECK, MIN_NUM_PLAYERS } from "../const/const";
+import { safeStringify } from "../utils/logger";
 import { logger } from "../utils/logger";
 import { analyticsManager } from "../utils/analytics";
 import { shuffle } from "../functions/shuffle";
@@ -232,7 +233,7 @@ export function registerGameEvents(
       );
 
       console.log("Player names mapping:", room.playerNames);
-      console.log("deck: ", JSON.stringify(room.deck));
+      console.log("deck: ", safeStringify(room.deck));
       io.to(roomId).emit("deck-shuffled", {
         hands: room.hands,
         boards: room.boards,
