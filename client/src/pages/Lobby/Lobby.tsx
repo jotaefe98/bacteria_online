@@ -7,17 +7,10 @@ function Lobby() {
   const [roomCode, setRoomCode] = useState("");
   const { createRoom, existingRoom, isCreatingRoom, isJoiningRoom } =
     useCreateRoom();
-  const { playSound, toggleSounds, soundsEnabled, initializeAudio } =
+  const {  initializeAudio } =
     useSounds();
 
-  const handleTestSound = () => {
-    // Inicializar audio si no está inicializado
-    initializeAudio();
 
-    // Reproducir un sonido de prueba
-    console.log("🔊 Testing sound...");
-    playSound("victory");
-  };
 
   const handleCreateRoom = () => {
     initializeAudio(); // Inicializar audio en primera interacción
@@ -122,27 +115,7 @@ function Lobby() {
           </div>
         </div>
 
-        <div className="sound-controls">
-          <button
-            className="sound-toggle-button"
-            onClick={toggleSounds}
-            title={soundsEnabled ? "Disable sounds" : "Enable sounds"}
-          >
-            <span className="sound-icon">{soundsEnabled ? "🔊" : "🔇"}</span>
-            <span className="sound-label">
-              {soundsEnabled ? "Sounds ON" : "Sounds OFF"}
-            </span>
-          </button>
 
-          <button
-            className="sound-test-button"
-            onClick={handleTestSound}
-            title="Test sound"
-          >
-            <span className="sound-icon">🎵</span>
-            <span className="sound-label">Test Sound</span>
-          </button>
-        </div>
       </div>
     </div>
   );
