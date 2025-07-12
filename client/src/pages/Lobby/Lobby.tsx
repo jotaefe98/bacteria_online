@@ -4,7 +4,8 @@ import { useCreateRoom } from "../../hooks/looby/useCreateRoom";
 
 function Lobby() {
   const [roomCode, setRoomCode] = useState("");
-  const { createRoom, existingRoom } = useCreateRoom();
+  const { createRoom, existingRoom, isCreatingRoom, isJoiningRoom } =
+    useCreateRoom();
 
   return (
     <div className="lobby-container">
@@ -30,8 +31,19 @@ function Lobby() {
             <div className="card-icon">🎮</div>
             <h3>Create New Room</h3>
             <p>Start a new game and invite your friends</p>
-            <button className="primary-button" onClick={createRoom}>
-              Create Room
+            <button
+              className="primary-button"
+              onClick={createRoom}
+              disabled={isCreatingRoom}
+            >
+              {isCreatingRoom ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Creating Room...
+                </>
+              ) : (
+                "Create Room"
+              )}
             </button>
           </div>
 
@@ -46,14 +58,21 @@ function Lobby() {
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                 className="room-input"
-                maxLength={6}
+                maxLength={5}
               />
               <button
                 className="secondary-button"
                 onClick={() => existingRoom(roomCode)}
-                disabled={!roomCode.trim()}
+                disabled={!roomCode.trim() || isJoiningRoom}
               >
-                Join Room
+                {isJoiningRoom ? (
+                  <>
+                    <span className="loading-spinner"></span>
+                    Joining...
+                  </>
+                ) : (
+                  "Join Room"
+                )}
               </button>
             </div>
           </div>

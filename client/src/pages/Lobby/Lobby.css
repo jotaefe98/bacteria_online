@@ -80,6 +80,10 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-card:hover {
@@ -120,7 +124,14 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 140px;
+  width: 160px; /* Fixed width instead of min-width */
+  height: 48px; /* Fixed height for consistency */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  box-sizing: border-box; /* Ensure padding is included in width/height */
 }
 
 .primary-button {
@@ -132,6 +143,14 @@
   background: linear-gradient(45deg, #218838, #1ea080);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.primary-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.8;
+  transform: none;
+  box-shadow: none;
 }
 
 .secondary-button {
@@ -215,6 +234,22 @@
 
 .info-icon {
   font-size: 1.5rem;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0; /* Prevent spinner from shrinking */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 768px) {
