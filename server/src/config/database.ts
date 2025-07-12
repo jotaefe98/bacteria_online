@@ -3,7 +3,8 @@ import { GameAnalytics } from "../types/analytics";
 import { logger } from "../utils/logger";
 
 // MongoDB connection configuration - IMPROVED
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
 const DATABASE_NAME = "bacteria_online";
 
 // Detect if we're in production without MongoDB
@@ -29,7 +30,7 @@ class DatabaseManager {
     logger.log(`📁 Node Environment: ${process.env.NODE_ENV || "not set"}`);
     logger.log(`🌐 Production Mode: ${isProduction}`);
     logger.log(`🔑 MongoDB URI Provided: ${hasMongoUri}`);
-    
+
     // Smart detection: if in production without MongoDB URI, disable immediately
     if (isProduction && !hasMongoUri) {
       logger.log("⚠️ Production environment detected without MongoDB URI");
