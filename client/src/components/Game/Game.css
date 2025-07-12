@@ -973,6 +973,73 @@ html, body {
     padding: 10px 20px;
     font-size: 1rem;
   }
+  
+  /* IMPORTANTE: En móviles, todos los tableros deben estar en UNA SOLA COLUMNA */
+  
+  /* Para 4 jugadores en móvil: 1 columna, 4 filas */
+  .boards-container[data-player-count="4"] {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr 1fr 1fr !important;
+    gap: 6px;
+  }
+  
+  /* Para 3 jugadores en móvil: 1 columna, 3 filas */
+  .boards-container[data-player-count="3"] {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr 1fr !important;
+    gap: 6px;
+  }
+  
+  .boards-container[data-player-count="3"] > :nth-child(3) {
+    grid-column: unset !important;
+    max-width: unset !important;
+    margin: 0 !important;
+  }
+  
+  /* Para 2 jugadores en móvil: 1 columna, 2 filas (ya está bien) */
+  .boards-container[data-player-count="2"] {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 6px;
+  }
+  
+  /* Para 1 jugador en móvil: 1 columna, 1 fila (ya está bien) */
+  .boards-container[data-player-count="1"] {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+    gap: 6px;
+  }
+  
+  /* MOBILE LAYOUT: Cambiar disposición de botones en móvil */
+  /* Los botones deben estar debajo de las cartas en 3 columnas, 1 fila */
+  .div2-bottom {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .cards-left {
+    flex: 1 !important;
+    min-height: 80px !important;
+  }
+  
+  .cards-right {
+    flex: 0 !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    padding: 8px 5px !important;
+    min-height: 60px !important;
+    gap: 5px !important;
+  }
+  
+  .action-button-new {
+    width: 30% !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
 }
 
 @media (max-width: 480px) {
