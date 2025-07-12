@@ -25,18 +25,43 @@ export const safeStringify = (obj: any, space?: number): string => {
   );
 };
 
+/**
+ * Get current timestamp for logging
+ */
+const getTimestamp = (): string => {
+  return new Date().toISOString();
+};
+
+/**
+ * Format log message with timestamp
+ */
+const formatMessage = (level: string, message: string): string => {
+  return `[${getTimestamp()}] [${level}] ${message}`;
+};
+
 export const logger = {
   log: (message: string, ...args: any[]) => {
-    if (isDevelopment) {
-      console.log(message, ...args);
+    // Always log important messages (those starting with emojis indicating status)
+    const isImportant = message.match(
+      /^[🔄🚀📊✅❌⚠️🔍🏥🔌📁🌐⏰🚫🎮🔗📍⚙️🔌🏓🔒🔄⏳🔄]/
+    );
+
+    if (isDevelopment || isImportant) {
+      console.log(formatMessage("INFO", message), ...args);
     }
   },
   error: (message: string, ...args: any[]) => {
-    console.error(message, ...args); // Always log errors
+    console.error(formatMessage("ERROR", message), ...args); // Always log errors
   },
   warn: (message: string, ...args: any[]) => {
+    console.warn(formatMessage("WARN", message), ...args); // Always log warnings
+  },
+  debug: (message: string, ...args: any[]) => {
     if (isDevelopment) {
-      console.warn(message, ...args);
+      console.debug(formatMessage("DEBUG", message), ...args);
     }
+  },
+  info: (message: string, ...args: any[]) => {
+    console.info(formatMessage("INFO", message), ...args); // Always log info
   },
 };

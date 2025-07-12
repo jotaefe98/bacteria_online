@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { DataJoinRoom, DataUpdateNickname, Room } from "../types/interfaces";
 import { MAX_NUM_PLAYERS, MIN_NUM_PLAYERS } from "../const/const";
-import { safeStringify } from "../utils/logger";
+import { safeStringify, logger } from "../utils/logger";
 
 export function registerRoomEvents(
   io: Server,
@@ -9,94 +9,170 @@ export function registerRoomEvents(
   rooms: Record<string, Room>
 ) {
   socket.on("join-room", (data: DataJoinRoom) => {
-    console.log("Data recieved in join-room: ", data);
-    const { roomId, playerId, nickname } = data;
+    try {
+      logger.log("🔌 join-room event received");
+      logger.log("📊 Data received in join-room: " + safeStringify(data));
 
-    socket.join(roomId);
+      const { roomId, playerId, nickname } = data;
 
-    console.log(rooms);
-    const existingPlayer = rooms[roomId].players.find(
-      (p) => p.playerId === playerId
-    );
-
-    if (existingPlayer) {
-      // Player is reconnecting - update their socket ID and potentially disconnect old connection
-      if (existingPlayer.socketId !== socket.id) {
-        console.log(
-          `Player ${playerId} reconnecting - updating socket ID from ${existingPlayer.socketId} to ${socket.id}`
-        );
-        io.to(existingPlayer.socketId).emit("force-disconnect");
-        existingPlayer.socketId = socket.id;
-
-        // Update nickname if provided
-        if (nickname) {
-          existingPlayer.nickname = nickname;
-        }
-
-        // If game has started, send current game state
-        const gameRoom = rooms[roomId] as any;
-        if (gameRoom.has_started && gameRoom.hands && gameRoom.boards) {
-          console.log(`Sending game state to reconnecting player ${playerId}`);
-          setTimeout(() => {
-            socket.emit("deck-shuffled", {
-              hands: gameRoom.hands,
-              boards: gameRoom.boards,
-              currentTurn: gameRoom.currentTurn,
-              currentPhase: gameRoom.currentPhase,
-              playerIdList: gameRoom.players.map((p: any) => p.playerId),
-              discardPile: gameRoom.discardPile,
-              playerNames: gameRoom.playerNames,
-            });
-          }, 500);
-        }
+      if (!roomId || !playerId || !nickname) {
+        logger.error("❌ Invalid join-room data - missing required fields");
+        socket.emit("error", "Invalid room data");
+        return;
       }
-    } else {
-      const isFirstPlayer = rooms[roomId].players.length === 0;
-      rooms[roomId].players.push({
-        playerId,
-        nickname,
-        socketId: socket.id,
-        isHost: isFirstPlayer,
-      });
+
+      logger.log(
+        `🏠 Player ${playerId} (${nickname}) attempting to join room ${roomId}`
+      );
+      socket.join(roomId);
+
+      if (!rooms[roomId]) {
+        logger.error(`❌ Room ${roomId} does not exist`);
+        socket.emit("error", "Room does not exist");
+        return;
+      }
+
+      logger.log(
+        "🔍 Current rooms state: " + safeStringify(Object.keys(rooms))
+      );
+      const existingPlayer = rooms[roomId].players.find(
+        (p) => p.playerId === playerId
+      );
+
+      if (existingPlayer) {
+        // Player is reconnecting - update their socket ID and potentially disconnect old connection
+        if (existingPlayer.socketId !== socket.id) {
+          logger.log(
+            `🔄 Player ${playerId} reconnecting - updating socket ID from ${existingPlayer.socketId} to ${socket.id}`
+          );
+          io.to(existingPlayer.socketId).emit("force-disconnect");
+          existingPlayer.socketId = socket.id;
+
+          // Update nickname if provided
+          if (nickname) {
+            existingPlayer.nickname = nickname;
+          }
+
+          // If game has started, send current game state
+          const gameRoom = rooms[roomId] as any;
+          if (gameRoom.has_started && gameRoom.hands && gameRoom.boards) {
+            console.log(
+              `Sending game state to reconnecting player ${playerId}`
+            );
+            setTimeout(() => {
+              socket.emit("deck-shuffled", {
+                hands: gameRoom.hands,
+                boards: gameRoom.boards,
+                currentTurn: gameRoom.currentTurn,
+                currentPhase: gameRoom.currentPhase,
+                playerIdList: gameRoom.players.map((p: any) => p.playerId),
+                discardPile: gameRoom.discardPile,
+                playerNames: gameRoom.playerNames,
+              });
+            }, 500);
+          }
+        }
+      } else {
+        const isFirstPlayer = rooms[roomId].players.length === 0;
+        rooms[roomId].players.push({
+          playerId,
+          nickname,
+          socketId: socket.id,
+          isHost: isFirstPlayer,
+        });
+      }
+
+      // If a user joins in a room, then it is not new anymore
+      if (rooms[roomId].new_room) rooms[roomId].new_room = false;
+
+      playersUpdate(roomId);
+
+      const roomSettings = {
+        min_players: MIN_NUM_PLAYERS,
+        max_players: MAX_NUM_PLAYERS,
+      };
+
+      socket.emit("room-settings", roomSettings);
+
+      console.log(`Player ${nickname} joined room ${roomId}`);
+      console.log("Current rooms:", rooms);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      const errorStack =
+        error instanceof Error ? error.stack : "No stack trace";
+      logger.error(`❌ Error in join-room event: ${errorMessage}`);
+      logger.error(`🔍 Error stack: ${errorStack}`);
+      socket.emit("error", "Internal server error");
     }
-
-    // If a user joins in a room, then it is not new anymore
-    if (rooms[roomId].new_room) rooms[roomId].new_room = false;
-
-    playersUpdate(roomId);
-
-    const roomSettings = {
-      min_players: MIN_NUM_PLAYERS,
-      max_players: MAX_NUM_PLAYERS,
-    };
-
-    socket.emit("room-settings", roomSettings);
-
-    console.log(`Player ${nickname} joined room ${roomId}`);
-    console.log("Current rooms:", rooms);
   });
 
   socket.on("update-nickname", (data: DataUpdateNickname) => {
-    const { roomId, nickname } = data;
+    try {
+      logger.log("🔄 update-nickname event received");
+      logger.log("📊 Data received: " + safeStringify(data));
 
-    // Find the player in the room
-    const player = rooms[roomId]?.players.find((p) => p.socketId === socket.id);
+      const { roomId, nickname } = data;
 
-    if (player) {
-      player.nickname = nickname;
-      console.log(`Player ${player.playerId} updated nickname to ${nickname}`);
-      playersUpdate(roomId);
-    } else {
-      console.error(`Player not found in room ${roomId}`);
+      if (!roomId || !nickname) {
+        logger.error(
+          "❌ Invalid update-nickname data - missing required fields"
+        );
+        socket.emit("error", "Invalid nickname data");
+        return;
+      }
+
+      // Find the player in the room
+      const player = rooms[roomId]?.players.find(
+        (p) => p.socketId === socket.id
+      );
+
+      if (player) {
+        player.nickname = nickname;
+        logger.log(
+          `✅ Player ${player.playerId} updated nickname to ${nickname}`
+        );
+        playersUpdate(roomId);
+      } else {
+        logger.error(
+          `❌ Player not found in room ${roomId} for socket ${socket.id}`
+        );
+        socket.emit("error", "Player not found");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error(`❌ Error in update-nickname event: ${errorMessage}`);
+      socket.emit("error", "Internal server error");
     }
   });
 
   socket.on("create-room", (roomId: string) => {
-    if (!rooms[roomId])
-      rooms[roomId] = { players: [], has_started: false, new_room: true };
-    console.log(`Room created with ID: ${roomId}`);
-    console.log("Current rooms:", rooms);
-    socket.emit("room-created", roomId);
+    try {
+      logger.log("🏠 create-room event received");
+      logger.log(`📊 Creating room with ID: ${roomId}`);
+
+      if (!roomId) {
+        logger.error("❌ Invalid create-room data - missing roomId");
+        socket.emit("error", "Invalid room ID");
+        return;
+      }
+
+      if (!rooms[roomId]) {
+        rooms[roomId] = { players: [], has_started: false, new_room: true };
+        logger.log(`✅ Room created with ID: ${roomId}`);
+      } else {
+        logger.log(`⚠️ Room ${roomId} already exists`);
+      }
+
+      logger.log("🔍 Current rooms: " + safeStringify(Object.keys(rooms)));
+      socket.emit("room-created", roomId);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error(`❌ Error in create-room event: ${errorMessage}`);
+      socket.emit("error", "Internal server error");
+    }
   });
 
   socket.on("existing-room", (roomId: string, playerId: string) => {
