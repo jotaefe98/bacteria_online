@@ -74,6 +74,7 @@ src/config/database.js
 diagnose-mongodb.js
 disable-mongodb.js
 test-connection.js
+debug-mongo.js
 
 # Extra documentation files
 MONGODB_SOLUTION.md

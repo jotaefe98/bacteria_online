@@ -2,10 +2,13 @@ import { MongoClient, Db, Collection } from "mongodb";
 import { GameAnalytics } from "../types/analytics";
 import { logger } from "../utils/logger";
 
-// MongoDB connection configuration - SIMPLE
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
+// MongoDB connection configuration - IMPROVED
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/bacteria_online";
 const DATABASE_NAME = "bacteria_online";
+
+// Detect if we're in production without MongoDB
+const isProduction = process.env.NODE_ENV === "production";
+const hasMongoUri = !!process.env.MONGODB_URI;
 
 // Flag to disable MongoDB completely if it keeps failing
 let mongoDisabled = false;
@@ -24,6 +27,16 @@ class DatabaseManager {
     ); // Hide credentials
     logger.log(`📊 Database Name: ${DATABASE_NAME}`);
     logger.log(`📁 Node Environment: ${process.env.NODE_ENV || "not set"}`);
+    logger.log(`🌐 Production Mode: ${isProduction}`);
+    logger.log(`🔑 MongoDB URI Provided: ${hasMongoUri}`);
+    
+    // Smart detection: if in production without MongoDB URI, disable immediately
+    if (isProduction && !hasMongoUri) {
+      logger.log("⚠️ Production environment detected without MongoDB URI");
+      logger.log("🚫 Disabling MongoDB to prevent connection failures");
+      mongoDisabled = true;
+      return;
+    }
 
     // Don't try to connect if MongoDB is disabled
     if (!mongoDisabled) {
