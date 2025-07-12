@@ -67,7 +67,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       }
 
       // Play game start sound for all players
-      playSound('game_start');
+      playSound("game_start");
 
       // Save game session information for persistence
       localStorage.setItem("currentRoomId", roomId!);
@@ -85,11 +85,6 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
       if (data.playerNames) {
         setPlayerNames(data.playerNames);
       }
-
-      // Play your turn sound when it's your turn
-      if (data.currentTurn === playerId) {
-        playSound('your_turn');
-      }
     });
     socket?.on("game-won", (data) => {
       // Use winnerId for comparison, but store the winner name for display
@@ -98,10 +93,10 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
 
       if (winnerId === playerId) {
         gameNotifications.gameWon();
-        playSound('victory');
+        playSound("victory");
       } else {
         gameNotifications.gameLost(playerNames[winnerId] || data.winner);
-        playSound('defeat');
+        playSound("defeat");
       }
 
       // Clear game session data when game ends
@@ -128,15 +123,17 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
 
     // Eventos de notificaciones específicas del juego
     socket?.on("organ-infected", (data) => {
+      console.log("🦠 Organ infected event received:", data);
       gameNotifications.organInfected(data.organColor, data.byPlayer);
       // Play bacteria sound when organ is infected but not destroyed
-      playSound('bacteria_applied');
+      playSound("bacteria_applied");
     });
 
     socket?.on("organ-destroyed", (data) => {
+      console.log("💀 Organ destroyed event received:", data);
       gameNotifications.organDestroyed(data.organColor, data.byPlayer);
       // Play organ death sound when organ is destroyed
-      playSound('organ_die');
+      playSound("organ_die");
     });
 
     socket?.on("vaccine-destroyed", (data) => {
@@ -148,15 +145,16 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     });
 
     socket?.on("organ-treated", (data) => {
+      console.log("💉 Organ treated event received:", data);
       // Solo notificar si el tratamiento fue beneficioso Y fue hecho por otro jugador
       if (data.treatmentType === "healthy") {
         gameNotifications.organCured(data.organColor);
         // Play medicine sound when organ is cured (not immunized)
-        playSound('medicine_applied');
+        playSound("medicine_applied");
       } else if (data.treatmentType === "immunized") {
         gameNotifications.organImmunized(data.organColor);
         // Play immunization sound when organ becomes immunized
-        playSound('organ_inmuniced');
+        playSound("organ_inmuniced");
       }
       // No notificamos vacunación, solo curación e inmunización
     });
@@ -167,6 +165,8 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         message: `${data.byPlayer} vaccinated your ${data.organColor} organ`,
         icon: "💉",
       });
+      // Play medicine sound when organ is vaccinated
+      playSound("medicine_applied");
     });
 
     socket?.on("treatment-used", (data) => {
@@ -176,8 +176,8 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
         message: `${data.byPlayer} used ${data.treatmentName}`,
         icon: "🧪",
       });
-      // Play treatment card sound when any treatment is used
-      playSound('treatment_card');
+      // Play treatment card sound when any treatment is used (75% volume)
+      playSound("treatment_card", 0.75);
     });
 
     socket?.on("organ-stolen", (data) => {
@@ -243,6 +243,7 @@ export function useGame({ roomId, isGameStarted, isHost }: UseGameSocketProps) {
     // Notificar cuando empieza tu turno
     if (isMyTurn && !wasMyTurn && currentPhase === "play_or_discard") {
       gameNotifications.yourTurn();
+      playSound("your_turn");
     }
 
     console.log("Game state update:", {

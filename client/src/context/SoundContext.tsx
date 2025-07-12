@@ -4,7 +4,7 @@ import { useGameSounds } from "../hooks/useGameSounds";
 import type { SoundType } from "../hooks/useGameSounds";
 
 interface SoundContextType {
-  playSound: (soundType: SoundType, force?: boolean) => Promise<void>;
+  playSound: (soundType: SoundType, volumeMultiplier?: number) => Promise<void>;
   soundsEnabled: boolean;
   setSoundsEnabled: (enabled: boolean) => void;
   toggleSounds: () => void;

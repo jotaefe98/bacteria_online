@@ -3,6 +3,7 @@
 ## ✅ **Implementado:**
 
 ### 10 Sonidos Específicos:
+
 - `game_start.mp3` - Inicio de partida
 - `your_turn.mp3` - Tu turno
 - `timer.mp3` - Timer 15 segundos
@@ -17,21 +18,25 @@
 ## 🎯 **Características:**
 
 ### ✅ Optimizado para iPhone:
+
 - `playsinline="true"` - No aparece reproductor de notificaciones
 - Elementos audio invisibles en DOM para iOS
 - Inicialización tras interacción del usuario
 
 ### ✅ Sonidos Cortos Optimizados:
+
 - Nuevo elemento Audio por cada reproducción
 - Sin pool complejo (perfecto para sonidos cortos)
 - Limpieza automática de memoria
 
 ### ✅ Control Granular:
+
 - Volumen específico por sonido
 - Volumen maestro del usuario
 - Sonidos forzados (victory/defeat siempre suenan)
 
 ### ✅ Configuración Persistente:
+
 - LocalStorage para preferencias
 - Activar/desactivar sonidos
 - Control de volumen 0-100%
@@ -39,23 +44,24 @@
 ## 🎮 **Uso en el Juego:**
 
 ```typescript
-import { useSounds } from '../context/SoundContext';
+import { useSounds } from "../context/SoundContext";
 
 const { playSound, initializeAudio } = useSounds();
 
 // Sonidos normales (respetan configuración del usuario)
-playSound('bacteria_applied');
-playSound('your_turn');
+playSound("bacteria_applied");
+playSound("your_turn");
 
 // Sonidos forzados (siempre suenan, incluso si está desactivado)
-playSound('victory', true);
-playSound('defeat', true);
+playSound("victory", true);
+playSound("defeat", true);
 
 // Inicializar (necesario para iOS)
 initializeAudio(); // Llamar tras primera interacción
 ```
 
 ## 📱 **Estado iPhone:**
+
 - ✅ **Sin reproductor de notificaciones**
 - ✅ **Sonidos instantáneos**
 - ✅ **Memoria optimizada**

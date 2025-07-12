@@ -549,7 +549,8 @@ export function registerGameEvents(
                     }
                   );
 
-                  io.to(contagion.targetPlayer).emit("organ-infected", {
+                  // Organ was infected - notify all players in room
+                  io.to(roomId).emit("organ-infected", {
                     organColor: contagion.organColor,
                     byPlayer: currentPlayerName,
                     cardType: contagion.bacteriaType,
@@ -658,8 +659,8 @@ export function registerGameEvents(
                     }
                   );
 
-                  // Organ was destroyed
-                  io.to(action.targetPlayerId).emit("organ-destroyed", {
+                  // Organ was destroyed - notify all players in room
+                  io.to(roomId).emit("organ-destroyed", {
                     organColor: action.targetOrganColor,
                     byPlayer: currentPlayerName,
                     cardType: card.color,
@@ -686,8 +687,8 @@ export function registerGameEvents(
                     }
                   );
 
-                  // Organ was infected
-                  io.to(action.targetPlayerId).emit("organ-infected", {
+                  // Organ was infected - notify all players in room
+                  io.to(roomId).emit("organ-infected", {
                     organColor: action.targetOrganColor,
                     byPlayer: currentPlayerName,
                     cardType: card.color,
@@ -717,16 +718,16 @@ export function registerGameEvents(
                     }
                   );
 
-                  // Medicine cured or immunized the organ
-                  io.to(action.targetPlayerId).emit("organ-treated", {
+                  // Medicine cured or immunized the organ - notify all players in room
+                  io.to(roomId).emit("organ-treated", {
                     organColor: action.targetOrganColor,
                     byPlayer: currentPlayerName,
                     cardType: card.color,
                     treatmentType: organStatus,
                   });
                 } else if (organStatus === "vaccinated") {
-                  // Medicine was applied as vaccine
-                  io.to(action.targetPlayerId).emit("organ-vaccinated", {
+                  // Medicine was applied as vaccine - notify all players in room
+                  io.to(roomId).emit("organ-vaccinated", {
                     organColor: action.targetOrganColor,
                     byPlayer: currentPlayerName,
                     cardType: card.color,

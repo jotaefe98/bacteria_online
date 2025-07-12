@@ -17,7 +17,7 @@ type GameProps = {
 export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   const navigate = useNavigate();
   const { socket } = useAppContext();
-  const { playSound } = useSounds();
+  const { playSound, toggleSounds, soundsEnabled } = useSounds();
   const {
     hand,
     boards,
@@ -48,7 +48,8 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
 
   // Timer state - now synced with server
   const [timeLeft, setTimeLeft] = useState<number>(90);
-  const [hasPlayedTimerSound, setHasPlayedTimerSound] = useState<boolean>(false);
+  const [hasPlayedTimerSound, setHasPlayedTimerSound] =
+    useState<boolean>(false);
 
   // Sync timer with server
   useEffect(() => {
@@ -75,12 +76,12 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
   // Play timer sound when countdown reaches 15 seconds and it's my turn
   useEffect(() => {
     const isMyTurn = currentTurn === playerId;
-    
+
     if (isMyTurn && timeLeft === 15 && !hasPlayedTimerSound) {
-      playSound('timer');
+      playSound("timer");
       setHasPlayedTimerSound(true);
     }
-    
+
     // Reset timer sound flag when turn changes or time is reset
     if (!isMyTurn || timeLeft > 15) {
       setHasPlayedTimerSound(false);
@@ -406,6 +407,14 @@ export function Game({ roomId, isGameStarted, isHost }: GameProps) {
                 disabled={!canPlay}
               />
             ))}
+            {/* Sound toggle button */}
+            <button
+              className="sound-toggle-game-button"
+              onClick={toggleSounds}
+              title={soundsEnabled ? "Disable sounds" : "Enable sounds"}
+            >
+              {soundsEnabled ? "🔊" : "🔇"}
+            </button>
           </div>
           <div className="cards-right">
             <button
