@@ -1,5 +1,35 @@
 {
+  "name": "bacteria-online",
+  "version": "1.0.0",
+  "description": "A real-time multiplayer strategy card game built with modern web technologies",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "lint": "cd client && npm run lint && cd ../server && npm run lint",
+    "type-check": "cd client && npm run type-check && cd ../server && npm run type-check"
+  },
+  "keywords": [
+    "multiplayer",
+    "game",
+    "card-game",
+    "real-time",
+    "websocket",
+    "react",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/bacteria-online.git"
+  },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "ts-node": "^10.9.2"
   }
 }
