@@ -2,15 +2,14 @@ import "./Lobby.css";
 import { useState } from "react";
 import { useCreateRoom } from "../../hooks/looby/useCreateRoom";
 import { useSounds } from "../../context/SoundContext";
+import toast from "react-hot-toast";
 
 function Lobby() {
   const [roomCode, setRoomCode] = useState("");
+  const [showEmail, setShowEmail] = useState(false);
   const { createRoom, existingRoom, isCreatingRoom, isJoiningRoom } =
     useCreateRoom();
-  const {  initializeAudio } =
-    useSounds();
-
-
+  const { initializeAudio } = useSounds();
 
   const handleCreateRoom = () => {
     initializeAudio(); // Inicializar audio en primera interacción
@@ -20,6 +19,45 @@ function Lobby() {
   const handleJoinRoom = () => {
     initializeAudio(); // Inicializar audio en primera interacción
     existingRoom(roomCode);
+  };
+
+  const handleContactClick = () => {
+    setShowEmail(true);
+  };
+
+  const handleEmailClick = async () => {
+    const email = "juanfranruiz98@gmail.com";
+
+    try {
+      // Intentar con la API moderna de clipboard
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(email);
+        toast.success("Email copied to clipboard!");
+        return;
+      }
+
+      // Fallback para navegadores más antiguos
+      const textArea = document.createElement("textarea");
+      textArea.value = email;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        toast.success("Email copied to clipboard!");
+      } else {
+        throw new Error("Copy command failed");
+      }
+    } catch (err) {
+      console.error("Failed to copy email:", err);
+      toast.error("Failed to copy email. Please copy manually: " + email);
+    }
   };
 
   return (
@@ -115,7 +153,17 @@ function Lobby() {
           </div>
         </div>
 
-
+        <div className="contact-link-container">
+          {!showEmail ? (
+            <span className="contact-link" onClick={handleContactClick}>
+              Contact me
+            </span>
+          ) : (
+            <span className="email-link" onClick={handleEmailClick}>
+              juanfranruiz98@gmail.com
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
