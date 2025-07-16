@@ -29,6 +29,7 @@ export default function InsertNickname({
 
     onNicknameSubmit(trimmed);
     setTempNickname("");
+    window.location.reload();
   };
 
   return (

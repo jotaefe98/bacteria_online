@@ -202,6 +202,48 @@ export function registerRoomEvents(
 
   socket.on("leave-room", ({ roomId }: { roomId: string }) => {
     console.log(`Player ${socket.id} is leaving room ${roomId}`);
+    handlePlayerLeave(roomId, socket.id);
+  });
+
+  // New event for handling browser close/tab close
+  socket.on(
+    "player-disconnect",
+    ({
+      roomId,
+      playerId,
+      reason,
+    }: {
+      roomId: string;
+      playerId: string;
+      reason: string;
+    }) => {
+      console.log(
+        `Player ${playerId} disconnected from room ${roomId}, reason: ${reason}`
+      );
+      handlePlayerLeave(roomId, socket.id);
+    }
+  );
+
+  // Handle socket disconnect (browser close, network issues, etc.)
+  socket.on("disconnect", (reason: string) => {
+    console.log(`Socket ${socket.id} disconnected, reason: ${reason}`);
+
+    // Find which room this socket belonged to and remove the player
+    Object.keys(rooms).forEach((roomId) => {
+      const room = rooms[roomId];
+      if (room && room.players.some((p) => p.socketId === socket.id)) {
+        console.log(
+          `Removing player ${socket.id} from room ${roomId} due to disconnect`
+        );
+        handlePlayerLeave(roomId, socket.id);
+      }
+    });
+  });
+
+  /**
+   * Handles player leaving a room - common logic for leave-room, player-disconnect, and disconnect events
+   */
+  function handlePlayerLeave(roomId: string, socketId: string) {
     if (!rooms[roomId]?.has_started && rooms[roomId]) {
       console.log("roomId", roomId);
       console.log("rooms", rooms);
@@ -209,11 +251,11 @@ export function registerRoomEvents(
 
       // Check if the player who left was the host
       const wasHost = rooms[roomId].players.find(
-        (p) => p.socketId === socket.id
+        (p) => p.socketId === socketId
       )?.isHost;
 
       rooms[roomId].players = rooms[roomId].players.filter(
-        (p) => p.socketId !== socket.id
+        (p) => p.socketId !== socketId
       );
 
       // If the player who left was the host, assign host to the first player in the array
@@ -235,9 +277,9 @@ export function registerRoomEvents(
       delete rooms[roomId];
     }
 
-    console.log("A user disconnected:", socket.id);
+    console.log("Player removed from room:", socketId);
     console.log("room", safeStringify(rooms, 2));
-  });
+  }
 
   /**
    * Emits an updated list of player nicknames to all clients in the specified room.

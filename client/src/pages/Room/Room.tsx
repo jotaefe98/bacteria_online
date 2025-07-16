@@ -1,6 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useRoomSocket } from "../../hooks/room/useRoomSocket";
+import { useBeforeUnload } from "../../hooks/useBeforeUnload";
+import { usePlayerId } from "../../hooks/usePlayerId";
+import { useAppContext } from "../../context/AppContext";
 import PlayerList from "../../components/PlayerList/PlayerList";
 import InsertNickname from "../../components/PlayerList/InsertNickname";
 import { Game } from "../../components/Game/Game";
@@ -13,6 +16,10 @@ function Room() {
   const { roomId } = useParams();
   const [tempNickname, setTempNickname] = useState<string>("");
   const [isReconnecting, setIsReconnecting] = useState(false);
+
+  // Get socket and playerId for beforeunload hook
+  const { socket } = useAppContext();
+  const playerId = usePlayerId();
 
   const {
     updateNickname,
@@ -28,6 +35,13 @@ function Room() {
     isGameStarted,
   } = useRoomSocket({
     roomId,
+  });
+
+  // Hook to detect browser close and disconnect user
+  useBeforeUnload({
+    socket,
+    roomId,
+    playerId,
   });
 
   useEffect(() => {
